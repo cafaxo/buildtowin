@@ -1,19 +1,22 @@
 package buildtowin;
 
+import cpw.mods.fml.client.FMLClientHandler;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemTool;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
 public class ItemBlueprinter extends Item {
-    
     public ItemBlueprinter(int id) {
         super(id);
         
@@ -22,26 +25,49 @@ public class ItemBlueprinter extends Item {
         setUnlocalizedName("Blueprinter");
     }
     
+    @Override
     public boolean onItemUse(ItemStack par1ItemStack, EntityPlayer par2EntityPlayer, World par3World, int par4, int par5, int par6, int par7, float par8, float par9, float par10) {
         int blockId = par3World.getBlockId(par4, par5, par6);
         
-        if (blockId != 243) {
-            par3World.setBlockAndMetadataWithNotify(par4, par5, par6, 243, 0, 3);
+        if (blockId == BuildToWin.getBuildingController().blockID) {
+            NBTTagCompound tagCompound = new NBTTagCompound();
+            tagCompound.setIntArray("buildingcontroller", new int[] { par4, par5, par6 });
+            par1ItemStack.setTagCompound(tagCompound);
             
-            TileEntityBlockData te = (TileEntityBlockData) par3World.getBlockTileEntity(par4, par5, par6);
-            
-            if (te != null) {
-                te.setBlockId(blockId);
+            if (par3World.isRemote) {
+                Minecraft mc = FMLClientHandler.instance().getClient();
+                mc.ingameGUI.getChatGUI().printChatMessage(
+                        "<BuildToWin> Connected " + par2EntityPlayer.getEntityName() + " to the Building Controller.");
             }
+        } else if (blockId != BuildToWin.getBlueprint().blockID) {
+            TileEntityBuildingController buildingController = BuildToWin.getBuildingController().getTileEntity(par3World, par1ItemStack.stackTagCompound);
             
-            return true;
+            if (buildingController != null) {
+                buildingController.addBlock(new BlockData(par4, par5, par6, blockId));
+                par3World.setBlock(par4, par5, par6, BuildToWin.getBlueprint().blockID);
+                TileEntityBlueprint te = (TileEntityBlueprint) par3World.getBlockTileEntity(par4, par5, par6);
+                
+                if (te != null) {
+                    te.setBlockId(blockId);
+                } else {
+                    throw new RuntimeException();
+                }
+                return true;
+            } else {
+                if (par3World.isRemote) {
+                    Minecraft mc = FMLClientHandler.instance().getClient();
+                    mc.ingameGUI.getChatGUI().printChatMessage(
+                            "<BuildToWin> Please connect with a Building Controller, " + par2EntityPlayer.username);
+                }
+            }
         }
         
         return false;
     }
     
+    @Override
     @SideOnly(Side.CLIENT)
-    public void func_94581_a(IconRegister par1IconRegister) {
-        this.iconIndex = par1IconRegister.func_94245_a("pickaxeIron");
+    public void updateIcons(IconRegister par1IconRegister) {
+        this.iconIndex = par1IconRegister.registerIcon("pickaxeIron");
     }
 }
