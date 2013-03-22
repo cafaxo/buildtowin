@@ -108,7 +108,7 @@ public class BlockBuildingController extends BlockContainer {
                     percent = 100 * te.getFinishedBlocks() / te.getBlockDataList().size();
                 }
                 
-                int daysleft = (int) (te.getDeadline() - (par1World.getTotalWorldTime() / 200));
+                int daysleft = (int) (te.getDeadline() - (par1World.getTotalWorldTime() / 24000));
                 mc.displayGuiScreen(new GuiBuildingInfo(daysleft, percent));
             }
         }

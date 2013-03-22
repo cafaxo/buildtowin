@@ -112,6 +112,18 @@ public class TileEntityBuildingController extends TileEntity {
     public ArrayList<BlockData> getBlockDataList() {
         return blockDataList;
     }
+    
+    public BlockData getBlockData(int x, int y, int z) {
+        for (int i = 0; i < this.blockDataList.size(); ++i) {
+            BlockData blockData = this.blockDataList.get(i);
+            
+            if (blockData.x == x && blockData.y == y && blockData.z == z) {
+                return blockData;
+            }
+        }
+        
+        return null;
+    }
 
     public NBTTagList getConnectedPlayers() {
         return connectedPlayers;

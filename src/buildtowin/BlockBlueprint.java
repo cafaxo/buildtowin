@@ -29,13 +29,13 @@ public class BlockBlueprint extends BlockContainer {
     
     @Override
     public void onBlockClicked(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer) {
-        TileEntityBlueprint tileEntity = (TileEntityBlueprint) par1World.getBlockTileEntity(par2, par3, par4);
+        TileEntityBuildingController buildingController = BuildToWin.getBuildingController().getTileEntity(par1World, par5EntityPlayer);
+        BlockData blockData = buildingController.getBlockData(par2, par3, par4);
         
-        if (tileEntity.getBlockId() != 0) {
-            if (par5EntityPlayer.inventory.hasItem(tileEntity.getBlockId())) {
-                par1World.setBlock(par2, par3, par4, tileEntity.getBlockId());
-                par5EntityPlayer.inventory.consumeInventoryItem(tileEntity.getBlockId());
-            }
+        if (par5EntityPlayer.inventory.hasItem(blockData.id)) { 
+            par1World.setBlock(par2, par3, par4, blockData.id);
+            buildingController.removeBlock(blockData);
+            par5EntityPlayer.inventory.consumeInventoryItem(blockData.id);
         }
     }
     

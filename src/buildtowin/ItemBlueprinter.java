@@ -29,7 +29,12 @@ public class ItemBlueprinter extends Item {
     public boolean onItemUse(ItemStack par1ItemStack, EntityPlayer par2EntityPlayer, World par3World, int par4, int par5, int par6, int par7, float par8, float par9, float par10) {
         int blockId = par3World.getBlockId(par4, par5, par6);
         
-        if (blockId != BuildToWin.getBuildingController().blockID && blockId != BuildToWin.getBlueprint().blockID) {
+        if (blockId == BuildToWin.getBlueprint().blockID) {
+            TileEntityBuildingController buildingController = BuildToWin.getBuildingController().getTileEntity(par3World, par2EntityPlayer);
+            BlockData blockData = buildingController.getBlockData(par4, par5, par6);
+            par3World.setBlock(par4, par5, par6, blockData.id);
+            buildingController.removeBlock(blockData);
+        } else if (blockId != BuildToWin.getBuildingController().blockID) {
             TileEntityBuildingController buildingController = BuildToWin.getBuildingController().getTileEntity(par3World, par2EntityPlayer);
             
             if (buildingController != null) {
