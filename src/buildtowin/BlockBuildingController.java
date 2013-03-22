@@ -1,9 +1,12 @@
 package buildtowin;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.util.Random;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
+import cpw.mods.fml.common.network.Player;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -14,7 +17,10 @@ import net.minecraft.client.gui.GuiGameOver;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagString;
+import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
@@ -40,20 +46,49 @@ public class BlockBuildingController extends BlockContainer {
         
         buildingController.updateBlocks(par1World);
         PacketDispatcher.sendPacketToAllPlayers(buildingController.getDescriptionPacket());
+        
+        if (buildingController.getDeadline() * 24000 <= par1World.getTotalWorldTime()) {
+            if (buildingController.getConnectedPlayers().tagCount() != 0) {
+                ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
+                DataOutputStream dataoutputstream = new DataOutputStream(bytearrayoutputstream);
+                
+                try {
+                    dataoutputstream.writeInt(buildingController.xCoord);
+                    dataoutputstream.writeInt(buildingController.yCoord);
+                    dataoutputstream.writeInt(buildingController.zCoord);
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
+                
+                Packet250CustomPayload losePacket = new Packet250CustomPayload("btwlose", bytearrayoutputstream.toByteArray());
+                
+                for (int i = 0; i < buildingController.getConnectedPlayers().tagCount(); ++i) {
+                    NBTTagString playerName = (NBTTagString) buildingController.getConnectedPlayers().tagAt(i);
+                    EntityPlayer player = par1World.getPlayerEntityByName(playerName.data);
+                    
+                    if (player != null && !player.capabilities.isCreativeMode) {
+                        PacketDispatcher.sendPacketToPlayer(losePacket, (Player) player);
+                    }
+                }
+            }
+        }
+        
         par1World.scheduleBlockUpdate(x, y, z, this.blockID, this.tickRate(par1World));
     }
     
     @Override
-    public void onBlockClicked(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer) {
-        if (par1World.getBlockTileEntity(par2, par3, par4) instanceof TileEntityBuildingController) {
-            par5EntityPlayer.getEntityData().setIntArray("buildingcontroller", new int[] { par2, par3, par4 });
-            
-            Minecraft mc = FMLClientHandler.instance().getClient();
-            
-            if (par1World.isRemote) {
-                mc.ingameGUI.getChatGUI().printChatMessage(
-                        "<BuildToWin> Connected " + par5EntityPlayer.getEntityName() + " to the Building Controller.");
-            }
+    public void onBlockClicked(World par1World, int x, int y, int z, EntityPlayer par5EntityPlayer) {
+        TileEntityBuildingController buildingController = (TileEntityBuildingController) par1World.getBlockTileEntity(x, y, z);
+        if (!buildingController.isPlayerConnected(par5EntityPlayer)) {
+            buildingController.getConnectedPlayers().appendTag(new NBTTagString("", par5EntityPlayer.username));
+            par5EntityPlayer.getEntityData().setIntArray("buildingcontroller", new int[] { x, y, z });
+        }
+        
+        Minecraft mc = FMLClientHandler.instance().getClient();
+        
+        if (par1World.isRemote) {
+            mc.ingameGUI.getChatGUI().printChatMessage(
+                    "<BuildToWin> Connected " + par5EntityPlayer.getEntityName() + " to the Building Controller.");
         }
     }
     
@@ -81,22 +116,37 @@ public class BlockBuildingController extends BlockContainer {
         return false;
     }
     
-    public TileEntityBuildingController getTileEntity(World world, NBTTagCompound stackTagCompound) {
-        if (stackTagCompound == null) {
-            return null;
-        }
+    public TileEntityBuildingController getTileEntity(World world, EntityPlayer entityPlayer) {     
+        // check if the player has cached the connection coordinates
+        int coords[] = entityPlayer.getEntityData().getIntArray("buildingcontroller");
         
-        int associatedBuildingControllerCoords[] = stackTagCompound.getIntArray("buildingcontroller");
-        
-        if (associatedBuildingControllerCoords != null && associatedBuildingControllerCoords.length == 3) {
+        if (coords != null && coords.length == 3) {
             TileEntityBuildingController buildingController = (TileEntityBuildingController) world.getBlockTileEntity(
-                    associatedBuildingControllerCoords[0],
-                    associatedBuildingControllerCoords[1],
-                    associatedBuildingControllerCoords[2]);
+                    coords[0], coords[1], coords[2]);
             
-            return buildingController;
+            if (buildingController != null) {
+                return buildingController;
+            }
         }
         
+        // player has not cached his connection coordinates; bruteforce and cache them
+        for (int i = 0; i < world.loadedTileEntityList.size(); ++i) {
+            TileEntity te = (TileEntity) world.loadedTileEntityList.get(i);
+            
+            if (te instanceof TileEntityBuildingController) {
+                TileEntityBuildingController buildingController = (TileEntityBuildingController) te;
+            
+                if (buildingController.isPlayerConnected(entityPlayer)) {
+                
+                    entityPlayer.getEntityData().setIntArray("buildingcontroller", new int[] {
+                            buildingController.xCoord, buildingController.yCoord, buildingController.zCoord});
+                    
+                    return buildingController;
+                }
+            }
+        }
+        
+        // player is not connected, or chunk with his building controller is not loaded
         return null;
     }
     

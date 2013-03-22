@@ -15,6 +15,10 @@ public class PacketHandler implements IPacketHandler {
     public void onPacketData(INetworkManager manager, Packet250CustomPayload packet, Player playerEntity) {
         if (packet.channel == "btwdeadlnupdt") {
             this.handleDeadlineUpdate(packet, playerEntity);
+        } else if (packet.channel == "btwwin") {
+            this.handleWinPacket(packet, playerEntity);
+        } else if (packet.channel == "btwlose") {
+            this.handleLosePacket(packet, playerEntity);
         }
     }
     
@@ -36,5 +40,13 @@ public class PacketHandler implements IPacketHandler {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    
+    public void handleWinPacket(Packet250CustomPayload packet, Player playerEntity) {
+        
+    }
+    
+    public void handleLosePacket(Packet250CustomPayload packet, Player playerEntity) {
+        
     }
 }

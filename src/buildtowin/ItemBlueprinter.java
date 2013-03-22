@@ -29,18 +29,8 @@ public class ItemBlueprinter extends Item {
     public boolean onItemUse(ItemStack par1ItemStack, EntityPlayer par2EntityPlayer, World par3World, int par4, int par5, int par6, int par7, float par8, float par9, float par10) {
         int blockId = par3World.getBlockId(par4, par5, par6);
         
-        if (blockId == BuildToWin.getBuildingController().blockID) {
-            NBTTagCompound tagCompound = new NBTTagCompound();
-            tagCompound.setIntArray("buildingcontroller", new int[] { par4, par5, par6 });
-            par1ItemStack.setTagCompound(tagCompound);
-            
-            if (par3World.isRemote) {
-                Minecraft mc = FMLClientHandler.instance().getClient();
-                mc.ingameGUI.getChatGUI().printChatMessage(
-                        "<BuildToWin> Connected " + par2EntityPlayer.getEntityName() + " to the Building Controller.");
-            }
-        } else if (blockId != BuildToWin.getBlueprint().blockID) {
-            TileEntityBuildingController buildingController = BuildToWin.getBuildingController().getTileEntity(par3World, par1ItemStack.stackTagCompound);
+        if (blockId != BuildToWin.getBuildingController().blockID && blockId != BuildToWin.getBlueprint().blockID) {
+            TileEntityBuildingController buildingController = BuildToWin.getBuildingController().getTileEntity(par3World, par2EntityPlayer);
             
             if (buildingController != null) {
                 buildingController.addBlock(new BlockData(par4, par5, par6, blockId));

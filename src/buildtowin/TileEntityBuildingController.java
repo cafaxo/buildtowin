@@ -4,7 +4,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagString;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.Packet132TileEntityData;
@@ -13,8 +16,10 @@ import net.minecraft.world.World;
 
 public class TileEntityBuildingController extends TileEntity {
     private ArrayList<BlockData> blockDataList = new ArrayList<BlockData>();
+        
+    private NBTTagList connectedPlayers = new NBTTagList();
     
-    private int deadline = 0;
+    private int deadline = -1;
     
     private int finishedBlocks = 0;
     
@@ -49,16 +54,17 @@ public class TileEntityBuildingController extends TileEntity {
     public void writeToNBT(NBTTagCompound par1NBTTagCompound) {
         super.writeToNBT(par1NBTTagCompound);
         
-        int encodedArray[] = new int[blockDataList.size() * 4];
+        int rawBlockDataList[] = new int[blockDataList.size() * 4];
         
         for (int i = 0; i < blockDataList.size(); ++i) {
-            encodedArray[i * 4] = blockDataList.get(i).x;
-            encodedArray[i * 4 + 1] = blockDataList.get(i).y;
-            encodedArray[i * 4 + 2] = blockDataList.get(i).z;
-            encodedArray[i * 4 + 3] = blockDataList.get(i).id;
+            rawBlockDataList[i * 4] = blockDataList.get(i).x;
+            rawBlockDataList[i * 4 + 1] = blockDataList.get(i).y;
+            rawBlockDataList[i * 4 + 2] = blockDataList.get(i).z;
+            rawBlockDataList[i * 4 + 3] = blockDataList.get(i).id;
         }
         
-        par1NBTTagCompound.setIntArray("blockdatalist", encodedArray);
+        par1NBTTagCompound.setIntArray("blockdatalist", rawBlockDataList);
+        par1NBTTagCompound.setTag("players", this.connectedPlayers);
         par1NBTTagCompound.setInteger("finishedblocks", this.finishedBlocks);
         par1NBTTagCompound.setInteger("deadline", this.deadline);
     }
@@ -68,18 +74,19 @@ public class TileEntityBuildingController extends TileEntity {
         super.readFromNBT(par1NBTTagCompound);
         
         this.blockDataList.clear();
-        int encodedArray[] = par1NBTTagCompound.getIntArray("blockdatalist");
+        int rawBlockDataList[] = par1NBTTagCompound.getIntArray("blockdatalist");
         
-        for (int i = 0; i < encodedArray.length / 4; ++i) {
+        for (int i = 0; i < rawBlockDataList.length / 4; ++i) {
             BlockData blockData = new BlockData(
-                    encodedArray[i * 4],
-                    encodedArray[i * 4 + 1],
-                    encodedArray[i * 4 + 2],
-                    encodedArray[i * 4 + 3]);
+                    rawBlockDataList[i * 4],
+                    rawBlockDataList[i * 4 + 1],
+                    rawBlockDataList[i * 4 + 2],
+                    rawBlockDataList[i * 4 + 3]);
             
             this.blockDataList.add(blockData);
         }
         
+        this.connectedPlayers = (NBTTagList) par1NBTTagCompound.getTag("players");
         this.finishedBlocks = par1NBTTagCompound.getInteger("finishedblocks");
         this.deadline = par1NBTTagCompound.getInteger("deadline");
     }
@@ -105,7 +112,11 @@ public class TileEntityBuildingController extends TileEntity {
     public ArrayList<BlockData> getBlockDataList() {
         return blockDataList;
     }
-    
+
+    public NBTTagList getConnectedPlayers() {
+        return connectedPlayers;
+    }
+
     public int getDeadline() {
         return deadline;
     }
@@ -120,5 +131,15 @@ public class TileEntityBuildingController extends TileEntity {
     
     public void removeBlock(BlockData blockData) {
         this.blockDataList.remove(blockData);
+    }
+
+    public boolean isPlayerConnected(EntityPlayer entityPlayer) {
+        for (int i = 0; i < this.connectedPlayers.tagCount(); ++i) {            
+            if (entityPlayer.username.equals(((NBTTagString) this.connectedPlayers.tagAt(i)).data)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 }
