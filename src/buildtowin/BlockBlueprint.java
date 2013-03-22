@@ -24,7 +24,7 @@ public class BlockBlueprint extends BlockContainer {
     protected BlockBlueprint(int id) {
         super(id, Material.glass);
         this.setBlockUnbreakable();
-        setResistance(6000000.0F);
+        this.setResistance(6000000.0F);
     }
     
     @Override
@@ -34,7 +34,6 @@ public class BlockBlueprint extends BlockContainer {
         
         if (par5EntityPlayer.inventory.hasItem(blockData.id)) { 
             par1World.setBlock(par2, par3, par4, blockData.id);
-            buildingController.removeBlock(blockData);
             par5EntityPlayer.inventory.consumeInventoryItem(blockData.id);
         }
     }

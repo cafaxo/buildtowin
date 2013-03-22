@@ -16,11 +16,11 @@ import net.minecraft.util.StatCollector;
 public class GuiBuildingSettings extends GuiScreen {
     private TileEntityBuildingController buildingController;
     
-    private int deadline = 0;
+    private int plannedTimespanInDays = 0;
     
     public GuiBuildingSettings(TileEntityBuildingController buildingController) {
         this.buildingController = buildingController;
-        this.deadline = buildingController.getDeadline();
+        this.plannedTimespanInDays = (int) (buildingController.getPlannedTimespan() / 24000);
     }
     
     @Override
@@ -38,9 +38,9 @@ public class GuiBuildingSettings extends GuiScreen {
             dataoutputstream.writeInt(this.buildingController.xCoord);
             dataoutputstream.writeInt(this.buildingController.yCoord);
             dataoutputstream.writeInt(this.buildingController.zCoord);
-            dataoutputstream.writeInt(this.deadline);
+            dataoutputstream.writeInt(this.plannedTimespanInDays);
             
-            this.mc.getNetHandler().addToSendQueue(new Packet250CustomPayload("btwdeadlnupdt", bytearrayoutputstream.toByteArray()));
+            this.mc.getNetHandler().addToSendQueue(new Packet250CustomPayload("btwtimsupdt", bytearrayoutputstream.toByteArray()));
         } catch (Exception exception) {
             exception.printStackTrace();
         }
@@ -49,11 +49,11 @@ public class GuiBuildingSettings extends GuiScreen {
     @Override
     protected void actionPerformed(GuiButton par1GuiButton) {
         if (par1GuiButton.id == 1) {
-            if (this.deadline > 0) {
-                --this.deadline;
+            if (this.plannedTimespanInDays > 0) {
+                --this.plannedTimespanInDays;
             }
         } else if (par1GuiButton.id == 2) {
-            ++this.deadline;
+            ++this.plannedTimespanInDays;
         }
     }
     
@@ -72,7 +72,7 @@ public class GuiBuildingSettings extends GuiScreen {
         
         this.fontRenderer.drawString("Days left:", (this.width - this.fontRenderer.getStringWidth("Days left:")) / 2, height / 2 - 27, 4210752);
         
-        this.fontRenderer.drawString(((Integer) this.deadline).toString(), (this.width - this.fontRenderer.getStringWidth(((Integer) this.deadline).toString())) / 2, height / 2 - 7, 4210752);
+        this.fontRenderer.drawString(((Integer) this.plannedTimespanInDays).toString(), (this.width - this.fontRenderer.getStringWidth(((Integer) this.plannedTimespanInDays).toString())) / 2, height / 2 - 7, 4210752);
         
         super.drawScreen(par1, par2, par3);
     }

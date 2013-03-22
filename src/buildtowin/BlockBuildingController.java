@@ -27,10 +27,11 @@ import net.minecraft.world.World;
 public class BlockBuildingController extends BlockContainer {
     protected BlockBuildingController(int id) {
         super(id, Material.rock);
-        setCreativeTab(CreativeTabs.tabMisc);
-        setBlockUnbreakable();
-        setResistance(6000000.0F);
-        setUnlocalizedName("Building Controller");
+        
+        this.setCreativeTab(CreativeTabs.tabMisc);
+        this.setBlockUnbreakable();
+        this.setResistance(6000000.0F);
+        this.setUnlocalizedName("Building Controller");
     }
     
     @Override
@@ -47,27 +48,57 @@ public class BlockBuildingController extends BlockContainer {
         buildingController.updateBlocks(par1World);
         PacketDispatcher.sendPacketToAllPlayers(buildingController.getDescriptionPacket());
         
-        if (buildingController.getDeadline() * 24000 <= par1World.getTotalWorldTime()) {
-            if (buildingController.getConnectedPlayers().tagCount() != 0) {
-                ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
-                DataOutputStream dataoutputstream = new DataOutputStream(bytearrayoutputstream);
+        if (buildingController.getDeadline() != 0) {
+            if (buildingController.getFinishedBlocks() == buildingController.getBlockDataList().size()) {
+                buildingController.setDeadline(0);
                 
-                try {
-                    dataoutputstream.writeInt(buildingController.xCoord);
-                    dataoutputstream.writeInt(buildingController.yCoord);
-                    dataoutputstream.writeInt(buildingController.zCoord);
-                } catch (Exception exception) {
-                    exception.printStackTrace();
-                }
-                
-                Packet250CustomPayload losePacket = new Packet250CustomPayload("btwlose", bytearrayoutputstream.toByteArray());
-                
-                for (int i = 0; i < buildingController.getConnectedPlayers().tagCount(); ++i) {
-                    NBTTagString playerName = (NBTTagString) buildingController.getConnectedPlayers().tagAt(i);
-                    EntityPlayer player = par1World.getPlayerEntityByName(playerName.data);
+                if (buildingController.getConnectedPlayers().tagCount() != 0) {
+                    ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
+                    DataOutputStream dataoutputstream = new DataOutputStream(bytearrayoutputstream);
                     
-                    if (player != null && !player.capabilities.isCreativeMode) {
-                        PacketDispatcher.sendPacketToPlayer(losePacket, (Player) player);
+                    try {
+                        dataoutputstream.writeInt(buildingController.xCoord);
+                        dataoutputstream.writeInt(buildingController.yCoord);
+                        dataoutputstream.writeInt(buildingController.zCoord);
+                    } catch (Exception exception) {
+                        exception.printStackTrace();
+                    }
+                    
+                    Packet250CustomPayload winPacket = new Packet250CustomPayload("btwwin", bytearrayoutputstream.toByteArray());
+                    
+                    for (int i = 0; i < buildingController.getConnectedPlayers().tagCount(); ++i) {
+                        NBTTagString playerName = (NBTTagString) buildingController.getConnectedPlayers().tagAt(i);
+                        EntityPlayer player = par1World.getPlayerEntityByName(playerName.data);
+                        
+                        if (player != null && !player.capabilities.isCreativeMode) {
+                            PacketDispatcher.sendPacketToPlayer(winPacket, (Player) player);
+                        }
+                    }
+                }
+            } else if (buildingController.getDeadline() <= par1World.getTotalWorldTime()) {
+                buildingController.setDeadline(0);
+                
+                if (buildingController.getConnectedPlayers().tagCount() != 0) {
+                    ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
+                    DataOutputStream dataoutputstream = new DataOutputStream(bytearrayoutputstream);
+                    
+                    try {
+                        dataoutputstream.writeInt(buildingController.xCoord);
+                        dataoutputstream.writeInt(buildingController.yCoord);
+                        dataoutputstream.writeInt(buildingController.zCoord);
+                    } catch (Exception exception) {
+                        exception.printStackTrace();
+                    }
+                    
+                    Packet250CustomPayload losePacket = new Packet250CustomPayload("btwlose", bytearrayoutputstream.toByteArray());
+                    
+                    for (int i = 0; i < buildingController.getConnectedPlayers().tagCount(); ++i) {
+                        NBTTagString playerName = (NBTTagString) buildingController.getConnectedPlayers().tagAt(i);
+                        EntityPlayer player = par1World.getPlayerEntityByName(playerName.data);
+                        
+                        if (player != null && !player.capabilities.isCreativeMode) {
+                            PacketDispatcher.sendPacketToPlayer(losePacket, (Player) player);
+                        }
                     }
                 }
             }
@@ -79,10 +110,8 @@ public class BlockBuildingController extends BlockContainer {
     @Override
     public void onBlockClicked(World par1World, int x, int y, int z, EntityPlayer par5EntityPlayer) {
         TileEntityBuildingController buildingController = (TileEntityBuildingController) par1World.getBlockTileEntity(x, y, z);
-        if (!buildingController.isPlayerConnected(par5EntityPlayer)) {
-            buildingController.getConnectedPlayers().appendTag(new NBTTagString("", par5EntityPlayer.username));
-            par5EntityPlayer.getEntityData().setIntArray("buildingcontroller", new int[] { x, y, z });
-        }
+
+        buildingController.connectPlayer(par5EntityPlayer);
         
         Minecraft mc = FMLClientHandler.instance().getClient();
         
@@ -97,18 +126,20 @@ public class BlockBuildingController extends BlockContainer {
     {
         if (par1World.isRemote) {
             Minecraft mc = FMLClientHandler.instance().getClient();
-            TileEntityBuildingController te = (TileEntityBuildingController) par1World.getBlockTileEntity(par2, par3, par4);
+            TileEntityBuildingController buildingController = (TileEntityBuildingController) par1World.getBlockTileEntity(par2, par3, par4);
             
             if (par5EntityPlayer.capabilities.isCreativeMode) {
-                mc.displayGuiScreen(new GuiBuildingSettings(te));
+                mc.displayGuiScreen(new GuiBuildingSettings(buildingController));
+            } else if (buildingController.getDeadline() == 0) {
+                mc.displayGuiScreen(new GuiBuildingStart(buildingController));
             } else {
                 int percent = 100;
                 
-                if (te.getBlockDataList().size() != 0) {
-                    percent = 100 * te.getFinishedBlocks() / te.getBlockDataList().size();
+                if (buildingController.getBlockDataList().size() != 0) {
+                    percent = 100 * buildingController.getFinishedBlocks() / buildingController.getBlockDataList().size();
                 }
                 
-                int daysleft = (int) (te.getDeadline() - (par1World.getTotalWorldTime() / 24000));
+                int daysleft = (int) ((buildingController.getDeadline() - par1World.getTotalWorldTime()) / 24000);
                 mc.displayGuiScreen(new GuiBuildingInfo(daysleft, percent));
             }
         }
