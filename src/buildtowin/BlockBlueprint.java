@@ -46,7 +46,7 @@ public class BlockBlueprint extends BlockContainer {
     
     @Override
     public int getRenderType() {
-        return BuildToWin.renderID;
+        return BuildToWin.blueprintRenderingId;
     }
     
     @Override
@@ -55,8 +55,8 @@ public class BlockBlueprint extends BlockContainer {
     }
     
     @Override
-    public int colorMultiplier(IBlockAccess par1IBlockAccess, int par2, int par3, int par4) {
-        return 15050;
+    public boolean shouldSideBeRendered(IBlockAccess par1IBlockAccess, int par2, int par3, int par4, int par5) {
+        return super.shouldSideBeRendered(par1IBlockAccess, par2, par3, par4, 1 - par5);
     }
     
     @Override
@@ -73,11 +73,6 @@ public class BlockBlueprint extends BlockContainer {
         } else {
             return Block.blocksList[1].getBlockTextureFromSide(0);
         }
-    }
-    
-    @Override
-    public Icon getBlockTextureFromSideAndMetadata(int par1, int par2) {
-        return null;
     }
     
     @Override

@@ -35,7 +35,7 @@ public class BuildToWin {
     public static CommonProxy proxy;
     
     public static Logger logger = Logger.getLogger("BuildToWin");
-    public static int renderID;
+    public static int blueprintRenderingId;
     
     @PreInit
     public void preInit(FMLPreInitializationEvent event) {
