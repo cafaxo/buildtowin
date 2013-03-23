@@ -46,7 +46,7 @@ public class ItemBlueprinter extends Item {
                 } else {
                     Minecraft mc = FMLClientHandler.instance().getClient();
                     mc.ingameGUI.getChatGUI().printChatMessage(
-                            "<BuildToWin> Disonnected from the Building Controller.");
+                            "<BuildToWin> Disconnected from the Building Controller.");
                 }
             } else {
                 if (!par3World.isRemote) {

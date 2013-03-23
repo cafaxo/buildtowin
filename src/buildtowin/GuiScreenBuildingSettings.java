@@ -9,7 +9,6 @@ import net.minecraft.network.packet.Packet250CustomPayload;
 
 import org.lwjgl.opengl.GL11;
 
-import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -83,7 +82,7 @@ public class GuiScreenBuildingSettings extends GuiScreen {
             dataoutputstream.writeInt(this.buildingController.zCoord);
             dataoutputstream.writeLong(this.plannedTimespan);
             
-            PacketDispatcher.sendPacketToServer(new Packet250CustomPayload("btwtimsupdt", bytearrayoutputstream.toByteArray()));
+            this.mc.getNetHandler().addToSendQueue(new Packet250CustomPayload("btwtimsupdt", bytearrayoutputstream.toByteArray()));
         } catch (Exception exception) {
             exception.printStackTrace();
         }
@@ -98,7 +97,7 @@ public class GuiScreenBuildingSettings extends GuiScreen {
             dataoutputstream.writeInt(this.buildingController.yCoord);
             dataoutputstream.writeInt(this.buildingController.zCoord);
             
-            PacketDispatcher.sendPacketToServer(new Packet250CustomPayload("btwstart", bytearrayoutputstream.toByteArray()));
+            this.mc.getNetHandler().addToSendQueue(new Packet250CustomPayload("btwstart", bytearrayoutputstream.toByteArray()));
         } catch (Exception exception) {
             exception.printStackTrace();
         }
@@ -113,7 +112,7 @@ public class GuiScreenBuildingSettings extends GuiScreen {
             dataoutputstream.writeInt(this.buildingController.yCoord);
             dataoutputstream.writeInt(this.buildingController.zCoord);
             
-            PacketDispatcher.sendPacketToServer(new Packet250CustomPayload("btwstop", bytearrayoutputstream.toByteArray()));
+            this.mc.getNetHandler().addToSendQueue(new Packet250CustomPayload("btwstop", bytearrayoutputstream.toByteArray()));
         } catch (Exception exception) {
             exception.printStackTrace();
         }

@@ -17,15 +17,15 @@ import cpw.mods.fml.common.network.Player;
 public class PacketHandler implements IPacketHandler {
     @Override
     public void onPacketData(INetworkManager manager, Packet250CustomPayload packet, Player playerEntity) {
-        if (packet.channel == "btwtimsupdt") {
+        if (packet.channel.equals("btwtimsupdt")) {
             this.handleTimespanPacket(packet, playerEntity);
-        } else if (packet.channel == "btwstart") {
+        } else if (packet.channel.equals("btwstart")) {
             this.handleStartPacket(packet, playerEntity);
-        } else if (packet.channel == "btwstop") {
+        } else if (packet.channel.equals("btwstop")) {
             this.handleStopPacket(packet, playerEntity);
-        } else if (packet.channel == "btwwin") {
+        } else if (packet.channel.equals("btwwin")) {
             this.handleWinPacket(packet, playerEntity);
-        } else if (packet.channel == "btwlose") {
+        } else if (packet.channel.equals("btwlose")) {
             this.handleLosePacket(packet, playerEntity);
         }
     }
