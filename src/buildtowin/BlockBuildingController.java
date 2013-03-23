@@ -28,7 +28,7 @@ public class BlockBuildingController extends BlockContainer {
     protected BlockBuildingController(int id) {
         super(id, Material.rock);
         
-        this.setCreativeTab(CreativeTabs.tabMisc);
+        this.setCreativeTab(CreativeTabs.tabBlock);
         this.setBlockUnbreakable();
         this.setResistance(6000000.0F);
         this.setUnlocalizedName("Building Controller");
@@ -45,7 +45,7 @@ public class BlockBuildingController extends BlockContainer {
     public void updateTick(World par1World, int x, int y, int z, Random par5Random) {
         TileEntityBuildingController buildingController = (TileEntityBuildingController) par1World.getBlockTileEntity(x, y, z);
         
-        buildingController.updateBlocks(par1World);
+        buildingController.updateBlocks();
         PacketDispatcher.sendPacketToAllPlayers(buildingController.getDescriptionPacket());
         
         if (buildingController.getDeadline() != 0) {
@@ -108,6 +108,7 @@ public class BlockBuildingController extends BlockContainer {
     }
     
     @Override
+    @SideOnly(Side.CLIENT)
     public boolean onBlockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
     {
         if (par1World.isRemote) {
@@ -120,20 +121,7 @@ public class BlockBuildingController extends BlockContainer {
             Minecraft mc = FMLClientHandler.instance().getClient();
             TileEntityBuildingController buildingController = (TileEntityBuildingController) par1World.getBlockTileEntity(par2, par3, par4);
             
-            if (par5EntityPlayer.capabilities.isCreativeMode) {
-                mc.displayGuiScreen(new GuiBuildingSettings(buildingController));
-            } else if (buildingController.getDeadline() == 0) {
-                mc.displayGuiScreen(new GuiBuildingStart(buildingController));
-            } else {
-                int percent = 100;
-                
-                if (buildingController.getBlockDataList().size() != 0) {
-                    percent = 100 * buildingController.getFinishedBlocks() / buildingController.getBlockDataList().size();
-                }
-                
-                int daysleft = (int) ((buildingController.getDeadline() - par1World.getTotalWorldTime()) / 24000);
-                mc.displayGuiScreen(new GuiBuildingInfo(daysleft, percent));
-            }
+            mc.displayGuiScreen(new GuiScreenBuildingSettings(buildingController, par5EntityPlayer.capabilities.isCreativeMode));
         }
         
         return false;
@@ -142,7 +130,7 @@ public class BlockBuildingController extends BlockContainer {
     @Override
     public void onBlockHarvested(World par1World, int par2, int par3, int par4, int par5, EntityPlayer par6EntityPlayer) {
         TileEntityBuildingController te = (TileEntityBuildingController) par1World.getBlockTileEntity(par2, par3, par4);
-        te.removeAllBlocks(par1World);
+        te.removeAllBlocks();
     }
     
     public TileEntityBuildingController getTileEntity(EntityPlayer entityPlayer) {
@@ -169,6 +157,6 @@ public class BlockBuildingController extends BlockContainer {
     @Override
     @SideOnly(Side.CLIENT)
     public void registerIcons(IconRegister par1IconRegister) {
-        this.blockIcon = par1IconRegister.registerIcon("obsidian");
+        this.blockIcon = par1IconRegister.registerIcon("buildtowin:buildingcontroller");
     }
 }

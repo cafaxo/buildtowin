@@ -53,13 +53,17 @@ public class PacketHandler implements IPacketHandler {
             int x = inputStream.readInt();
             int y = inputStream.readInt();
             int z = inputStream.readInt();
-            int plannedTimespanInDays = inputStream.readInt();
+            long plannedTimespan = inputStream.readLong();
             
             EntityPlayer player = (EntityPlayer) playerEntity;
             TileEntityBuildingController buildingController = (TileEntityBuildingController) player.worldObj.getBlockTileEntity(x, y, z);
             
             if (buildingController != null) {
-                buildingController.setPlannedTimespan(plannedTimespanInDays * 24000);
+                if (buildingController.getDeadline() != 0) {
+                    buildingController.setDeadline(buildingController.worldObj.getTotalWorldTime() + plannedTimespan);
+                }
+                
+                buildingController.setPlannedTimespan(plannedTimespan);
             }
         } catch (IOException e) {
             e.printStackTrace();

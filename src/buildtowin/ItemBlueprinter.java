@@ -38,12 +38,12 @@ public class ItemBlueprinter extends Item {
             }
         } else if (blockId == BuildToWin.getBuildingController().blockID) {
             TileEntityBuildingController buildingController = (TileEntityBuildingController) par3World.getBlockTileEntity(par4, par5, par6);
-            Minecraft mc = FMLClientHandler.instance().getClient();
             
             if (buildingController.isPlayerConnected(par2EntityPlayer)) {
                 if (!par3World.isRemote) {
                     buildingController.disconnectPlayer(par2EntityPlayer);
                 } else {
+                    Minecraft mc = FMLClientHandler.instance().getClient();
                     mc.ingameGUI.getChatGUI().printChatMessage(
                             "<BuildToWin> Disonnected " + par2EntityPlayer.getEntityName() + " from the Building Controller.");
                 }
@@ -51,6 +51,7 @@ public class ItemBlueprinter extends Item {
                 if (!par3World.isRemote) {
                     buildingController.connectPlayer(par2EntityPlayer);
                 } else {
+                    Minecraft mc = FMLClientHandler.instance().getClient();
                     mc.ingameGUI.getChatGUI().printChatMessage(
                             "<BuildToWin> Connected " + par2EntityPlayer.getEntityName() + " to the Building Controller.");
                 }
@@ -84,6 +85,6 @@ public class ItemBlueprinter extends Item {
     @Override
     @SideOnly(Side.CLIENT)
     public void updateIcons(IconRegister par1IconRegister) {
-        this.iconIndex = par1IconRegister.registerIcon("pickaxeIron");
+        this.iconIndex = par1IconRegister.registerIcon("buildtowin:blueprinter");
     }
 }

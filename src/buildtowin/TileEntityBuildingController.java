@@ -94,22 +94,22 @@ public class TileEntityBuildingController extends TileEntity {
         this.readFromNBT(tag);
     }
     
-    public void updateBlocks(World world) {
+    public void updateBlocks() {
         Iterator<BlockData> iter = this.blockDataList.iterator();
         this.finishedBlocks = 0;
         
         while (iter.hasNext()) {
             BlockData blockData = iter.next();
-            int realBlockId = world.getBlockId(blockData.x, blockData.y, blockData.z);
+            int realBlockId = this.worldObj.getBlockId(blockData.x, blockData.y, blockData.z);
             
             if (realBlockId == blockData.id) {
                 ++this.finishedBlocks;
             }
             
             if (realBlockId != BuildToWin.getBlueprint().blockID && realBlockId != blockData.id) {
-                world.setBlock(blockData.x, blockData.y, blockData.z, BuildToWin.getBlueprint().blockID);
+                this.worldObj.setBlock(blockData.x, blockData.y, blockData.z, BuildToWin.getBlueprint().blockID);
                 
-                TileEntityBlueprint te = (TileEntityBlueprint) world.getBlockTileEntity(blockData.x, blockData.y, blockData.z);
+                TileEntityBlueprint te = (TileEntityBlueprint) this.worldObj.getBlockTileEntity(blockData.x, blockData.y, blockData.z);
                 
                 if (te != null) {
                     te.setBlockId(blockData.id);
@@ -168,13 +168,13 @@ public class TileEntityBuildingController extends TileEntity {
         }
     }
     
-    public void removeAllBlocks(World world) {
+    public void removeAllBlocks() {
         Iterator<BlockData> iter = this.blockDataList.iterator();
         this.finishedBlocks = 0;
         
         while (iter.hasNext()) {
             BlockData blockData = iter.next();
-            world.setBlock(blockData.x, blockData.y, blockData.z, blockData.id);
+            this.worldObj.setBlock(blockData.x, blockData.y, blockData.z, blockData.id);
             iter.remove();
         }
     }
