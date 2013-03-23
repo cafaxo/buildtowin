@@ -2,10 +2,6 @@ package buildtowin;
 
 import java.util.logging.Logger;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockContainer;
-import net.minecraft.block.material.Material;
-import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntity;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Init;
@@ -17,11 +13,8 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
-import cpw.mods.fml.common.network.NetworkMod.SidedPacketHandler;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
-import cpw.mods.fml.common.registry.TickRegistry;
-import cpw.mods.fml.relauncher.Side;
 
 @Mod(modid = "BuildToWin", name = "Build To Win!", version = "0.1.0")
 @NetworkMod(clientSideRequired = true, serverSideRequired = false, channels = { "btwtimsupdt", "btwstart", "btwwin", "btwlose" }, packetHandler = PacketHandler.class)

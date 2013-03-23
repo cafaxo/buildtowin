@@ -3,17 +3,15 @@ package buildtowin;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.network.packet.Packet250CustomPayload;
+
 import org.lwjgl.opengl.GL11;
 
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiSmallButton;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.Packet250CustomPayload;
-import net.minecraft.util.StatCollector;
 
 @SideOnly(Side.CLIENT)
 public class GuiScreenBuildingSettings extends GuiScreen {

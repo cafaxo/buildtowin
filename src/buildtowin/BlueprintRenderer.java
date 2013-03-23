@@ -1,10 +1,8 @@
 package buildtowin;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockGrass;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.util.Icon;
 import net.minecraft.world.IBlockAccess;
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 

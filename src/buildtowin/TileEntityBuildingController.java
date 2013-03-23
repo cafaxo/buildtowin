@@ -1,11 +1,8 @@
 package buildtowin;
 
-import java.util.Iterator;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.Iterator;
 
-import cpw.mods.fml.client.FMLClientHandler;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;

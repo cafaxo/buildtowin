@@ -11,8 +11,6 @@ public class ClientTickHandler implements ITickHandler {
     
     @Override
     public void tickStart(EnumSet<TickType> type, Object... tickData) {
-        // TODO Auto-generated method stub
-        
     }
     
     @Override
