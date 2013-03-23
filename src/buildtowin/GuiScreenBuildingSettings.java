@@ -37,47 +37,20 @@ public class GuiScreenBuildingSettings extends GuiScreen {
     public void initGui() {
         GuiButton decreaseTimespan = new GuiButton(1, this.width / 2 - 36, this.height / 2 - 27, 20, 20, "-");
         decreaseTimespan.enabled = this.isPlayerCreative;
+        this.buttonList.add(decreaseTimespan);
         
         GuiButton increaseTimespan = new GuiButton(2, this.width / 2 + 15, this.height / 2 - 27, 20, 20, "+");
         increaseTimespan.enabled = this.isPlayerCreative;
-        
-        GuiButton start = new GuiButton(3, this.width / 2 - 45, this.height / 2 + 5, 90, 20, "Start");
-        start.enabled = this.isPlayerCreative;
-        
-        this.buttonList.add(decreaseTimespan);
         this.buttonList.add(increaseTimespan);
-        this.buttonList.add(start);
-    }
-    
-    private void sendTimespanPacket() {
-        ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
-        DataOutputStream dataoutputstream = new DataOutputStream(bytearrayoutputstream);
         
-        try {
-            dataoutputstream.writeInt(this.buildingController.xCoord);
-            dataoutputstream.writeInt(this.buildingController.yCoord);
-            dataoutputstream.writeInt(this.buildingController.zCoord);
-            dataoutputstream.writeLong(this.plannedTimespan);
-            
-            this.mc.getNetHandler().addToSendQueue(new Packet250CustomPayload("btwtimsupdt", bytearrayoutputstream.toByteArray()));
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-    }
-    
-    private void sendStartPacket() {
-        ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
-        DataOutputStream dataoutputstream = new DataOutputStream(bytearrayoutputstream);
-        
-        try {
-            dataoutputstream.writeInt(this.buildingController.xCoord);
-            dataoutputstream.writeInt(this.buildingController.yCoord);
-            dataoutputstream.writeInt(this.buildingController.zCoord);
-            
-            this.mc.getNetHandler().addToSendQueue(new Packet250CustomPayload("btwstart", bytearrayoutputstream.toByteArray()));
-            PacketDispatcher.sendPacketToServer(new Packet250CustomPayload("btwstart", bytearrayoutputstream.toByteArray()));
-        } catch (Exception exception) {
-            exception.printStackTrace();
+        if (this.buildingController.getDeadline() == 0) {
+            GuiButton start = new GuiButton(3, this.width / 2 - 45, this.height / 2 + 5, 90, 20, "Start");
+            start.enabled = this.isPlayerCreative;
+            this.buttonList.add(start);
+        } else {
+            GuiButton stop = new GuiButton(4, this.width / 2 - 45, this.height / 2 + 5, 90, 20, "Stop");
+            stop.enabled = this.isPlayerCreative;
+            this.buttonList.add(stop);
         }
     }
     
@@ -94,6 +67,55 @@ public class GuiScreenBuildingSettings extends GuiScreen {
         } else if (par1GuiButton.id == 3) {
             this.sendStartPacket();
             this.mc.displayGuiScreen((GuiScreen) null);
+        } else if (par1GuiButton.id == 4) {
+            this.sendStopPacket();
+            this.mc.displayGuiScreen((GuiScreen) null);
+        }
+    }
+    
+    private void sendTimespanPacket() {
+        ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
+        DataOutputStream dataoutputstream = new DataOutputStream(bytearrayoutputstream);
+        
+        try {
+            dataoutputstream.writeInt(this.buildingController.xCoord);
+            dataoutputstream.writeInt(this.buildingController.yCoord);
+            dataoutputstream.writeInt(this.buildingController.zCoord);
+            dataoutputstream.writeLong(this.plannedTimespan);
+            
+            PacketDispatcher.sendPacketToServer(new Packet250CustomPayload("btwtimsupdt", bytearrayoutputstream.toByteArray()));
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
+    
+    private void sendStartPacket() {
+        ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
+        DataOutputStream dataoutputstream = new DataOutputStream(bytearrayoutputstream);
+        
+        try {
+            dataoutputstream.writeInt(this.buildingController.xCoord);
+            dataoutputstream.writeInt(this.buildingController.yCoord);
+            dataoutputstream.writeInt(this.buildingController.zCoord);
+            
+            PacketDispatcher.sendPacketToServer(new Packet250CustomPayload("btwstart", bytearrayoutputstream.toByteArray()));
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
+    
+    private void sendStopPacket() {
+        ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
+        DataOutputStream dataoutputstream = new DataOutputStream(bytearrayoutputstream);
+        
+        try {
+            dataoutputstream.writeInt(this.buildingController.xCoord);
+            dataoutputstream.writeInt(this.buildingController.yCoord);
+            dataoutputstream.writeInt(this.buildingController.zCoord);
+            
+            PacketDispatcher.sendPacketToServer(new Packet250CustomPayload("btwstop", bytearrayoutputstream.toByteArray()));
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
     

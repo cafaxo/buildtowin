@@ -34,13 +34,19 @@ public class ItemBlueprinter extends Item {
         } else if (blockId == BuildToWin.getBuildingController().blockID) {
             TileEntityBuildingController buildingController = (TileEntityBuildingController) par3World.getBlockTileEntity(par4, par5, par6);
             
-            if (buildingController.isPlayerConnected(par2EntityPlayer)) {
+            if (buildingController.getDeadline() != 0) {
+                if (par3World.isRemote) {
+                    Minecraft mc = FMLClientHandler.instance().getClient();
+                    mc.ingameGUI.getChatGUI().printChatMessage(
+                            "<BuildToWin> Could not disconnect, because the game is running.");
+                }
+            } else if (buildingController.isPlayerConnected(par2EntityPlayer)) {
                 if (!par3World.isRemote) {
                     buildingController.disconnectPlayer(par2EntityPlayer);
                 } else {
                     Minecraft mc = FMLClientHandler.instance().getClient();
                     mc.ingameGUI.getChatGUI().printChatMessage(
-                            "<BuildToWin> Disonnected " + par2EntityPlayer.getEntityName() + " from the Building Controller.");
+                            "<BuildToWin> Disonnected from the Building Controller.");
                 }
             } else {
                 if (!par3World.isRemote) {
@@ -48,28 +54,36 @@ public class ItemBlueprinter extends Item {
                 } else {
                     Minecraft mc = FMLClientHandler.instance().getClient();
                     mc.ingameGUI.getChatGUI().printChatMessage(
-                            "<BuildToWin> Connected " + par2EntityPlayer.getEntityName() + " to the Building Controller.");
+                            "<BuildToWin> Connected to the Building Controller.");
                 }
             }
         } else {
             TileEntityBuildingController buildingController = BuildToWin.getBuildingController().getTileEntity(par2EntityPlayer);
             
             if (buildingController != null) {
-                buildingController.addBlock(new BlockData(par4, par5, par6, blockId));
-                par3World.setBlock(par4, par5, par6, BuildToWin.getBlueprint().blockID);
-                TileEntityBlueprint te = (TileEntityBlueprint) par3World.getBlockTileEntity(par4, par5, par6);
-                
-                if (te != null) {
-                    te.setBlockId(blockId);
+                if (buildingController.getDeadline() != 0) {
+                    if (par3World.isRemote) {
+                        Minecraft mc = FMLClientHandler.instance().getClient();
+                        mc.ingameGUI.getChatGUI().printChatMessage(
+                                "<BuildToWin> Could not create the blueprint, because the game is running.");
+                    }
                 } else {
-                    throw new RuntimeException();
+                    buildingController.addBlock(new BlockData(par4, par5, par6, blockId));
+                    par3World.setBlock(par4, par5, par6, BuildToWin.getBlueprint().blockID);
+                    TileEntityBlueprint te = (TileEntityBlueprint) par3World.getBlockTileEntity(par4, par5, par6);
+                    
+                    if (te != null) {
+                        te.setBlockId(blockId);
+                    } else {
+                        throw new RuntimeException();
+                    }
+                    return true;
                 }
-                return true;
             } else {
                 if (par3World.isRemote) {
                     Minecraft mc = FMLClientHandler.instance().getClient();
                     mc.ingameGUI.getChatGUI().printChatMessage(
-                            "<BuildToWin> Please connect to a Building Controller, " + par2EntityPlayer.username);
+                            "<BuildToWin> Please connect to a Building Controller.");
                 }
             }
         }

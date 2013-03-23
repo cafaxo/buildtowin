@@ -165,6 +165,23 @@ public class TileEntityBuildingController extends TileEntity {
         }
     }
     
+    public void resetAllBlocks() {
+        Iterator<BlockData> iter = this.blockDataList.iterator();
+        this.finishedBlocks = 0;
+        
+        while (iter.hasNext()) {
+            BlockData blockData = iter.next();
+            
+            this.worldObj.setBlock(blockData.x, blockData.y, blockData.z, BuildToWin.getBlueprint().blockID);
+            
+            TileEntityBlueprint te = (TileEntityBlueprint) this.worldObj.getBlockTileEntity(blockData.x, blockData.y, blockData.z);
+            
+            if (te != null) {
+                te.setBlockId(blockData.id);
+            }
+        }
+    }
+    
     public void removeAllBlocks() {
         Iterator<BlockData> iter = this.blockDataList.iterator();
         this.finishedBlocks = 0;

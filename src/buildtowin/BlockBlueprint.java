@@ -24,10 +24,18 @@ public class BlockBlueprint extends BlockContainer {
     @Override
     public void onBlockClicked(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer) {
         TileEntityBuildingController buildingController = BuildToWin.getBuildingController().getTileEntity(par5EntityPlayer);
+        
         BlockData blockData = buildingController.getBlockData(par2, par3, par4);
         
         if (blockData != null) {
-            if (par5EntityPlayer.inventory.hasItem(blockData.id)) {
+            if (buildingController.getDeadline() == 0) {
+                if (par1World.isRemote) {
+                    Minecraft mc = FMLClientHandler.instance().getClient();
+                    
+                    mc.ingameGUI.getChatGUI().printChatMessage(
+                            "<BuildToWin> The game has not started yet, " + par5EntityPlayer.getEntityName() + ".");
+                }
+            } else if (par5EntityPlayer.inventory.hasItem(blockData.id)) {
                 par1World.setBlock(par2, par3, par4, blockData.id);
                 par5EntityPlayer.inventory.consumeInventoryItem(blockData.id);
             }

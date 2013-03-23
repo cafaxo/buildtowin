@@ -8,8 +8,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet250CustomPayload;
+import net.minecraft.network.packet.Packet3Chat;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.network.IPacketHandler;
+import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 
 public class PacketHandler implements IPacketHandler {
@@ -19,6 +21,8 @@ public class PacketHandler implements IPacketHandler {
             this.handleTimespanPacket(packet, playerEntity);
         } else if (packet.channel == "btwstart") {
             this.handleStartPacket(packet, playerEntity);
+        } else if (packet.channel == "btwstop") {
+            this.handleStopPacket(packet, playerEntity);
         } else if (packet.channel == "btwwin") {
             this.handleWinPacket(packet, playerEntity);
         } else if (packet.channel == "btwlose") {
@@ -38,12 +42,40 @@ public class PacketHandler implements IPacketHandler {
             TileEntityBuildingController buildingController = (TileEntityBuildingController) player.worldObj.getBlockTileEntity(x, y, z);
             
             if (buildingController != null) {
-                buildingController.connectPlayer(player);
-                buildingController.setDeadline(player.worldObj.getTotalWorldTime() + buildingController.getPlannedTimespan());
+                if (buildingController.getConnectedPlayers().tagCount() == 0) {
+                    PacketDispatcher.sendPacketToAllPlayers(new Packet3Chat("<BuildToWin> Could not start the game, because no players are connected."));
+                } else if (buildingController.getBlockDataList().size() == 0) {
+                    PacketDispatcher.sendPacketToAllPlayers(new Packet3Chat("<BuildToWin> Could not start the game, because no blueprints exist."));
+                } else {
+                    buildingController.resetAllBlocks();
+                    buildingController.setDeadline(player.worldObj.getTotalWorldTime() + buildingController.getPlannedTimespan());
+                    PacketDispatcher.sendPacketToAllPlayers(new Packet3Chat("<BuildToWin> The game has started."));
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    
+    private void handleStopPacket(Packet250CustomPayload packet, Player playerEntity) {
+        DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(packet.data));
+        
+        try {
+            int x = inputStream.readInt();
+            int y = inputStream.readInt();
+            int z = inputStream.readInt();
+            
+            EntityPlayer player = (EntityPlayer) playerEntity;
+            TileEntityBuildingController buildingController = (TileEntityBuildingController) player.worldObj.getBlockTileEntity(x, y, z);
+            
+            if (buildingController != null) {
+                buildingController.setDeadline(0);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        PacketDispatcher.sendPacketToAllPlayers(new Packet3Chat("<BuildToWin> The game has been stopped."));
     }
     
     public void handleTimespanPacket(Packet250CustomPayload packet, Player playerEntity) {
@@ -85,7 +117,6 @@ public class PacketHandler implements IPacketHandler {
                 buildingController.setDeadline(0);
                 
                 Minecraft mc = FMLClientHandler.instance().getClient();
-                
                 mc.ingameGUI.getChatGUI().printChatMessage("<BuildToWin> You have won, " + ((EntityPlayer) playerEntity).username + "!");
             }
         } catch (IOException e) {
@@ -108,7 +139,6 @@ public class PacketHandler implements IPacketHandler {
                 buildingController.setDeadline(0);
                 
                 Minecraft mc = FMLClientHandler.instance().getClient();
-                
                 mc.ingameGUI.getChatGUI().printChatMessage("<BuildToWin> You have lost, " + ((EntityPlayer) playerEntity).username + "!");
             }
         } catch (IOException e) {
