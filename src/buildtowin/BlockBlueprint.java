@@ -29,12 +29,19 @@ public class BlockBlueprint extends BlockContainer {
     
     @Override
     public void onBlockClicked(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer) {
-        TileEntityBuildingController buildingController = BuildToWin.getBuildingController().getTileEntity(par1World, par5EntityPlayer);
+        TileEntityBuildingController buildingController = BuildToWin.getBuildingController().getTileEntity(par5EntityPlayer);
         BlockData blockData = buildingController.getBlockData(par2, par3, par4);
         
-        if (par5EntityPlayer.inventory.hasItem(blockData.id)) { 
-            par1World.setBlock(par2, par3, par4, blockData.id);
-            par5EntityPlayer.inventory.consumeInventoryItem(blockData.id);
+        if (blockData != null) {
+            if (par5EntityPlayer.inventory.hasItem(blockData.id)) {
+                par1World.setBlock(par2, par3, par4, blockData.id);
+                par5EntityPlayer.inventory.consumeInventoryItem(blockData.id);
+            }
+        } else if (par1World.isRemote) {
+            Minecraft mc = FMLClientHandler.instance().getClient();
+            
+            mc.ingameGUI.getChatGUI().printChatMessage(
+                    "<BuildToWin> This blueprint does not belong to your Building Controller, " + par5EntityPlayer.getEntityName() + ".");
         }
     }
     

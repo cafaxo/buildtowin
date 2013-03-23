@@ -20,7 +20,7 @@ public class TileEntityBuildingController extends TileEntity {
     private NBTTagList connectedPlayers = new NBTTagList();
     
     private ArrayList<BlockData> blockDataList = new ArrayList<BlockData>();
-
+    
     private long plannedTimespan = 0;
     
     private long deadline = 0;
@@ -120,8 +120,21 @@ public class TileEntityBuildingController extends TileEntity {
     
     public void connectPlayer(EntityPlayer entityPlayer) {
         if (!isPlayerConnected(entityPlayer)) {
+            TileEntityBuildingController buildingController = BuildToWin.getBuildingController().getTileEntity(entityPlayer);
+            
+            if (buildingController != null) {
+                buildingController.disconnectPlayer(entityPlayer);
+            }
+            
             this.connectedPlayers.appendTag(new NBTTagString("", entityPlayer.username));
-            entityPlayer.getEntityData().setIntArray("buildingcontroller", new int[] { this.xCoord, this.yCoord, this.zCoord });
+        }
+    }
+    
+    public void disconnectPlayer(EntityPlayer entityPlayer) {
+        int playerId = getPlayerId(entityPlayer);
+        
+        if (playerId != -1) {
+            this.connectedPlayers.removeTag(playerId);
         }
     }
     
@@ -137,15 +150,23 @@ public class TileEntityBuildingController extends TileEntity {
         return null;
     }
     
-    public boolean isPlayerConnected(EntityPlayer entityPlayer) {
-        for (int i = 0; i < this.connectedPlayers.tagCount(); ++i) {            
+    public int getPlayerId(EntityPlayer entityPlayer) {
+        for (int i = 0; i < this.connectedPlayers.tagCount(); ++i) {
             if (entityPlayer.username.equals(((NBTTagString) this.connectedPlayers.tagAt(i)).data)) {
-                return true;
+                return i;
             }
         }
         
-        return false;
-    }    
+        return -1;
+    }
+    
+    public boolean isPlayerConnected(EntityPlayer entityPlayer) {
+        if (this.getPlayerId(entityPlayer) != -1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
     
     public int getFinishedBlocks() {
         return finishedBlocks;
@@ -154,19 +175,19 @@ public class TileEntityBuildingController extends TileEntity {
     public ArrayList<BlockData> getBlockDataList() {
         return blockDataList;
     }
-
+    
     public NBTTagList getConnectedPlayers() {
         return connectedPlayers;
     }
-
+    
     public long getPlannedTimespan() {
         return plannedTimespan;
     }
-
+    
     public void setPlannedTimespan(long plannedTimespan) {
         this.plannedTimespan = plannedTimespan;
     }
-
+    
     public long getDeadline() {
         return deadline;
     }

@@ -45,7 +45,7 @@ public class PacketHandler implements IPacketHandler {
             e.printStackTrace();
         }
     }
-
+    
     public void handleTimespanPacket(Packet250CustomPayload packet, Player playerEntity) {
         DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(packet.data));
         
@@ -81,7 +81,7 @@ public class PacketHandler implements IPacketHandler {
                 buildingController.setDeadline(0);
                 
                 Minecraft mc = FMLClientHandler.instance().getClient();
-        
+                
                 mc.ingameGUI.getChatGUI().printChatMessage("<BuildToWin> You have won, " + ((EntityPlayer) playerEntity).username + "!");
             }
         } catch (IOException e) {
@@ -104,7 +104,7 @@ public class PacketHandler implements IPacketHandler {
                 buildingController.setDeadline(0);
                 
                 Minecraft mc = FMLClientHandler.instance().getClient();
-        
+                
                 mc.ingameGUI.getChatGUI().printChatMessage("<BuildToWin> You have lost, " + ((EntityPlayer) playerEntity).username + "!");
             }
         } catch (IOException e) {

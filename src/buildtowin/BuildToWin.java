@@ -67,4 +67,8 @@ public class BuildToWin {
     public static BlockBlueprint getBlueprint() {
         return blueprint;
     }
+    
+    public static ItemBlueprinter getBlueprinter() {
+        return blueprinter;
+    }
 }

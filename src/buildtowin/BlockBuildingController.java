@@ -108,23 +108,15 @@ public class BlockBuildingController extends BlockContainer {
     }
     
     @Override
-    public void onBlockClicked(World par1World, int x, int y, int z, EntityPlayer par5EntityPlayer) {
-        TileEntityBuildingController buildingController = (TileEntityBuildingController) par1World.getBlockTileEntity(x, y, z);
-
-        buildingController.connectPlayer(par5EntityPlayer);
-        
-        Minecraft mc = FMLClientHandler.instance().getClient();
-        
-        if (par1World.isRemote) {
-            mc.ingameGUI.getChatGUI().printChatMessage(
-                    "<BuildToWin> Connected " + par5EntityPlayer.getEntityName() + " to the Building Controller.");
-        }
-    }
-    
-    @Override
     public boolean onBlockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
     {
         if (par1World.isRemote) {
+            if (par5EntityPlayer.getCurrentEquippedItem() != null) {
+                if (par5EntityPlayer.getCurrentEquippedItem().itemID == BuildToWin.getBlueprinter().itemID) {
+                    return false;
+                }
+            }
+            
             Minecraft mc = FMLClientHandler.instance().getClient();
             TileEntityBuildingController buildingController = (TileEntityBuildingController) par1World.getBlockTileEntity(par2, par3, par4);
             
@@ -147,37 +139,19 @@ public class BlockBuildingController extends BlockContainer {
         return false;
     }
     
-    public TileEntityBuildingController getTileEntity(World world, EntityPlayer entityPlayer) {     
-        // check if the player has cached the connection coordinates
-        int coords[] = entityPlayer.getEntityData().getIntArray("buildingcontroller");
-        
-        if (coords != null && coords.length == 3) {
-            TileEntityBuildingController buildingController = (TileEntityBuildingController) world.getBlockTileEntity(
-                    coords[0], coords[1], coords[2]);
-            
-            if (buildingController != null) {
-                return buildingController;
-            }
-        }
-        
-        // player has not cached his connection coordinates; bruteforce and cache them
-        for (int i = 0; i < world.loadedTileEntityList.size(); ++i) {
-            TileEntity te = (TileEntity) world.loadedTileEntityList.get(i);
+    public TileEntityBuildingController getTileEntity(EntityPlayer entityPlayer) {
+        for (int i = 0; i < entityPlayer.worldObj.loadedTileEntityList.size(); ++i) {
+            TileEntity te = (TileEntity) entityPlayer.worldObj.loadedTileEntityList.get(i);
             
             if (te instanceof TileEntityBuildingController) {
                 TileEntityBuildingController buildingController = (TileEntityBuildingController) te;
-            
-                if (buildingController.isPlayerConnected(entityPlayer)) {
                 
-                    entityPlayer.getEntityData().setIntArray("buildingcontroller", new int[] {
-                            buildingController.xCoord, buildingController.yCoord, buildingController.zCoord});
-                    
+                if (buildingController.isPlayerConnected(entityPlayer)) {
                     return buildingController;
                 }
             }
         }
         
-        // player is not connected, or chunk with his building controller is not loaded
         return null;
     }
     
