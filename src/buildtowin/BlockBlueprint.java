@@ -46,6 +46,11 @@ public class BlockBlueprint extends BlockContainer {
     }
     
     @Override
+    public AxisAlignedBB getCollisionBoundingBoxFromPool(World par1World, int par2, int par3, int par4) {
+        return null;
+    }
+    
+    @Override
     public boolean isOpaqueCube() {
         return false;
     }
