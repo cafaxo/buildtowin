@@ -168,6 +168,17 @@ public class TileEntityBuildingController extends TileEntity {
         }
     }
     
+    public void removeAllBlocks(World world) {
+        Iterator<BlockData> iter = this.blockDataList.iterator();
+        this.finishedBlocks = 0;
+        
+        while (iter.hasNext()) {
+            BlockData blockData = iter.next();
+            world.setBlock(blockData.x, blockData.y, blockData.z, blockData.id);
+            iter.remove();
+        }
+    }
+    
     public int getFinishedBlocks() {
         return finishedBlocks;
     }
@@ -200,7 +211,8 @@ public class TileEntityBuildingController extends TileEntity {
         this.blockDataList.add(blockData);
     }
     
-    public void removeBlock(BlockData blockData) {
+    public void removeBlock(BlockData blockData, World world) {
+        world.setBlock(blockData.x, blockData.y, blockData.z, blockData.id);
         this.blockDataList.remove(blockData);
     }
 }

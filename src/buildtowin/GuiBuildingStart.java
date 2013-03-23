@@ -42,7 +42,7 @@ public class GuiBuildingStart extends GuiScreen {
                 exception.printStackTrace();
             }
             
-            this.mc.displayGuiScreen((GuiScreen)null);
+            this.mc.displayGuiScreen((GuiScreen) null);
         }
     }
     

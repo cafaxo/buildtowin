@@ -34,8 +34,7 @@ public class ItemBlueprinter extends Item {
             BlockData blockData = buildingController.getBlockData(par4, par5, par6);
             
             if (blockData != null) {
-                par3World.setBlock(par4, par5, par6, blockData.id);
-                buildingController.removeBlock(blockData);
+                buildingController.removeBlock(blockData, par3World);
             }
         } else if (blockId == BuildToWin.getBuildingController().blockID) {
             TileEntityBuildingController buildingController = (TileEntityBuildingController) par3World.getBlockTileEntity(par4, par5, par6);

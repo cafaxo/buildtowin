@@ -70,7 +70,7 @@ public class BlockBuildingController extends BlockContainer {
                         NBTTagString playerName = (NBTTagString) buildingController.getConnectedPlayers().tagAt(i);
                         EntityPlayer player = par1World.getPlayerEntityByName(playerName.data);
                         
-                        if (player != null && !player.capabilities.isCreativeMode) {
+                        if (player != null) {
                             PacketDispatcher.sendPacketToPlayer(winPacket, (Player) player);
                         }
                     }
@@ -96,7 +96,7 @@ public class BlockBuildingController extends BlockContainer {
                         NBTTagString playerName = (NBTTagString) buildingController.getConnectedPlayers().tagAt(i);
                         EntityPlayer player = par1World.getPlayerEntityByName(playerName.data);
                         
-                        if (player != null && !player.capabilities.isCreativeMode) {
+                        if (player != null) {
                             PacketDispatcher.sendPacketToPlayer(losePacket, (Player) player);
                         }
                     }
@@ -137,6 +137,12 @@ public class BlockBuildingController extends BlockContainer {
         }
         
         return false;
+    }
+    
+    @Override
+    public void onBlockHarvested(World par1World, int par2, int par3, int par4, int par5, EntityPlayer par6EntityPlayer) {
+        TileEntityBuildingController te = (TileEntityBuildingController) par1World.getBlockTileEntity(par2, par3, par4);
+        te.removeAllBlocks(par1World);
     }
     
     public TileEntityBuildingController getTileEntity(EntityPlayer entityPlayer) {
