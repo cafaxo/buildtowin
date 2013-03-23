@@ -2,10 +2,13 @@ package buildtowin;
 
 import org.lwjgl.opengl.GL11;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiSmallButton;
 import net.minecraft.util.StatCollector;
 
+@SideOnly(Side.CLIENT)
 public class GuiBuildingInfo extends GuiScreen {
     private int daysleft = 0;
     
