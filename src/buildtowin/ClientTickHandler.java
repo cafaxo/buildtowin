@@ -20,7 +20,7 @@ public class ClientTickHandler implements ITickHandler {
     
     @Override
     public void tickEnd(EnumSet<TickType> type, Object... tickData) {
-        if (Minecraft.getMinecraft().isIntegratedServerRunning() && !Minecraft.getMinecraft().isGamePaused) {
+        if (!Minecraft.getMinecraft().isGamePaused) {
             this.buildingInfo.tick();
         }
     }
