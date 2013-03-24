@@ -397,7 +397,7 @@ public class TileEntityBuildingController extends TileEntity {
     }
     
     public void removeBlock(BlockData blockData, World world) {
-        world.setBlock(blockData.x, blockData.y, blockData.z, blockData.id, blockData.metadata, 0);
+        world.setBlock(blockData.x, blockData.y, blockData.z, blockData.id, blockData.metadata, 3);
         this.blockDataList.remove(blockData);
     }
     
