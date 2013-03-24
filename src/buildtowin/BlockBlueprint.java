@@ -37,7 +37,7 @@ public class BlockBlueprint extends BlockContainer {
                 }
             } else if (par5EntityPlayer.inventory.getCurrentItem() != null) {
                 if (par5EntityPlayer.inventory.getCurrentItem().itemID == blockData.id) {
-                    par1World.setBlock(par2, par3, par4, blockData.id);
+                    par1World.setBlock(par2, par3, par4, blockData.id, blockData.metadata, 3);
                     par5EntityPlayer.inventory.consumeInventoryItem(blockData.id);
                 }
             }

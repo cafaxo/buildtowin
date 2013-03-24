@@ -45,18 +45,18 @@ public class BlockBuildingController extends BlockContainer {
                 buildingController.refreshConnectedAndOnlinePlayers();
                 
                 if (buildingController.getConnectedAndOnlinePlayers().size() > 1) {
-                    buildingController.sendPacketToConnectedPlayers(new Packet3Chat("Your team has won."));
+                    buildingController.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Your team has won."));
                 } else {
-                    buildingController.sendPacketToConnectedPlayers(new Packet3Chat("You have won."));
+                    buildingController.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> You have won."));
                 }
             } else if (buildingController.getDeadline() <= par1World.getTotalWorldTime()) {
                 buildingController.setDeadline(0);
                 buildingController.refreshConnectedAndOnlinePlayers();
                 
                 if (buildingController.getConnectedAndOnlinePlayers().size() > 1) {
-                    buildingController.sendPacketToConnectedPlayers(new Packet3Chat("Your team has lost."));
+                    buildingController.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Your team has lost."));
                 } else {
-                    buildingController.sendPacketToConnectedPlayers(new Packet3Chat("You have lost."));
+                    buildingController.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> You have lost."));
                 }
             }
         }
