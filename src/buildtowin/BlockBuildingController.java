@@ -10,6 +10,8 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.packet.Packet3Chat;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Icon;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
@@ -17,6 +19,8 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 public class BlockBuildingController extends BlockContainer {
+    private Icon iconDisconnected;
+    
     protected BlockBuildingController(int id) {
         super(id, Material.rock);
         
@@ -38,11 +42,11 @@ public class BlockBuildingController extends BlockContainer {
         TileEntityBuildingController buildingController = (TileEntityBuildingController) par1World.getBlockTileEntity(x, y, z);
         
         buildingController.updateBlocks();
+        buildingController.refreshConnectedAndOnlinePlayers();
         
         if (buildingController.getDeadline() != 0) {
             if (buildingController.getFinishedBlocks() == buildingController.getBlockDataList().size()) {
                 buildingController.setDeadline(0);
-                buildingController.refreshConnectedAndOnlinePlayers();
                 
                 if (buildingController.getConnectedAndOnlinePlayers().size() > 1) {
                     buildingController.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Your team has won."));
@@ -51,7 +55,6 @@ public class BlockBuildingController extends BlockContainer {
                 }
             } else if (buildingController.getDeadline() <= par1World.getTotalWorldTime()) {
                 buildingController.setDeadline(0);
-                buildingController.refreshConnectedAndOnlinePlayers();
                 
                 if (buildingController.getConnectedAndOnlinePlayers().size() > 1) {
                     buildingController.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Your team has lost."));
@@ -100,12 +103,41 @@ public class BlockBuildingController extends BlockContainer {
                 TileEntityBuildingController buildingController = (TileEntityBuildingController) te;
                 
                 if (buildingController.isPlayerConnectedAndOnline(entityPlayer)) {
+                    entityPlayer.getEntityData().setIntArray("buildingcontroller", new int[] {
+                            buildingController.xCoord, buildingController.yCoord, buildingController.zCoord });
+                    
                     return buildingController;
                 }
             }
         }
         
         return null;
+    }
+    
+    public TileEntityBuildingController getTileEntityCached(EntityPlayer entityPlayer) {
+        int coords[] = entityPlayer.getEntityData().getIntArray("buildingcontroller");
+        
+        if (coords != null && coords.length == 3) {
+            TileEntity buildingController = (TileEntity) entityPlayer.worldObj.getBlockTileEntity(coords[0], coords[1], coords[2]);
+            
+            if (buildingController != null && buildingController instanceof TileEntityBuildingController) {
+                return (TileEntityBuildingController) buildingController;
+            }
+        }
+        
+        return null;
+    }
+    
+    @Override
+    public Icon getBlockTexture(IBlockAccess par1IBlockAccess, int par2, int par3, int par4, int par5) {
+        EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+        int coords[] = player.getEntityData().getIntArray("buildingcontroller");
+        
+        if (coords != null && coords.length == 3 && coords[0] == par2 && coords[1] == par3 && coords[2] == par4) {
+            return this.blockIcon;
+        } else {
+            return this.iconDisconnected;
+        }
     }
     
     @Override
@@ -116,6 +148,7 @@ public class BlockBuildingController extends BlockContainer {
     @Override
     @SideOnly(Side.CLIENT)
     public void registerIcons(IconRegister par1IconRegister) {
-        this.blockIcon = par1IconRegister.registerIcon("buildtowin:buildingcontroller");
+        this.blockIcon = par1IconRegister.registerIcon("buildtowin:buildingcontroller_connected");
+        this.iconDisconnected = par1IconRegister.registerIcon("buildtowin:buildingcontroller_disconnected");
     }
 }

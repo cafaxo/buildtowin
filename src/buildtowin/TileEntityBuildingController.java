@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -19,6 +20,7 @@ import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.network.packet.Packet3Chat;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 
@@ -203,19 +205,73 @@ public class TileEntityBuildingController extends TileEntity {
     }
     
     public void connectPlayer(EntityPlayer entityPlayer) {
-        if (!isPlayerConnected(entityPlayer)) {
-            TileEntityBuildingController buildingController = BuildToWin.getBuildingController().getTileEntity(entityPlayer);
-            
-            if (buildingController != null) {
-                buildingController.disconnectPlayer(entityPlayer);
+        if (this.getDeadline() != 0) {
+            if (this.worldObj.isRemote) {
+                Minecraft mc = FMLClientHandler.instance().getClient();
+                mc.ingameGUI.getChatGUI().printChatMessage(
+                        "<BuildToWin> Could not connect, because the game is running.");
             }
-            
-            this.connectedPlayers.add(entityPlayer.username);
+        } else {
+            if (!this.worldObj.isRemote) {
+                if (!isPlayerConnected(entityPlayer)) {
+                    TileEntityBuildingController buildingController = BuildToWin.getBuildingController().getTileEntity(entityPlayer);
+                    
+                    if (buildingController != null) {
+                        buildingController.disconnectPlayer(entityPlayer);
+                    }
+                    
+                    this.connectedPlayers.add(entityPlayer.username);
+                }
+            } else {
+                this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
+                
+                Minecraft mc = FMLClientHandler.instance().getClient();
+                mc.ingameGUI.getChatGUI().printChatMessage(
+                        "<BuildToWin> Connected to the Building Controller.");
+            }
         }
     }
     
     public void disconnectPlayer(EntityPlayer entityPlayer) {
-        this.connectedPlayers.remove(entityPlayer.username);
+        if (this.getDeadline() != 0) {
+            if (this.worldObj.isRemote) {
+                Minecraft mc = FMLClientHandler.instance().getClient();
+                mc.ingameGUI.getChatGUI().printChatMessage(
+                        "<BuildToWin> Could not disconnect, because the game is running.");
+            }
+        } else {
+            if (!this.worldObj.isRemote) {
+                this.connectedPlayers.remove(entityPlayer.username);
+            } else {
+                entityPlayer.getEntityData().setIntArray("buildingcontroller", new int[] { 0, 0, 0 });
+                this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
+                
+                Minecraft mc = FMLClientHandler.instance().getClient();
+                mc.ingameGUI.getChatGUI().printChatMessage(
+                        "<BuildToWin> Disconnected from the Building Controller.");
+            }
+        }
+    }
+    
+    public void placeBlueprint(int x, int y, int z, int id, int metadata) {
+        if (this.getDeadline() == 0) {
+            this.worldObj.setBlock(x, y, z, BuildToWin.getBlueprint().blockID);
+            
+            TileEntityBlueprint blueprint = (TileEntityBlueprint) this.worldObj.getBlockTileEntity(x, y, z);
+            
+            if (blueprint != null) {
+                this.addBlock(new BlockData(x, y, z, id, metadata));
+                blueprint.setBlockId(id);
+            } else {
+                throw new RuntimeException();
+            }
+        } else {
+            if (this.worldObj.isRemote) {
+                Minecraft mc = FMLClientHandler.instance().getClient();
+                mc.ingameGUI.getChatGUI().printChatMessage(
+                        "<BuildToWin> Could not place the blueprint, because the game is running.");
+            }
+        }
     }
     
     public BlockData getBlockData(int x, int y, int z) {

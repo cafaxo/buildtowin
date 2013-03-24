@@ -34,7 +34,10 @@ public class PacketHandler implements IPacketHandler {
             
             EntityPlayer player = (EntityPlayer) playerEntity;
             TileEntityBuildingController buildingController = (TileEntityBuildingController) player.worldObj.getBlockTileEntity(x, y, z);
-            buildingController.onDataPacketOptimized(inputStream);
+            
+            if (buildingController != null) {
+                buildingController.onDataPacketOptimized(inputStream);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
