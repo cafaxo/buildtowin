@@ -13,12 +13,30 @@ import cpw.mods.fml.common.network.Player;
 public class PacketHandler implements IPacketHandler {
     @Override
     public void onPacketData(INetworkManager manager, Packet250CustomPayload packet, Player playerEntity) {
-        if (packet.channel.equals("btwtimsupdt")) {
+        if (packet.channel.equals("btwbcupdt")) {
+            this.handleBuildingControllerPacket(packet, playerEntity);
+        } else if (packet.channel.equals("btwtimsupdt")) {
             this.handleTimespanPacket(packet, playerEntity);
         } else if (packet.channel.equals("btwstart")) {
             this.handleStartPacket(packet, playerEntity);
         } else if (packet.channel.equals("btwstop")) {
             this.handleStopPacket(packet, playerEntity);
+        }
+    }
+    
+    private void handleBuildingControllerPacket(Packet250CustomPayload packet, Player playerEntity) {
+        DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(packet.data));
+        
+        try {
+            int x = inputStream.readInt();
+            int y = inputStream.readInt();
+            int z = inputStream.readInt();
+            
+            EntityPlayer player = (EntityPlayer) playerEntity;
+            TileEntityBuildingController buildingController = (TileEntityBuildingController) player.worldObj.getBlockTileEntity(x, y, z);
+            buildingController.onDataPacketOptimized(inputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
     

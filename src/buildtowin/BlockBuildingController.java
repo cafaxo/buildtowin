@@ -61,7 +61,7 @@ public class BlockBuildingController extends BlockContainer {
             }
         }
         
-        PacketDispatcher.sendPacketToAllPlayers(buildingController.getDescriptionPacket());
+        PacketDispatcher.sendPacketToAllPlayers(buildingController.getDescriptionPacketOptimized());
         
         par1World.scheduleBlockUpdate(x, y, z, this.blockID, this.tickRate(par1World));
     }
@@ -99,7 +99,7 @@ public class BlockBuildingController extends BlockContainer {
             if (te instanceof TileEntityBuildingController) {
                 TileEntityBuildingController buildingController = (TileEntityBuildingController) te;
                 
-                if (buildingController.isPlayerConnected(entityPlayer)) {
+                if (buildingController.isPlayerConnectedAndOnline(entityPlayer)) {
                     return buildingController;
                 }
             }

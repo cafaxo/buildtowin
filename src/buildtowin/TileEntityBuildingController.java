@@ -1,10 +1,13 @@
 package buildtowin;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -12,6 +15,7 @@ import net.minecraft.nbt.NBTTagString;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.Packet132TileEntityData;
+import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.network.packet.Packet3Chat;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
@@ -19,25 +23,19 @@ import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 
 public class TileEntityBuildingController extends TileEntity {
-    private Set<String> connectedPlayers;
+    private ArrayList<String> connectedPlayers = new ArrayList<String>();
     
-    ArrayList<EntityPlayer> connectedAndOnlinePlayers;
+    private ArrayList<EntityPlayer> connectedAndOnlinePlayers = new ArrayList<EntityPlayer>();
     
-    private ArrayList<BlockData> blockDataList;
+    private ArrayList<BlockData> blockDataList = new ArrayList<BlockData>();
     
-    private long plannedTimespan;
+    private long plannedTimespan = 0;
     
-    private long deadline;
+    private long deadline = 0;
     
-    private int finishedBlocks;
+    private int finishedBlocks = 0;
     
     public TileEntityBuildingController() {
-        this.connectedPlayers = new HashSet<String>();
-        this.connectedAndOnlinePlayers = new ArrayList<EntityPlayer>();
-        this.blockDataList = new ArrayList<BlockData>();
-        this.plannedTimespan = 0;
-        this.deadline = 0;
-        this.finishedBlocks = 0;
     }
     
     @Override
@@ -115,6 +113,68 @@ public class TileEntityBuildingController extends TileEntity {
         this.readFromNBT(tag);
     }
     
+    public Packet getDescriptionPacketOptimized() {
+        ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
+        DataOutputStream dataoutputstream = new DataOutputStream(bytearrayoutputstream);
+        
+        try {
+            dataoutputstream.writeInt(this.xCoord);
+            dataoutputstream.writeInt(this.yCoord);
+            dataoutputstream.writeInt(this.zCoord);
+            
+            this.refreshConnectedAndOnlinePlayers();
+            dataoutputstream.writeInt(this.connectedAndOnlinePlayers.size());
+            
+            for (EntityPlayer player : this.connectedAndOnlinePlayers) {
+                dataoutputstream.writeInt(player.entityId);
+            }
+            
+            dataoutputstream.writeInt(this.blockDataList.size());
+            
+            for (BlockData blockData : this.blockDataList) {
+                dataoutputstream.writeInt(blockData.x);
+                dataoutputstream.writeInt(blockData.y);
+                dataoutputstream.writeInt(blockData.z);
+                dataoutputstream.writeInt(blockData.id);
+            }
+            
+            dataoutputstream.writeLong(this.plannedTimespan);
+            dataoutputstream.writeLong(this.deadline);
+            dataoutputstream.writeInt(this.finishedBlocks);
+            
+            return new Packet250CustomPayload("btwbcupdt", bytearrayoutputstream.toByteArray());
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+        
+        return null;
+    }
+    
+    public void onDataPacketOptimized(DataInputStream inputStream) throws IOException {
+        this.connectedAndOnlinePlayers.clear();
+        int connectedAndOnlinePlayersCount = inputStream.readInt();
+        
+        for (int i = 0; i < connectedAndOnlinePlayersCount; ++i) {
+            Entity entity = this.worldObj.getEntityByID(inputStream.readInt());
+            
+            if (entity != null && entity instanceof EntityPlayer) {
+                this.connectedAndOnlinePlayers.add((EntityPlayer) entity);
+            }
+        }
+        
+        this.blockDataList.clear();
+        int blockDataCount = inputStream.readInt();
+        
+        for (int i = 0; i < blockDataCount; ++i) {
+            BlockData blockData = new BlockData(inputStream.readInt(), inputStream.readInt(), inputStream.readInt(), inputStream.readInt());
+            this.blockDataList.add(blockData);
+        }
+        
+        this.plannedTimespan = inputStream.readLong();
+        this.deadline = inputStream.readLong();
+        this.finishedBlocks = inputStream.readInt();
+    }
+    
     public void updateBlocks() {
         Iterator<BlockData> iter = this.blockDataList.iterator();
         this.finishedBlocks = 0;
@@ -169,6 +229,10 @@ public class TileEntityBuildingController extends TileEntity {
     
     public boolean isPlayerConnected(EntityPlayer entityPlayer) {
         return this.connectedPlayers.contains(entityPlayer.username);
+    }
+    
+    public boolean isPlayerConnectedAndOnline(EntityPlayer entityPlayer) {
+        return this.connectedAndOnlinePlayers.contains(entityPlayer);
     }
     
     public void refreshConnectedAndOnlinePlayers() {
@@ -245,7 +309,7 @@ public class TileEntityBuildingController extends TileEntity {
         return blockDataList;
     }
     
-    public Set<String> getConnectedPlayers() {
+    public ArrayList<String> getConnectedPlayers() {
         return connectedPlayers;
     }
     

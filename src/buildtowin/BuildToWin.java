@@ -17,7 +17,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 
 @Mod(modid = "BuildToWin", name = "Build To Win!", version = "0.1.0")
-@NetworkMod(clientSideRequired = true, serverSideRequired = false, channels = { "btwtimsupdt", "btwstart", "btwstop" }, packetHandler = PacketHandler.class)
+@NetworkMod(clientSideRequired = true, serverSideRequired = false, channels = { "btwbcupdt", "btwtimsupdt", "btwstart", "btwstop" }, packetHandler = PacketHandler.class)
 public class BuildToWin {
     private final static BlockBuildingController buildingController = new BlockBuildingController(244);
     private final static BlockBlueprint blueprint = new BlockBlueprint(243);

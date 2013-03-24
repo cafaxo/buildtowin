@@ -43,7 +43,7 @@ public class ItemBlueprinter extends Item {
         } else if (blockId == BuildToWin.getBuildingController().blockID) {
             TileEntityBuildingController buildingController = (TileEntityBuildingController) par3World.getBlockTileEntity(par4, par5, par6);
             
-            if (buildingController.isPlayerConnected(par2EntityPlayer)) {
+            if (buildingController.isPlayerConnectedAndOnline(par2EntityPlayer)) {
                 if (buildingController.getDeadline() != 0) {
                     if (par3World.isRemote) {
                         Minecraft mc = FMLClientHandler.instance().getClient();
