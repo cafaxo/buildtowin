@@ -80,16 +80,25 @@ public class ItemBlueprinter extends Item {
             TileEntityBuildingController buildingController = BuildToWin.getBuildingController().getTileEntity(par2EntityPlayer);
             
             if (buildingController != null) {
-                buildingController.addBlock(new BlockData(par4, par5, par6, blockId));
-                par3World.setBlock(par4, par5, par6, BuildToWin.getBlueprint().blockID);
-                TileEntityBlueprint blueprint = (TileEntityBlueprint) par3World.getBlockTileEntity(par4, par5, par6);
-                
-                if (blueprint != null) {
-                    blueprint.setBlockId(blockId);
+                if (buildingController.getDeadline() == 0) {
+                    buildingController.addBlock(new BlockData(par4, par5, par6, blockId, par3World.getBlockMetadata(par4, par5, par6)));
+                    par3World.setBlock(par4, par5, par6, BuildToWin.getBlueprint().blockID);
+                    TileEntityBlueprint blueprint = (TileEntityBlueprint) par3World.getBlockTileEntity(par4, par5, par6);
+                    
+                    if (blueprint != null) {
+                        blueprint.setBlockId(blockId);
+                    } else {
+                        throw new RuntimeException();
+                    }
+                    
+                    return true;
                 } else {
-                    throw new RuntimeException();
+                    if (par3World.isRemote) {
+                        Minecraft mc = FMLClientHandler.instance().getClient();
+                        mc.ingameGUI.getChatGUI().printChatMessage(
+                                "<BuildToWin> Could not place the blueprint, because the game is running.");
+                    }
                 }
-                return true;
             } else {
                 if (par3World.isRemote) {
                     Minecraft mc = FMLClientHandler.instance().getClient();

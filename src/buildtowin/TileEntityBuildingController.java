@@ -50,13 +50,14 @@ public class TileEntityBuildingController extends TileEntity {
         
         par1NBTTagCompound.setTag("players", connectedPlayersNbt);
         
-        int rawBlockDataList[] = new int[blockDataList.size() * 4];
+        int rawBlockDataList[] = new int[blockDataList.size() * 5];
         
         for (int i = 0; i < blockDataList.size(); ++i) {
-            rawBlockDataList[i * 4] = blockDataList.get(i).x;
-            rawBlockDataList[i * 4 + 1] = blockDataList.get(i).y;
-            rawBlockDataList[i * 4 + 2] = blockDataList.get(i).z;
-            rawBlockDataList[i * 4 + 3] = blockDataList.get(i).id;
+            rawBlockDataList[i * 5] = blockDataList.get(i).x;
+            rawBlockDataList[i * 5 + 1] = blockDataList.get(i).y;
+            rawBlockDataList[i * 5 + 2] = blockDataList.get(i).z;
+            rawBlockDataList[i * 5 + 3] = blockDataList.get(i).id;
+            rawBlockDataList[i * 5 + 4] = blockDataList.get(i).metadata;
         }
         
         par1NBTTagCompound.setIntArray("blockdatalist", rawBlockDataList);
@@ -82,12 +83,13 @@ public class TileEntityBuildingController extends TileEntity {
         this.blockDataList.clear();
         int rawBlockDataList[] = par1NBTTagCompound.getIntArray("blockdatalist");
         
-        for (int i = 0; i < rawBlockDataList.length / 4; ++i) {
+        for (int i = 0; i < rawBlockDataList.length / 5; ++i) {
             BlockData blockData = new BlockData(
-                    rawBlockDataList[i * 4],
-                    rawBlockDataList[i * 4 + 1],
-                    rawBlockDataList[i * 4 + 2],
-                    rawBlockDataList[i * 4 + 3]);
+                    rawBlockDataList[i * 5],
+                    rawBlockDataList[i * 5 + 1],
+                    rawBlockDataList[i * 5 + 2],
+                    rawBlockDataList[i * 5 + 3],
+                    rawBlockDataList[i * 5 + 4]);
             
             this.blockDataList.add(blockData);
         }
@@ -136,6 +138,7 @@ public class TileEntityBuildingController extends TileEntity {
                 dataoutputstream.writeInt(blockData.y);
                 dataoutputstream.writeInt(blockData.z);
                 dataoutputstream.writeInt(blockData.id);
+                dataoutputstream.writeInt(blockData.metadata);
             }
             
             dataoutputstream.writeLong(this.plannedTimespan);
@@ -166,7 +169,7 @@ public class TileEntityBuildingController extends TileEntity {
         int blockDataCount = inputStream.readInt();
         
         for (int i = 0; i < blockDataCount; ++i) {
-            BlockData blockData = new BlockData(inputStream.readInt(), inputStream.readInt(), inputStream.readInt(), inputStream.readInt());
+            BlockData blockData = new BlockData(inputStream.readInt(), inputStream.readInt(), inputStream.readInt(), inputStream.readInt(), inputStream.readInt());
             this.blockDataList.add(blockData);
         }
         
@@ -270,23 +273,26 @@ public class TileEntityBuildingController extends TileEntity {
         }
     }
     
-    public void startGame() {
+    public void startGame(EntityPlayer entityPlayer) {
         this.refreshConnectedAndOnlinePlayers();
         
         if (this.getConnectedAndOnlinePlayers().isEmpty()) {
-            this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Could not start the game, because no players are connected."));
+            PacketDispatcher.sendPacketToPlayer(new Packet3Chat("<BuildToWin> Could not start the game, because no players are connected."), (Player) entityPlayer);
         } else if (this.getBlockDataList().size() == 0) {
-            this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Could not start the game, because no blueprints exist."));
+            PacketDispatcher.sendPacketToPlayer(new Packet3Chat("<BuildToWin> Could not start the game, because no blueprints exist."), (Player) entityPlayer);
         } else {
             this.resetAllBlocks();
             this.setDeadline(this.worldObj.getTotalWorldTime() + this.getPlannedTimespan());
             
+            PacketDispatcher.sendPacketToPlayer(new Packet3Chat("<BuildToWin> Started the game successfully."), (Player) entityPlayer);
             this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> The game has started."));
         }
     }
     
-    public void stopGame() {
+    public void stopGame(EntityPlayer entityPlayer) {
         this.setDeadline(0);
+        
+        PacketDispatcher.sendPacketToPlayer(new Packet3Chat("<BuildToWin> Stopped the game successfully."), (Player) entityPlayer);
         PacketDispatcher.sendPacketToAllPlayers(new Packet3Chat("<BuildToWin> The game has been stopped."));
     }
     
@@ -338,7 +344,7 @@ public class TileEntityBuildingController extends TileEntity {
     }
     
     public void removeBlock(BlockData blockData, World world) {
-        world.setBlock(blockData.x, blockData.y, blockData.z, blockData.id);
+        world.setBlock(blockData.x, blockData.y, blockData.z, blockData.id, blockData.metadata, 0);
         this.blockDataList.remove(blockData);
     }
     

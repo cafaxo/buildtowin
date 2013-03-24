@@ -35,9 +35,11 @@ public class BlockBlueprint extends BlockContainer {
                     mc.ingameGUI.getChatGUI().printChatMessage(
                             "<BuildToWin> The game has not started yet, " + par5EntityPlayer.getEntityName() + ".");
                 }
-            } else if (par5EntityPlayer.inventory.hasItem(blockData.id)) {
-                par1World.setBlock(par2, par3, par4, blockData.id);
-                par5EntityPlayer.inventory.consumeInventoryItem(blockData.id);
+            } else if (par5EntityPlayer.inventory.getCurrentItem() != null) {
+                if (par5EntityPlayer.inventory.getCurrentItem().itemID == blockData.id) {
+                    par1World.setBlock(par2, par3, par4, blockData.id);
+                    par5EntityPlayer.inventory.consumeInventoryItem(blockData.id);
+                }
             }
         } else if (par1World.isRemote) {
             Minecraft mc = FMLClientHandler.instance().getClient();

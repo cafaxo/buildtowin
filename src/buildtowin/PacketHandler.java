@@ -52,7 +52,7 @@ public class PacketHandler implements IPacketHandler {
             TileEntityBuildingController buildingController = (TileEntityBuildingController) player.worldObj.getBlockTileEntity(x, y, z);
             
             if (buildingController != null) {
-                buildingController.startGame();
+                buildingController.startGame(player);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -71,7 +71,7 @@ public class PacketHandler implements IPacketHandler {
             TileEntityBuildingController buildingController = (TileEntityBuildingController) player.worldObj.getBlockTileEntity(x, y, z);
             
             if (buildingController != null) {
-                buildingController.stopGame();
+                buildingController.stopGame(player);
             }
         } catch (IOException e) {
             e.printStackTrace();
