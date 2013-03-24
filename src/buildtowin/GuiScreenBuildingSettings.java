@@ -56,7 +56,7 @@ public class GuiScreenBuildingSettings extends GuiScreen {
     @Override
     protected void actionPerformed(GuiButton par1GuiButton) {
         if (par1GuiButton.id == 1) {
-            if (this.plannedTimespan > 0) {
+            if (this.plannedTimespan > 24000) {
                 this.plannedTimespan -= 24000;
                 this.sendTimespanPacket();
             }

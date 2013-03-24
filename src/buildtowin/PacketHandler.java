@@ -4,14 +4,10 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet250CustomPayload;
-import net.minecraft.network.packet.Packet3Chat;
-import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.network.IPacketHandler;
-import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 
 public class PacketHandler implements IPacketHandler {
@@ -23,10 +19,6 @@ public class PacketHandler implements IPacketHandler {
             this.handleStartPacket(packet, playerEntity);
         } else if (packet.channel.equals("btwstop")) {
             this.handleStopPacket(packet, playerEntity);
-        } else if (packet.channel.equals("btwwin")) {
-            this.handleWinPacket(packet, playerEntity);
-        } else if (packet.channel.equals("btwlose")) {
-            this.handleLosePacket(packet, playerEntity);
         }
     }
     
@@ -42,15 +34,7 @@ public class PacketHandler implements IPacketHandler {
             TileEntityBuildingController buildingController = (TileEntityBuildingController) player.worldObj.getBlockTileEntity(x, y, z);
             
             if (buildingController != null) {
-                if (buildingController.getConnectedPlayers().tagCount() == 0) {
-                    PacketDispatcher.sendPacketToAllPlayers(new Packet3Chat("<BuildToWin> Could not start the game, because no players are connected."));
-                } else if (buildingController.getBlockDataList().size() == 0) {
-                    PacketDispatcher.sendPacketToAllPlayers(new Packet3Chat("<BuildToWin> Could not start the game, because no blueprints exist."));
-                } else {
-                    buildingController.resetAllBlocks();
-                    buildingController.setDeadline(player.worldObj.getTotalWorldTime() + buildingController.getPlannedTimespan());
-                    PacketDispatcher.sendPacketToAllPlayers(new Packet3Chat("<BuildToWin> The game has started."));
-                }
+                buildingController.startGame();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -69,13 +53,11 @@ public class PacketHandler implements IPacketHandler {
             TileEntityBuildingController buildingController = (TileEntityBuildingController) player.worldObj.getBlockTileEntity(x, y, z);
             
             if (buildingController != null) {
-                buildingController.setDeadline(0);
+                buildingController.stopGame();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
-        PacketDispatcher.sendPacketToAllPlayers(new Packet3Chat("<BuildToWin> The game has been stopped."));
     }
     
     public void handleTimespanPacket(Packet250CustomPayload packet, Player playerEntity) {
@@ -91,55 +73,7 @@ public class PacketHandler implements IPacketHandler {
             TileEntityBuildingController buildingController = (TileEntityBuildingController) player.worldObj.getBlockTileEntity(x, y, z);
             
             if (buildingController != null) {
-                if (buildingController.getDeadline() != 0) {
-                    buildingController.setDeadline(buildingController.worldObj.getTotalWorldTime() + plannedTimespan);
-                }
-                
-                buildingController.setPlannedTimespan(plannedTimespan);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    
-    public void handleWinPacket(Packet250CustomPayload packet, Player playerEntity) {
-        DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(packet.data));
-        
-        try {
-            int x = inputStream.readInt();
-            int y = inputStream.readInt();
-            int z = inputStream.readInt();
-            
-            EntityPlayer player = (EntityPlayer) playerEntity;
-            TileEntityBuildingController buildingController = (TileEntityBuildingController) player.worldObj.getBlockTileEntity(x, y, z);
-            
-            if (buildingController != null) {
-                buildingController.setDeadline(0);
-                
-                Minecraft mc = FMLClientHandler.instance().getClient();
-                mc.ingameGUI.getChatGUI().printChatMessage("<BuildToWin> You have won, " + ((EntityPlayer) playerEntity).username + "!");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    
-    public void handleLosePacket(Packet250CustomPayload packet, Player playerEntity) {
-        DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(packet.data));
-        
-        try {
-            int x = inputStream.readInt();
-            int y = inputStream.readInt();
-            int z = inputStream.readInt();
-            
-            EntityPlayer player = (EntityPlayer) playerEntity;
-            TileEntityBuildingController buildingController = (TileEntityBuildingController) player.worldObj.getBlockTileEntity(x, y, z);
-            
-            if (buildingController != null) {
-                buildingController.setDeadline(0);
-                
-                Minecraft mc = FMLClientHandler.instance().getClient();
-                mc.ingameGUI.getChatGUI().printChatMessage("<BuildToWin> You have lost, " + ((EntityPlayer) playerEntity).username + "!");
+                buildingController.refreshTimespan(plannedTimespan);
             }
         } catch (IOException e) {
             e.printStackTrace();

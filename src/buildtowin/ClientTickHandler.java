@@ -3,11 +3,16 @@ package buildtowin;
 import java.util.EnumSet;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
 
 public class ClientTickHandler implements ITickHandler {
+    
+    private GuiBuildingInfo buildingInfo;
+    
+    public ClientTickHandler() {
+        this.buildingInfo = new GuiBuildingInfo(Minecraft.getMinecraft());
+    }
     
     @Override
     public void tickStart(EnumSet<TickType> type, Object... tickData) {
@@ -16,25 +21,7 @@ public class ClientTickHandler implements ITickHandler {
     @Override
     public void tickEnd(EnumSet<TickType> type, Object... tickData) {
         if (Minecraft.getMinecraft().isIntegratedServerRunning() && !Minecraft.getMinecraft().isGamePaused) {
-            EntityPlayer player = Minecraft.getMinecraft().thePlayer;
-            
-            if (player != null) {
-                TileEntityBuildingController buildingController = BuildToWin.getBuildingController().getTileEntity(player);
-                if (buildingController != null) {
-                    if (buildingController.getDeadline() != 0) {
-                        int percent = 100;
-                        
-                        if (buildingController.getBlockDataList().size() != 0) {
-                            percent = 100 * buildingController.getFinishedBlocks() / buildingController.getBlockDataList().size();
-                        }
-                        
-                        int daysleft = (int) ((buildingController.getDeadline() - player.worldObj.getTotalWorldTime()) / 24000);
-                        
-                        Minecraft.getMinecraft().fontRenderer.drawStringWithShadow("Days left: " + daysleft, 10, 10, 0xffffff);
-                        Minecraft.getMinecraft().fontRenderer.drawStringWithShadow("Progress: " + percent, 10, 25, 0xffffff);
-                    }
-                }
-            }
+            this.buildingInfo.tick();
         }
     }
     

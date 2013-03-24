@@ -1,7 +1,9 @@
 package buildtowin;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -10,28 +12,45 @@ import net.minecraft.nbt.NBTTagString;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.Packet132TileEntityData;
+import net.minecraft.network.packet.Packet3Chat;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import cpw.mods.fml.common.network.PacketDispatcher;
+import cpw.mods.fml.common.network.Player;
 
 public class TileEntityBuildingController extends TileEntity {
-    private NBTTagList connectedPlayers = new NBTTagList();
+    private Set<String> connectedPlayers;
     
-    private ArrayList<BlockData> blockDataList = new ArrayList<BlockData>();
+    ArrayList<EntityPlayer> connectedAndOnlinePlayers;
     
-    private long plannedTimespan = 0;
+    private ArrayList<BlockData> blockDataList;
     
-    private long deadline = 0;
+    private long plannedTimespan;
     
-    private int finishedBlocks = 0;
+    private long deadline;
+    
+    private int finishedBlocks;
     
     public TileEntityBuildingController() {
+        this.connectedPlayers = new HashSet<String>();
+        this.connectedAndOnlinePlayers = new ArrayList<EntityPlayer>();
+        this.blockDataList = new ArrayList<BlockData>();
+        this.plannedTimespan = 0;
+        this.deadline = 0;
+        this.finishedBlocks = 0;
     }
     
     @Override
     public void writeToNBT(NBTTagCompound par1NBTTagCompound) {
         super.writeToNBT(par1NBTTagCompound);
         
-        par1NBTTagCompound.setTag("players", this.connectedPlayers);
+        NBTTagList connectedPlayersNbt = new NBTTagList();
+        
+        for (String player : this.connectedPlayers) {
+            connectedPlayersNbt.appendTag(new NBTTagString("", player));
+        }
+        
+        par1NBTTagCompound.setTag("players", connectedPlayersNbt);
         
         int rawBlockDataList[] = new int[blockDataList.size() * 4];
         
@@ -55,7 +74,12 @@ public class TileEntityBuildingController extends TileEntity {
     public void readFromNBT(NBTTagCompound par1NBTTagCompound) {
         super.readFromNBT(par1NBTTagCompound);
         
-        this.connectedPlayers = (NBTTagList) par1NBTTagCompound.getTag("players");
+        this.connectedPlayers.clear();
+        NBTTagList connectedPlayersNbt = (NBTTagList) par1NBTTagCompound.getTag("players");
+        
+        for (int i = 0; i < connectedPlayersNbt.tagCount(); ++i) {
+            this.connectedPlayers.add(((NBTTagString) connectedPlayersNbt.tagAt(i)).data);
+        }
         
         this.blockDataList.clear();
         int rawBlockDataList[] = par1NBTTagCompound.getIntArray("blockdatalist");
@@ -123,16 +147,12 @@ public class TileEntityBuildingController extends TileEntity {
                 buildingController.disconnectPlayer(entityPlayer);
             }
             
-            this.connectedPlayers.appendTag(new NBTTagString("", entityPlayer.username));
+            this.connectedPlayers.add(entityPlayer.username);
         }
     }
     
     public void disconnectPlayer(EntityPlayer entityPlayer) {
-        int playerId = getPlayerId(entityPlayer);
-        
-        if (playerId != -1) {
-            this.connectedPlayers.removeTag(playerId);
-        }
+        this.connectedPlayers.remove(entityPlayer.username);
     }
     
     public BlockData getBlockData(int x, int y, int z) {
@@ -147,21 +167,25 @@ public class TileEntityBuildingController extends TileEntity {
         return null;
     }
     
-    public int getPlayerId(EntityPlayer entityPlayer) {
-        for (int i = 0; i < this.connectedPlayers.tagCount(); ++i) {
-            if (entityPlayer.username.equals(((NBTTagString) this.connectedPlayers.tagAt(i)).data)) {
-                return i;
-            }
-        }
-        
-        return -1;
+    public boolean isPlayerConnected(EntityPlayer entityPlayer) {
+        return this.connectedPlayers.contains(entityPlayer.username);
     }
     
-    public boolean isPlayerConnected(EntityPlayer entityPlayer) {
-        if (this.getPlayerId(entityPlayer) != -1) {
-            return true;
-        } else {
-            return false;
+    public void refreshConnectedAndOnlinePlayers() {
+        this.connectedAndOnlinePlayers.clear();
+        
+        for (String connectedPlayer : this.connectedPlayers) {
+            EntityPlayer player = this.worldObj.getPlayerEntityByName(connectedPlayer);
+            
+            if (player != null) {
+                this.connectedAndOnlinePlayers.add(player);
+            }
+        }
+    }
+    
+    public void sendPacketToConnectedPlayers(Packet packet) {
+        for (EntityPlayer player : this.connectedAndOnlinePlayers) {
+            PacketDispatcher.sendPacketToPlayer(packet, (Player) player);
         }
     }
     
@@ -180,6 +204,26 @@ public class TileEntityBuildingController extends TileEntity {
                 te.setBlockId(blockData.id);
             }
         }
+    }
+    
+    public void startGame() {
+        this.refreshConnectedAndOnlinePlayers();
+        
+        if (this.getConnectedAndOnlinePlayers().isEmpty()) {
+            this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Could not start the game, because no players are connected."));
+        } else if (this.getBlockDataList().size() == 0) {
+            this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Could not start the game, because no blueprints exist."));
+        } else {
+            this.resetAllBlocks();
+            this.setDeadline(this.worldObj.getTotalWorldTime() + this.getPlannedTimespan());
+            
+            this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> The game has started."));
+        }
+    }
+    
+    public void stopGame() {
+        this.setDeadline(0);
+        PacketDispatcher.sendPacketToAllPlayers(new Packet3Chat("<BuildToWin> The game has been stopped."));
     }
     
     public void removeAllBlocks() {
@@ -201,8 +245,12 @@ public class TileEntityBuildingController extends TileEntity {
         return blockDataList;
     }
     
-    public NBTTagList getConnectedPlayers() {
+    public Set<String> getConnectedPlayers() {
         return connectedPlayers;
+    }
+    
+    public ArrayList<EntityPlayer> getConnectedAndOnlinePlayers() {
+        return connectedAndOnlinePlayers;
     }
     
     public long getPlannedTimespan() {
@@ -228,5 +276,13 @@ public class TileEntityBuildingController extends TileEntity {
     public void removeBlock(BlockData blockData, World world) {
         world.setBlock(blockData.x, blockData.y, blockData.z, blockData.id);
         this.blockDataList.remove(blockData);
+    }
+    
+    public void refreshTimespan(long newTimespan) {
+        if (this.deadline != 0) {
+            this.deadline = this.worldObj.getTotalWorldTime() + newTimespan;
+        }
+        
+        this.plannedTimespan = newTimespan;
     }
 }

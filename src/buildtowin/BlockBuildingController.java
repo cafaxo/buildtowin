@@ -1,7 +1,5 @@
 package buildtowin;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.util.Random;
 
 import net.minecraft.block.BlockContainer;
@@ -10,13 +8,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagString;
-import net.minecraft.network.packet.Packet250CustomPayload;
+import net.minecraft.network.packet.Packet3Chat;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
-import cpw.mods.fml.common.network.Player;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -42,63 +38,30 @@ public class BlockBuildingController extends BlockContainer {
         TileEntityBuildingController buildingController = (TileEntityBuildingController) par1World.getBlockTileEntity(x, y, z);
         
         buildingController.updateBlocks();
-        PacketDispatcher.sendPacketToAllPlayers(buildingController.getDescriptionPacket());
         
         if (buildingController.getDeadline() != 0) {
             if (buildingController.getFinishedBlocks() == buildingController.getBlockDataList().size()) {
                 buildingController.setDeadline(0);
+                buildingController.refreshConnectedAndOnlinePlayers();
                 
-                if (buildingController.getConnectedPlayers().tagCount() != 0) {
-                    ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
-                    DataOutputStream dataoutputstream = new DataOutputStream(bytearrayoutputstream);
-                    
-                    try {
-                        dataoutputstream.writeInt(buildingController.xCoord);
-                        dataoutputstream.writeInt(buildingController.yCoord);
-                        dataoutputstream.writeInt(buildingController.zCoord);
-                    } catch (Exception exception) {
-                        exception.printStackTrace();
-                    }
-                    
-                    Packet250CustomPayload winPacket = new Packet250CustomPayload("btwwin", bytearrayoutputstream.toByteArray());
-                    
-                    for (int i = 0; i < buildingController.getConnectedPlayers().tagCount(); ++i) {
-                        NBTTagString playerName = (NBTTagString) buildingController.getConnectedPlayers().tagAt(i);
-                        EntityPlayer player = par1World.getPlayerEntityByName(playerName.data);
-                        
-                        if (player != null) {
-                            PacketDispatcher.sendPacketToPlayer(winPacket, (Player) player);
-                        }
-                    }
+                if (buildingController.getConnectedAndOnlinePlayers().size() > 1) {
+                    buildingController.sendPacketToConnectedPlayers(new Packet3Chat("Your team has won."));
+                } else {
+                    buildingController.sendPacketToConnectedPlayers(new Packet3Chat("You have won."));
                 }
             } else if (buildingController.getDeadline() <= par1World.getTotalWorldTime()) {
                 buildingController.setDeadline(0);
+                buildingController.refreshConnectedAndOnlinePlayers();
                 
-                if (buildingController.getConnectedPlayers().tagCount() != 0) {
-                    ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
-                    DataOutputStream dataoutputstream = new DataOutputStream(bytearrayoutputstream);
-                    
-                    try {
-                        dataoutputstream.writeInt(buildingController.xCoord);
-                        dataoutputstream.writeInt(buildingController.yCoord);
-                        dataoutputstream.writeInt(buildingController.zCoord);
-                    } catch (Exception exception) {
-                        exception.printStackTrace();
-                    }
-                    
-                    Packet250CustomPayload losePacket = new Packet250CustomPayload("btwlose", bytearrayoutputstream.toByteArray());
-                    
-                    for (int i = 0; i < buildingController.getConnectedPlayers().tagCount(); ++i) {
-                        NBTTagString playerName = (NBTTagString) buildingController.getConnectedPlayers().tagAt(i);
-                        EntityPlayer player = par1World.getPlayerEntityByName(playerName.data);
-                        
-                        if (player != null) {
-                            PacketDispatcher.sendPacketToPlayer(losePacket, (Player) player);
-                        }
-                    }
+                if (buildingController.getConnectedAndOnlinePlayers().size() > 1) {
+                    buildingController.sendPacketToConnectedPlayers(new Packet3Chat("Your team has lost."));
+                } else {
+                    buildingController.sendPacketToConnectedPlayers(new Packet3Chat("You have lost."));
                 }
             }
         }
+        
+        PacketDispatcher.sendPacketToAllPlayers(buildingController.getDescriptionPacket());
         
         par1World.scheduleBlockUpdate(x, y, z, this.blockID, this.tickRate(par1World));
     }
