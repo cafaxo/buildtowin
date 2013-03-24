@@ -32,12 +32,12 @@ public class GuiBuildingInfo extends Gui {
             TileEntityBuildingController buildingController = BuildToWin.getBuildingController().getTileEntity(player);
             if (buildingController != null) {
                 if (buildingController.getDeadline() != 0) {
-                    if (yPosition < 0) {
-                        yPosition += ySpeed;
-                        ySpeed += 0.1F;
+                    if (this.yPosition < 0) {
+                        this.yPosition += this.ySpeed;
+                        this.ySpeed += 0.1F;
                     } else {
-                        yPosition = 0;
-                        ySpeed = 0;
+                        this.yPosition = 0;
+                        this.ySpeed = 0;
                     }
                     
                     this.progress = 100;
@@ -49,23 +49,25 @@ public class GuiBuildingInfo extends Gui {
                     this.daysLeft = String.format("%.2f", ((buildingController.getDeadline() - player.worldObj.getTotalWorldTime()) / 24000.F));
                     
                 } else {
-                    if (yPosition > -32) {
-                        yPosition -= ySpeed;
-                        ySpeed += 0.1F;
+                    if (this.yPosition > -32) {
+                        this.yPosition -= this.ySpeed;
+                        this.ySpeed += 0.1F;
+                        this.progress = 100;
                     } else {
-                        yPosition = -32;
-                        ySpeed = 0;
+                        this.yPosition = -32;
+                        this.ySpeed = 0;
                     }
                 }
                 
-                if (yPosition != -32) {
+                if (this.yPosition != -32) {
                     GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
                     GL11.glEnable(GL11.GL_TEXTURE_2D);
                     this.theGame.renderEngine.bindTexture("/achievement/bg.png");
-                    this.drawTexturedModalRect(0, Math.round(yPosition), 96, 202, 160, 32);
                     
-                    this.theGame.fontRenderer.drawStringWithShadow("Days left: " + this.daysLeft, 8, Math.round(yPosition) + 12, 0xffffff);
-                    this.theGame.fontRenderer.drawStringWithShadow("Progress: " + this.progress + "%", 86, Math.round(yPosition) + 12, 0xffffff);
+                    this.drawTexturedModalRect(0, Math.round(yPosition), 96, 202, 160, 32);
+                    this.drawTexturedModalRect(45, Math.round(yPosition), 96 + 30, 202, 160 - 30, 32);
+                    this.theGame.fontRenderer.drawStringWithShadow("Days left: " + this.daysLeft, 10, Math.round(this.yPosition) + 12, 0xffffff);
+                    this.theGame.fontRenderer.drawStringWithShadow("Progress: " + this.progress + "%", 90, Math.round(this.yPosition) + 12, 0xffffff);
                 }
             }
         }
