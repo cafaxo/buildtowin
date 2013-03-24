@@ -103,9 +103,6 @@ public class BlockBuildingController extends BlockContainer {
                 TileEntityBuildingController buildingController = (TileEntityBuildingController) te;
                 
                 if (buildingController.isPlayerConnectedAndOnline(entityPlayer)) {
-                    entityPlayer.getEntityData().setIntArray("buildingcontroller", new int[] {
-                            buildingController.xCoord, buildingController.yCoord, buildingController.zCoord });
-                    
                     return buildingController;
                 }
             }
@@ -114,26 +111,11 @@ public class BlockBuildingController extends BlockContainer {
         return null;
     }
     
-    public TileEntityBuildingController getTileEntityCached(EntityPlayer entityPlayer) {
-        int coords[] = entityPlayer.getEntityData().getIntArray("buildingcontroller");
-        
-        if (coords != null && coords.length == 3) {
-            TileEntity buildingController = (TileEntity) entityPlayer.worldObj.getBlockTileEntity(coords[0], coords[1], coords[2]);
-            
-            if (buildingController != null && buildingController instanceof TileEntityBuildingController) {
-                return (TileEntityBuildingController) buildingController;
-            }
-        }
-        
-        return null;
-    }
-    
     @Override
     public Icon getBlockTexture(IBlockAccess par1IBlockAccess, int par2, int par3, int par4, int par5) {
-        EntityPlayer player = Minecraft.getMinecraft().thePlayer;
-        int coords[] = player.getEntityData().getIntArray("buildingcontroller");
+        TileEntityBuildingController buildingController = (TileEntityBuildingController) par1IBlockAccess.getBlockTileEntity(par2, par3, par4);
         
-        if (coords != null && coords.length == 3 && coords[0] == par2 && coords[1] == par3 && coords[2] == par4) {
+        if (buildingController.getConnectedAndOnlinePlayers().contains(Minecraft.getMinecraft().thePlayer)) {
             return this.blockIcon;
         } else {
             return this.iconDisconnected;

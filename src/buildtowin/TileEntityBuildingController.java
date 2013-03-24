@@ -178,6 +178,8 @@ public class TileEntityBuildingController extends TileEntity {
         this.plannedTimespan = inputStream.readLong();
         this.deadline = inputStream.readLong();
         this.finishedBlocks = inputStream.readInt();
+        
+        this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
     }
     
     public void updateBlocks() {
@@ -223,8 +225,6 @@ public class TileEntityBuildingController extends TileEntity {
                     this.connectedPlayers.add(entityPlayer.username);
                 }
             } else {
-                this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
-                
                 Minecraft mc = FMLClientHandler.instance().getClient();
                 mc.ingameGUI.getChatGUI().printChatMessage(
                         "<BuildToWin> Connected to the Building Controller.");
@@ -243,9 +243,6 @@ public class TileEntityBuildingController extends TileEntity {
             if (!this.worldObj.isRemote) {
                 this.connectedPlayers.remove(entityPlayer.username);
             } else {
-                entityPlayer.getEntityData().setIntArray("buildingcontroller", new int[] { 0, 0, 0 });
-                this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
-                
                 Minecraft mc = FMLClientHandler.instance().getClient();
                 mc.ingameGUI.getChatGUI().printChatMessage(
                         "<BuildToWin> Disconnected from the Building Controller.");
