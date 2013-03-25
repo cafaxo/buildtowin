@@ -1,7 +1,5 @@
 package buildtowin;
 
-import java.util.ArrayList;
-
 import net.minecraft.block.material.Material;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Vec3Pool;
@@ -12,36 +10,27 @@ public class FakeWorld implements IBlockAccess {
     
     private IBlockAccess world;
     
-    private ArrayList<BlockData> fakeBlockDataList = new ArrayList<BlockData>();
+    private BlockData fakeBlockDataList[] = new BlockData[5];
     
     public FakeWorld(IBlockAccess world) {
         this.world = world;
     }
     
-    public void overrideBlockIdAndMetadata(int x, int y, int z, int id, int metadata) {
-        this.fakeBlockDataList.add(new BlockData(x, y, z, id, metadata));
-    }
-    
-    public void overrideBlueprint(int x, int y, int z) {
-        TileEntity te = world.getBlockTileEntity(x, y, z);
-        
-        if (te != null) {
-            if (te instanceof TileEntityBlueprint) {
-                TileEntityBlueprint blueprint = (TileEntityBlueprint) te;
-                this.fakeBlockDataList.add(new BlockData(x, y, z, blueprint.getBlockId(), blueprint.getBlockMetadata()));
-            }
-        }
-    }
-    
-    public void resetOverriddenData() {
-        this.fakeBlockDataList.clear();
+    public void overrideSurroundingBlueprints(int x, int y, int z) {
+        fakeBlockDataList[0] = BuildToWin.getBlueprint().getBlockData(world, x, y, z);
+        fakeBlockDataList[1] = BuildToWin.getBlueprint().getBlockData(world, x - 1, y, z);
+        fakeBlockDataList[2] = BuildToWin.getBlueprint().getBlockData(world, x, y, z - 1);
+        fakeBlockDataList[3] = BuildToWin.getBlueprint().getBlockData(world, x + 1, y, z);
+        fakeBlockDataList[4] = BuildToWin.getBlueprint().getBlockData(world, x, y, z + 1);
     }
     
     @Override
     public int getBlockId(int x, int y, int z) {
         for (BlockData fakeBlockData : this.fakeBlockDataList) {
-            if (fakeBlockData.x == x && fakeBlockData.y == y && fakeBlockData.z == z) {
-                return fakeBlockData.id;
+            if (fakeBlockData != null) {
+                if (fakeBlockData.x == x && fakeBlockData.y == y && fakeBlockData.z == z) {
+                    return fakeBlockData.id;
+                }
             }
         }
         
@@ -61,8 +50,10 @@ public class FakeWorld implements IBlockAccess {
     @Override
     public int getBlockMetadata(int x, int y, int z) {
         for (BlockData fakeBlockData : this.fakeBlockDataList) {
-            if (fakeBlockData.x == x && fakeBlockData.y == y && fakeBlockData.z == z) {
-                return fakeBlockData.metadata;
+            if (fakeBlockData != null) {
+                if (fakeBlockData.x == x && fakeBlockData.y == y && fakeBlockData.z == z) {
+                    return fakeBlockData.metadata;
+                }
             }
         }
         

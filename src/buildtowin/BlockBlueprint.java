@@ -79,6 +79,24 @@ public class BlockBlueprint extends BlockContainer {
         return new TileEntityBlueprint();
     }
     
+    public TileEntityBlueprint getTileEntity(IBlockAccess world, int x, int y, int z) {
+        if (world.getBlockId(x, y, z) == BuildToWin.getBlueprint().blockID) {
+            return (TileEntityBlueprint) world.getBlockTileEntity(x, y, z);
+        }
+        
+        return null;
+    }
+    
+    public BlockData getBlockData(IBlockAccess world, int x, int y, int z) {
+        TileEntityBlueprint blueprint = this.getTileEntity(world, x, y, z);
+        
+        if (blueprint != null) {
+            return new BlockData(x, y, z, blueprint.getBlockId(), blueprint.getBlockMetadata());
+        }
+        
+        return null;
+    }
+    
     @Override
     public Icon getBlockTexture(IBlockAccess par1IBlockAccess, int par2, int par3, int par4, int par5) {
         TileEntityBlueprint te = (TileEntityBlueprint) par1IBlockAccess.getBlockTileEntity(par2, par3, par4);

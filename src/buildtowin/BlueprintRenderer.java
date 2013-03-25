@@ -19,11 +19,7 @@ public class BlueprintRenderer extends RenderBlocks implements ISimpleBlockRende
         this.fakeWorld = new FakeWorld(world);
         this.blockAccess = this.fakeWorld;
         
-        this.fakeWorld.overrideBlueprint(x, y, z);
-        this.fakeWorld.overrideBlueprint(x - 1, y, z);
-        this.fakeWorld.overrideBlueprint(x, y, z - 1);
-        this.fakeWorld.overrideBlueprint(x + 1, y, z);
-        this.fakeWorld.overrideBlueprint(x, y, z + 1);
+        this.fakeWorld.overrideSurroundingBlueprints(x, y, z);
         
         this.renderMaxX = renderer.renderMaxX;
         this.renderMaxY = renderer.renderMaxY;
