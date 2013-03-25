@@ -33,12 +33,10 @@ public class ItemBlueprinter extends Item {
                 if (blockData != null) {
                     buildingController.removeBlock(blockData, par3World);
                 }
-            } else {
-                if (par3World.isRemote) {
-                    Minecraft mc = FMLClientHandler.instance().getClient();
-                    mc.ingameGUI.getChatGUI().printChatMessage(
-                            "<BuildToWin> Please connect to the Building Controller.");
-                }
+            } else if (par3World.isRemote) {
+                Minecraft mc = FMLClientHandler.instance().getClient();
+                mc.ingameGUI.getChatGUI().printChatMessage(
+                        "<BuildToWin> Please connect to the Building Controller.");
             }
         } else if (blockId == BuildToWin.getBuildingController().blockID) {
             TileEntityBuildingController buildingController = (TileEntityBuildingController) par3World.getBlockTileEntity(par4, par5, par6);

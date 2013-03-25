@@ -17,8 +17,9 @@ public class Blueprint {
     
     private ArrayList<BlockData> blockDataList;
     
-    public Blueprint(File file) {
-        this.read(file);
+    public Blueprint() {
+        this.name = "undefined";
+        this.author = "undefined";
     }
     
     public Blueprint(String name, String author, ArrayList<BlockData> blockDataList) {

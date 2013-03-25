@@ -366,7 +366,13 @@ public class TileEntityBuildingController extends TileEntity {
         
         while (iter.hasNext()) {
             BlockData blockData = iter.next();
-            this.worldObj.setBlock(blockData.x, blockData.y, blockData.z, blockData.id);
+            
+            if (this.worldObj.getBlockId(blockData.x, blockData.y, blockData.z) != BuildToWin.getBlueprint().blockID) {
+                this.worldObj.setBlock(blockData.x, blockData.y, blockData.z, blockData.id, blockData.metadata, 3);
+            } else {
+                this.worldObj.setBlock(blockData.x, blockData.y, blockData.z, 0, 0, 3);
+            }
+            
             iter.remove();
         }
     }

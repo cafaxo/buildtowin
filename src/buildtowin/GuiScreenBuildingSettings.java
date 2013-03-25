@@ -37,8 +37,10 @@ public class GuiScreenBuildingSettings extends GuiScreen {
     
     @Override
     public void initGui() {
+        this.buttonList.clear();
+        
         GuiButton decreaseTimespan = new GuiButton(1, this.width / 2 - 36, this.height / 2 - 27, 20, 20, "-");
-        decreaseTimespan.enabled = this.isPlayerCreative;
+        decreaseTimespan.enabled = this.isPlayerCreative && this.plannedTimespan >= 24000;
         this.buttonList.add(decreaseTimespan);
         
         GuiButton increaseTimespan = new GuiButton(2, this.width / 2 + 15, this.height / 2 - 27, 20, 20, "+");
@@ -46,32 +48,34 @@ public class GuiScreenBuildingSettings extends GuiScreen {
         this.buttonList.add(increaseTimespan);
         
         if (this.buildingController.getDeadline() == 0) {
-            GuiButton start = new GuiButton(3, this.width / 2 - 45, this.height / 2 + 5, 90, 20, "Start");
+            GuiButton start = new GuiButton(3, this.width / 2 - 45, this.height / 2 + 55, 90, 20, "Start");
             this.buttonList.add(start);
         } else {
-            GuiButton stop = new GuiButton(4, this.width / 2 - 45, this.height / 2 + 5, 90, 20, "Stop");
+            GuiButton stop = new GuiButton(4, this.width / 2 - 45, this.height / 2 + 55, 90, 20, "Stop");
             stop.enabled = this.isPlayerCreative;
             this.buttonList.add(stop);
         }
         
-        GuiButton load = new GuiButton(5, this.width / 2 - 45, this.height / 2 + 35, 35, 20, "Load");
+        GuiButton load = new GuiButton(5, this.width / 2 - 45, this.height / 2 + 25, 35, 20, "Load");
+        load.enabled = this.isPlayerCreative && this.buildingController.getDeadline() == 0;
         this.buttonList.add(load);
         
-        GuiButton save = new GuiButton(6, this.width / 2 + 12, this.height / 2 + 35, 35, 20, "Save");
+        GuiButton save = new GuiButton(6, this.width / 2 + 11, this.height / 2 + 25, 35, 20, "Save");
+        save.enabled = this.isPlayerCreative && this.buildingController.getDeadline() == 0;
         this.buttonList.add(save);
         
-        saveFileName = new GuiTextField(this.fontRenderer, this.width / 2 - 45, this.height / 2 + 65, 90, 15);
+        saveFileName = new GuiTextField(this.fontRenderer, this.width / 2 - 45, this.height / 2 + 5, 90, 15);
     }
     
     @Override
     protected void actionPerformed(GuiButton par1GuiButton) {
         if (par1GuiButton.id == 1) {
-            if (this.plannedTimespan > 24000) {
-                this.plannedTimespan -= 24000;
-                this.sendTimespanPacket();
-            }
+            this.plannedTimespan -= 24000;
+            this.initGui();
+            this.sendTimespanPacket();
         } else if (par1GuiButton.id == 2) {
             this.plannedTimespan += 24000;
+            this.initGui();
             this.sendTimespanPacket();
         } else if (par1GuiButton.id == 3) {
             this.sendStartPacket();
@@ -93,6 +97,7 @@ public class GuiScreenBuildingSettings extends GuiScreen {
     }
     
     protected void keyTyped(char par1, int par2) {
+        super.keyTyped(par1, par2);
         this.saveFileName.textboxKeyTyped(par1, par2);
     }
     
@@ -172,7 +177,7 @@ public class GuiScreenBuildingSettings extends GuiScreen {
         
         int x = (width - 170) / 2;
         int y = (height - 150) / 2 - 32;
-        this.drawTexturedModalRect(x, y, 0, 0, 170, 150);
+        this.drawTexturedModalRect(x, y, 0, 0, 170, 200);
         
         this.fontRenderer.drawString("Settings", this.width / 2 - 10, height / 2 - 62, 4210752);
         

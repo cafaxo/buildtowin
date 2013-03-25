@@ -10,7 +10,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.packet.Packet250CustomPayload;
+import net.minecraft.network.packet.Packet3Chat;
+import cpw.mods.fml.common.network.PacketDispatcher;
+import cpw.mods.fml.common.network.Player;
 
 public class BlueprintList {
     
@@ -27,7 +31,6 @@ public class BlueprintList {
     
     public BlueprintList(String baseDir) {
         this.blueprintDir = new File(baseDir, "blueprints");
-        System.out.println(baseDir);
     }
     
     public boolean read() {
@@ -35,8 +38,15 @@ public class BlueprintList {
             List<File> blueprintFiles = Arrays.asList(this.blueprintDir.listFiles());
             
             for (File blueprintFile : blueprintFiles) {
-                Blueprint blueprint = new Blueprint(blueprintFile);
-                this.blueprintList.add(blueprint);
+                if (blueprintFile.getAbsolutePath().endsWith(".blueprint")) {
+                    
+                    Blueprint blueprint = new Blueprint();
+                    
+                    if (blueprint.read(blueprintFile)) {
+                        
+                        this.blueprintList.add(blueprint);
+                    }
+                }
             }
             
             return true;
@@ -86,10 +96,26 @@ public class BlueprintList {
         }
     }
     
-    public void save(ArrayList<BlockData> blockDataList, String name, String author) {
-        Blueprint blueprint = new Blueprint(name, author, blockDataList);
+    public boolean save(ArrayList<BlockData> blockDataList, EntityPlayer player, String name) {
+        if (name.isEmpty()) {
+            PacketDispatcher.sendPacketToPlayer(new Packet3Chat("<BuildToWin> The name must not be empty."), (Player) player);
+            return false;
+        }
+        
+        for (Blueprint blueprint : this.blueprintList) {
+            if (name.equals(blueprint.getName())) {
+                PacketDispatcher.sendPacketToPlayer(new Packet3Chat("<BuildToWin> This name is already in use."), (Player) player);
+                return false;
+            }
+        }
+        
+        Blueprint blueprint = new Blueprint(name, player.username, blockDataList);
         blueprint.write(new File(this.blueprintDir.getAbsolutePath() + "/" + name + ".blueprint"));
         
         this.blueprintList.add(blueprint);
+        
+        PacketDispatcher.sendPacketToPlayer(new Packet3Chat("<BuildToWin> Saved the blueprint successfully."), (Player) player);
+        
+        return true;
     }
 }

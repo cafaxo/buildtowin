@@ -17,6 +17,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class BlockBlueprint extends BlockContainer {
     protected BlockBlueprint(int id) {
         super(id, Material.glass);
+        
         this.setBlockUnbreakable();
         this.setResistance(6000000.0F);
     }
@@ -25,27 +26,33 @@ public class BlockBlueprint extends BlockContainer {
     public void onBlockClicked(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer) {
         TileEntityBuildingController buildingController = BuildToWin.getBuildingController().getTileEntity(par5EntityPlayer);
         
-        BlockData blockData = buildingController.getBlockData(par2, par3, par4);
-        
-        if (blockData != null) {
-            if (buildingController.getDeadline() == 0) {
-                if (par1World.isRemote) {
-                    Minecraft mc = FMLClientHandler.instance().getClient();
-                    
-                    mc.ingameGUI.getChatGUI().printChatMessage(
-                            "<BuildToWin> The game has not started yet, " + par5EntityPlayer.getEntityName() + ".");
+        if (buildingController != null) {
+            BlockData blockData = buildingController.getBlockData(par2, par3, par4);
+            
+            if (blockData != null) {
+                if (buildingController.getDeadline() == 0) {
+                    if (par1World.isRemote) {
+                        Minecraft mc = FMLClientHandler.instance().getClient();
+                        
+                        mc.ingameGUI.getChatGUI().printChatMessage(
+                                "<BuildToWin> The game has not started yet, " + par5EntityPlayer.getEntityName() + ".");
+                    }
+                } else if (par5EntityPlayer.inventory.getCurrentItem() != null) {
+                    if (par5EntityPlayer.inventory.getCurrentItem().itemID == blockData.id) {
+                        par1World.setBlock(par2, par3, par4, blockData.id, blockData.metadata, 3);
+                        par5EntityPlayer.inventory.consumeInventoryItem(blockData.id);
+                    }
                 }
-            } else if (par5EntityPlayer.inventory.getCurrentItem() != null) {
-                if (par5EntityPlayer.inventory.getCurrentItem().itemID == blockData.id) {
-                    par1World.setBlock(par2, par3, par4, blockData.id, blockData.metadata, 3);
-                    par5EntityPlayer.inventory.consumeInventoryItem(blockData.id);
-                }
+            } else if (par1World.isRemote) {
+                Minecraft mc = FMLClientHandler.instance().getClient();
+                
+                mc.ingameGUI.getChatGUI().printChatMessage(
+                        "<BuildToWin> This blueprint does not belong to your Building Controller, " + par5EntityPlayer.getEntityName() + ".");
             }
         } else if (par1World.isRemote) {
             Minecraft mc = FMLClientHandler.instance().getClient();
-            
             mc.ingameGUI.getChatGUI().printChatMessage(
-                    "<BuildToWin> This blueprint does not belong to your Building Controller, " + par5EntityPlayer.getEntityName() + ".");
+                    "<BuildToWin> Please connect to the Building Controller.");
         }
     }
     
@@ -91,7 +98,7 @@ public class BlockBlueprint extends BlockContainer {
         TileEntityBlueprint blueprint = this.getTileEntity(world, x, y, z);
         
         if (blueprint != null) {
-            return new BlockData(x, y, z, blueprint.getBlockId(), blueprint.getBlockMetadata());
+            return new BlockData(x, y, z, blueprint.getBlockId(), blueprint.getMetadata());
         }
         
         return null;

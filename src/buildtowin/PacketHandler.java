@@ -7,7 +7,9 @@ import java.io.IOException;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet250CustomPayload;
+import net.minecraft.network.packet.Packet3Chat;
 import cpw.mods.fml.common.network.IPacketHandler;
+import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 
 public class PacketHandler implements IPacketHandler {
@@ -67,7 +69,7 @@ public class PacketHandler implements IPacketHandler {
             TileEntityBuildingController buildingController = (TileEntityBuildingController) player.worldObj.getBlockTileEntity(x, y, z);
             
             if (buildingController != null) {
-                BuildToWin.serverBlueprintList.save(buildingController.getBlockDataListRelative(), name, player.username);
+                BuildToWin.serverBlueprintList.save(buildingController.getBlockDataListRelative(), (EntityPlayer) playerEntity, name);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -88,7 +90,10 @@ public class PacketHandler implements IPacketHandler {
             TileEntityBuildingController buildingController = (TileEntityBuildingController) player.worldObj.getBlockTileEntity(x, y, z);
             
             if (buildingController != null) {
-                buildingController.loadBlueprintRelative(BuildToWin.serverBlueprintList.getBlueprintList().get(blueprintIndex).getBlockDataList());
+                if (blueprintIndex < BuildToWin.serverBlueprintList.getBlueprintList().size()) {
+                    buildingController.loadBlueprintRelative(BuildToWin.serverBlueprintList.getBlueprintList().get(blueprintIndex).getBlockDataList());
+                    PacketDispatcher.sendPacketToPlayer(new Packet3Chat("<BuildToWin> Loaded the blueprint successfully."), playerEntity);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
