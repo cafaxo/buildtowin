@@ -6,7 +6,10 @@ import java.io.DataOutputStream;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.network.packet.Packet250CustomPayload;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
+@SideOnly(Side.CLIENT)
 public class GuiScreenBlueprintLoad extends GuiScreen {
     
     private GuiScreenBuildingSettings guiScreenBuildingSettings;

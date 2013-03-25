@@ -3,7 +3,10 @@ package buildtowin;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiSlot;
 import net.minecraft.client.renderer.Tessellator;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
+@SideOnly(Side.CLIENT)
 public class GuiBlueprintSlot extends GuiSlot {
     
     private GuiScreenBlueprintLoad blueprintLoadGui;

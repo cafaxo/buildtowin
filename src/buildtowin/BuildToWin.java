@@ -1,6 +1,5 @@
 package buildtowin;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.tileentity.TileEntity;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Init;
@@ -36,10 +35,6 @@ public class BuildToWin {
     
     @PreInit
     public void preInit(FMLPreInitializationEvent event) {
-        this.serverBlueprintList = new BlueprintList(Minecraft.getMinecraftDir().getAbsolutePath());
-        this.serverBlueprintList.read();
-        
-        this.clientBlueprintList = new BlueprintList();
     }
     
     @Init
