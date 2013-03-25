@@ -271,6 +271,14 @@ public class TileEntityBuildingController extends TileEntity {
         }
     }
     
+    public void loadBlueprintRelative(ArrayList<BlockData> blockDataList) {
+        this.removeAllBlocks();
+        
+        for (BlockData blockData : blockDataList) {
+            this.placeBlueprint(this.xCoord + blockData.x, this.yCoord + blockData.y, this.zCoord + blockData.z, blockData.id, blockData.metadata);
+        }
+    }
+    
     public BlockData getBlockData(int x, int y, int z) {
         for (int i = 0; i < this.blockDataList.size(); ++i) {
             BlockData blockData = this.blockDataList.get(i);
@@ -366,6 +374,18 @@ public class TileEntityBuildingController extends TileEntity {
     
     public ArrayList<BlockData> getBlockDataList() {
         return blockDataList;
+    }
+    
+    public ArrayList<BlockData> getBlockDataListRelative() {
+        ArrayList<BlockData> blockDataListRelative = new ArrayList<BlockData>(this.blockDataList);
+        
+        for (BlockData blockData : blockDataListRelative) {
+            blockData.x -= this.xCoord;
+            blockData.y -= this.yCoord;
+            blockData.z -= this.zCoord;
+        }
+        
+        return blockDataListRelative;
     }
     
     public ArrayList<String> getConnectedPlayers() {

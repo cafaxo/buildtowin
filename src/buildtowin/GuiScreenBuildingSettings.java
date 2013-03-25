@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.network.packet.Packet250CustomPayload;
 
 import org.lwjgl.opengl.GL11;
@@ -19,6 +20,8 @@ public class GuiScreenBuildingSettings extends GuiScreen {
     private long plannedTimespan = 0;
     
     private boolean isPlayerCreative = false;
+    
+    GuiTextField saveFileName;
     
     public GuiScreenBuildingSettings(TileEntityBuildingController buildingController, boolean isPlayerCreative) {
         this.buildingController = buildingController;
@@ -44,13 +47,20 @@ public class GuiScreenBuildingSettings extends GuiScreen {
         
         if (this.buildingController.getDeadline() == 0) {
             GuiButton start = new GuiButton(3, this.width / 2 - 45, this.height / 2 + 5, 90, 20, "Start");
-            start.enabled = this.isPlayerCreative;
             this.buttonList.add(start);
         } else {
             GuiButton stop = new GuiButton(4, this.width / 2 - 45, this.height / 2 + 5, 90, 20, "Stop");
             stop.enabled = this.isPlayerCreative;
             this.buttonList.add(stop);
         }
+        
+        GuiButton load = new GuiButton(5, this.width / 2 - 45, this.height / 2 + 35, 35, 20, "Load");
+        this.buttonList.add(load);
+        
+        GuiButton save = new GuiButton(6, this.width / 2 + 12, this.height / 2 + 35, 35, 20, "Save");
+        this.buttonList.add(save);
+        
+        saveFileName = new GuiTextField(this.fontRenderer, this.width / 2 - 45, this.height / 2 + 65, 90, 15);
     }
     
     @Override
@@ -69,6 +79,41 @@ public class GuiScreenBuildingSettings extends GuiScreen {
         } else if (par1GuiButton.id == 4) {
             this.sendStopPacket();
             this.mc.displayGuiScreen((GuiScreen) null);
+        } else if (par1GuiButton.id == 5) {
+            this.mc.displayGuiScreen(new GuiScreenBlueprintLoad(this));
+        } else if (par1GuiButton.id == 6) {
+            this.sendSavePacket();
+            this.mc.displayGuiScreen((GuiScreen) null);
+        }
+    }
+    
+    @Override
+    public void updateScreen() {
+        this.saveFileName.updateCursorCounter();
+    }
+    
+    protected void keyTyped(char par1, int par2) {
+        this.saveFileName.textboxKeyTyped(par1, par2);
+    }
+    
+    protected void mouseClicked(int par1, int par2, int par3) {
+        super.mouseClicked(par1, par2, par3);
+        this.saveFileName.mouseClicked(par1, par2, par3);
+    }
+    
+    private void sendSavePacket() {
+        ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
+        DataOutputStream dataoutputstream = new DataOutputStream(bytearrayoutputstream);
+        
+        try {
+            dataoutputstream.writeInt(this.buildingController.xCoord);
+            dataoutputstream.writeInt(this.buildingController.yCoord);
+            dataoutputstream.writeInt(this.buildingController.zCoord);
+            dataoutputstream.writeUTF(this.saveFileName.getText());
+            
+            this.mc.getNetHandler().addToSendQueue(new Packet250CustomPayload("btwbpsav", bytearrayoutputstream.toByteArray()));
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
     
@@ -136,6 +181,12 @@ public class GuiScreenBuildingSettings extends GuiScreen {
         String daysLeft = String.format("%.2f", this.plannedTimespan / 24000D);
         this.fontRenderer.drawString(daysLeft, (this.width - this.fontRenderer.getStringWidth(daysLeft)) / 2, height / 2 - 21, 4210752);
         
+        this.saveFileName.drawTextBox();
+        
         super.drawScreen(par1, par2, par3);
+    }
+    
+    public TileEntityBuildingController getBuildingController() {
+        return buildingController;
     }
 }

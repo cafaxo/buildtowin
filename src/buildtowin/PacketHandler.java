@@ -17,6 +17,12 @@ public class PacketHandler implements IPacketHandler {
             this.handleBuildingControllerPacket(packet, playerEntity);
         } else if (packet.channel.equals("btwtimsupdt")) {
             this.handleTimespanPacket(packet, playerEntity);
+        } else if (packet.channel.equals("btwbpupdt")) {
+            this.handleBlueprintListPacket(packet, playerEntity);
+        } else if (packet.channel.equals("btwbpsav")) {
+            this.handleBlueprintSavePacket(packet, playerEntity);
+        } else if (packet.channel.equals("btwbpload")) {
+            this.handleBlueprintLoadPacket(packet, playerEntity);
         } else if (packet.channel.equals("btwstart")) {
             this.handleStartPacket(packet, playerEntity);
         } else if (packet.channel.equals("btwstop")) {
@@ -37,6 +43,52 @@ public class PacketHandler implements IPacketHandler {
             
             if (buildingController != null) {
                 buildingController.onDataPacketOptimized(inputStream);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private void handleBlueprintListPacket(Packet250CustomPayload packet, Player playerEntity) {
+        BuildToWin.clientBlueprintList.onDataPacket(packet);
+    }
+    
+    private void handleBlueprintSavePacket(Packet250CustomPayload packet, Player playerEntity) {
+        DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(packet.data));
+        
+        try {
+            int x = inputStream.readInt();
+            int y = inputStream.readInt();
+            int z = inputStream.readInt();
+            
+            String name = inputStream.readUTF();
+            
+            EntityPlayer player = (EntityPlayer) playerEntity;
+            TileEntityBuildingController buildingController = (TileEntityBuildingController) player.worldObj.getBlockTileEntity(x, y, z);
+            
+            if (buildingController != null) {
+                BuildToWin.serverBlueprintList.save(buildingController.getBlockDataListRelative(), name, player.username);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private void handleBlueprintLoadPacket(Packet250CustomPayload packet, Player playerEntity) {
+        DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(packet.data));
+        
+        try {
+            int x = inputStream.readInt();
+            int y = inputStream.readInt();
+            int z = inputStream.readInt();
+            
+            int blueprintIndex = inputStream.readInt();
+            
+            EntityPlayer player = (EntityPlayer) playerEntity;
+            TileEntityBuildingController buildingController = (TileEntityBuildingController) player.worldObj.getBlockTileEntity(x, y, z);
+            
+            if (buildingController != null) {
+                buildingController.loadBlueprintRelative(BuildToWin.serverBlueprintList.getBlueprintList().get(blueprintIndex).getBlockDataList());
             }
         } catch (IOException e) {
             e.printStackTrace();

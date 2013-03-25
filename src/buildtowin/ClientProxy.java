@@ -6,7 +6,7 @@ import cpw.mods.fml.relauncher.Side;
 
 public class ClientProxy extends CommonProxy {
     @Override
-    public void registerRenderers() {
+    public void init() {
         TickRegistry.registerTickHandler(new ClientTickHandler(), Side.CLIENT);
         BuildToWin.blueprintRenderingId = RenderingRegistry.getNextAvailableRenderId();
         RenderingRegistry.registerBlockHandler(new BlueprintRenderer());

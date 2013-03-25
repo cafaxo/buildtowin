@@ -1,7 +1,6 @@
 package buildtowin;
 
-import java.util.logging.Logger;
-
+import net.minecraft.client.Minecraft;
 import net.minecraft.tileentity.TileEntity;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Init;
@@ -17,7 +16,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 
 @Mod(modid = "BuildToWin", name = "Build To Win!", version = "0.1.0")
-@NetworkMod(clientSideRequired = true, serverSideRequired = false, channels = { "btwbcupdt", "btwtimsupdt", "btwstart", "btwstop" }, packetHandler = PacketHandler.class)
+@NetworkMod(clientSideRequired = true, serverSideRequired = false, channels = { "btwbcupdt", "btwtimsupdt", "btwbpupdt", "btwbpsav", "btwbpload", "btwstart", "btwstop" }, packetHandler = PacketHandler.class)
 public class BuildToWin {
     private final static BlockBuildingController buildingController = new BlockBuildingController(244);
     private final static BlockBlueprint blueprint = new BlockBlueprint(243);
@@ -29,16 +28,23 @@ public class BuildToWin {
     @SidedProxy(clientSide = "buildtowin.ClientProxy", serverSide = "buildtowin.CommonProxy")
     public static CommonProxy proxy;
     
-    public static Logger logger = Logger.getLogger("BuildToWin");
     public static int blueprintRenderingId;
+    
+    public static BlueprintList serverBlueprintList;
+    
+    public static BlueprintList clientBlueprintList;
     
     @PreInit
     public void preInit(FMLPreInitializationEvent event) {
+        this.serverBlueprintList = new BlueprintList(Minecraft.getMinecraftDir().getAbsolutePath());
+        this.serverBlueprintList.read();
+        
+        this.clientBlueprintList = new BlueprintList();
     }
     
     @Init
     public void load(FMLInitializationEvent event) {
-        proxy.registerRenderers();
+        proxy.init();
         
         TileEntity.addMapping(TileEntityBuildingController.class, "BuildingController");
         TileEntity.addMapping(TileEntityBlueprint.class, "BlockData");
