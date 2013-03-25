@@ -9,6 +9,8 @@ import net.minecraft.tileentity.TileEntity;
 public class TileEntityBlueprint extends TileEntity {
     private int blockId = 0;
     
+    private int metadata = 0;
+    
     public TileEntityBlueprint() {
     }
     
@@ -17,6 +19,7 @@ public class TileEntityBlueprint extends TileEntity {
         super.writeToNBT(par1NBTTagCompound);
         
         par1NBTTagCompound.setInteger("blockid", this.blockId);
+        par1NBTTagCompound.setInteger("metadata", this.metadata);
     }
     
     @Override
@@ -24,6 +27,7 @@ public class TileEntityBlueprint extends TileEntity {
         super.readFromNBT(par1NBTTagCompound);
         
         this.blockId = par1NBTTagCompound.getInteger("blockid");
+        this.metadata = par1NBTTagCompound.getInteger("metadata");
     }
     
     @Override
@@ -46,5 +50,13 @@ public class TileEntityBlueprint extends TileEntity {
     
     public void setBlockId(int blockId) {
         this.blockId = blockId;
+    }
+    
+    public int getMetadata() {
+        return metadata;
+    }
+    
+    public void setMetadata(int metadata) {
+        this.metadata = metadata;
     }
 }

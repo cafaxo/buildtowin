@@ -201,6 +201,7 @@ public class TileEntityBuildingController extends TileEntity {
                 
                 if (te != null) {
                     te.setBlockId(blockData.id);
+                    te.setMetadata(blockData.metadata);
                 }
             }
         }
@@ -259,6 +260,7 @@ public class TileEntityBuildingController extends TileEntity {
             if (blueprint != null) {
                 this.addBlock(new BlockData(x, y, z, id, metadata));
                 blueprint.setBlockId(id);
+                blueprint.setMetadata(metadata);
             } else {
                 throw new RuntimeException();
             }
@@ -330,6 +332,7 @@ public class TileEntityBuildingController extends TileEntity {
             
             if (te != null) {
                 te.setBlockId(blockData.id);
+                te.setMetadata(blockData.metadata);
             }
         }
     }
