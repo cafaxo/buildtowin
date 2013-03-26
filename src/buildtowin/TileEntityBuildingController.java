@@ -183,10 +183,6 @@ public class TileEntityBuildingController extends TileEntity {
         this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
     }
     
-    public void addBuildingController(TileEntityBuildingController buildingController) {
-        this.connectedBuildingControllers.add(buildingController);
-    }
-    
     public void update() {
         this.updateBlocks();
         
@@ -194,23 +190,53 @@ public class TileEntityBuildingController extends TileEntity {
             if (this.getFinishedBlocks() == this.blockDataList.size()) {
                 this.deadline = 0;
                 
-                if (this.getConnectedAndOnlinePlayers().size() > 1) {
-                    this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Your team has won."), false);
-                } else {
-                    this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> You have won."), false);
+                this.sendWinMessage();
+                
+                for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
+                    buildingController.deadline = 0;
+                    buildingController.sendLoseMessage();
                 }
             } else if (this.getDeadline() <= this.worldObj.getTotalWorldTime()) {
                 this.deadline = 0;
                 
-                if (this.getConnectedAndOnlinePlayers().size() > 1) {
-                    this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Your team has lost."), false);
-                } else {
-                    this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> You have lost."), false);
+                TileEntityBuildingController bestTeam = this;
+                
+                for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
+                    if (buildingController.getFinishedBlocks() > bestTeam.getFinishedBlocks()) {
+                        bestTeam = buildingController;
+                    }
+                }
+                
+                bestTeam.sendWinMessage();
+                
+                this.sendLoseMessage();
+                
+                for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
+                    if (buildingController != bestTeam) {
+                        buildingController.deadline = 0;
+                        buildingController.sendLoseMessage();
+                    }
                 }
             }
         }
         
         PacketDispatcher.sendPacketToAllPlayers(this.getDescriptionPacketOptimized());
+    }
+    
+    private void sendWinMessage() {
+        if (this.getConnectedAndOnlinePlayers().size() > 1) {
+            this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Your team has won."), false);
+        } else {
+            this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> You have won."), false);
+        }
+    }
+    
+    private void sendLoseMessage() {
+        if (this.getConnectedAndOnlinePlayers().size() > 1) {
+            this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Your team has lost."), false);
+        } else {
+            this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> You have lost."), false);
+        }
     }
     
     public void updateBlocks() {
@@ -279,6 +305,18 @@ public class TileEntityBuildingController extends TileEntity {
                 mc.ingameGUI.getChatGUI().printChatMessage(
                         "<BuildToWin> Disconnected from the Building Controller.");
             }
+        }
+    }
+    
+    public void addBuildingController(TileEntityBuildingController buildingControllerToConnect, boolean synchronize) {
+        if (synchronize) {
+            for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
+                buildingController.addBuildingController(buildingController, false);
+            }
+        }
+        
+        if (!this.connectedBuildingControllers.contains(buildingControllerToConnect) && buildingControllerToConnect != this) {
+            this.connectedBuildingControllers.add(buildingControllerToConnect);
         }
     }
     
@@ -458,14 +496,6 @@ public class TileEntityBuildingController extends TileEntity {
         }
     }
     
-    public int getFinishedBlocks() {
-        return finishedBlocks;
-    }
-    
-    public ArrayList<BlockData> getBlockDataList() {
-        return blockDataList;
-    }
-    
     public ArrayList<BlockData> getBlockDataListRelative() {
         ArrayList<BlockData> blockDataListRelative = new ArrayList<BlockData>();
         
@@ -479,6 +509,20 @@ public class TileEntityBuildingController extends TileEntity {
         }
         
         return blockDataListRelative;
+    }
+    
+    public void refreshTimespan(long newTimespan, boolean synchronize) {
+        if (synchronize) {
+            for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
+                buildingController.refreshTimespan(newTimespan, false);
+            }
+        }
+        
+        if (this.deadline != 0) {
+            this.deadline = this.worldObj.getTotalWorldTime() + newTimespan;
+        }
+        
+        this.plannedTimespan = newTimespan;
     }
     
     public ArrayList<String> getConnectedPlayers() {
@@ -497,17 +541,12 @@ public class TileEntityBuildingController extends TileEntity {
         return deadline;
     }
     
-    public void refreshTimespan(long newTimespan, boolean synchronize) {
-        if (synchronize) {
-            for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
-                buildingController.refreshTimespan(newTimespan, false);
-            }
-        }
-        
-        if (this.deadline != 0) {
-            this.deadline = this.worldObj.getTotalWorldTime() + newTimespan;
-        }
-        
-        this.plannedTimespan = newTimespan;
+    public int getFinishedBlocks() {
+        return finishedBlocks;
     }
+    
+    public ArrayList<BlockData> getBlockDataList() {
+        return blockDataList;
+    }
+    
 }
