@@ -32,6 +32,7 @@ public class BlueprintRenderer extends RenderBlocks implements ISimpleBlockRende
         this.renderMinZ = renderer.renderMinZ;
         
         TileEntityBlueprint te = (TileEntityBlueprint) world.getBlockTileEntity(par2, par3, par4);
+        
         Block fakeBlock = Block.blocksList[te.getBlockId()];
         if (fakeBlock != null) {
             switch (fakeBlock.getRenderType()) {

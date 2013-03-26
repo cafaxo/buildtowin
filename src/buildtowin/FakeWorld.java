@@ -10,13 +10,15 @@ public class FakeWorld implements IBlockAccess {
     
     private IBlockAccess world;
     
-    private BlockData fakeBlockDataList[] = new BlockData[5];
+    private BlockData fakeBlockDataList[];
     
     public FakeWorld(IBlockAccess world) {
         this.world = world;
     }
     
     public void overrideSurroundingBlueprints(int x, int y, int z) {
+        fakeBlockDataList = new BlockData[5];
+        
         fakeBlockDataList[0] = BuildToWin.getBlueprint().getBlockData(world, x, y, z);
         fakeBlockDataList[1] = BuildToWin.getBlueprint().getBlockData(world, x - 1, y, z);
         fakeBlockDataList[2] = BuildToWin.getBlueprint().getBlockData(world, x, y, z - 1);
@@ -26,10 +28,12 @@ public class FakeWorld implements IBlockAccess {
     
     @Override
     public int getBlockId(int x, int y, int z) {
-        for (BlockData fakeBlockData : this.fakeBlockDataList) {
-            if (fakeBlockData != null) {
-                if (fakeBlockData.x == x && fakeBlockData.y == y && fakeBlockData.z == z) {
-                    return fakeBlockData.id;
+        if (this.fakeBlockDataList != null) {
+            for (BlockData fakeBlockData : this.fakeBlockDataList) {
+                if (fakeBlockData != null) {
+                    if (fakeBlockData.x == x && fakeBlockData.y == y && fakeBlockData.z == z) {
+                        return fakeBlockData.id;
+                    }
                 }
             }
         }
@@ -49,10 +53,12 @@ public class FakeWorld implements IBlockAccess {
     
     @Override
     public int getBlockMetadata(int x, int y, int z) {
-        for (BlockData fakeBlockData : this.fakeBlockDataList) {
-            if (fakeBlockData != null) {
-                if (fakeBlockData.x == x && fakeBlockData.y == y && fakeBlockData.z == z) {
-                    return fakeBlockData.metadata;
+        if (this.fakeBlockDataList != null) {
+            for (BlockData fakeBlockData : this.fakeBlockDataList) {
+                if (fakeBlockData != null) {
+                    if (fakeBlockData.x == x && fakeBlockData.y == y && fakeBlockData.z == z) {
+                        return fakeBlockData.metadata;
+                    }
                 }
             }
         }
