@@ -217,7 +217,7 @@ public class TileEntityBuildingController extends TileEntity {
         } else {
             if (!this.worldObj.isRemote) {
                 if (!isPlayerConnected(entityPlayer)) {
-                    TileEntityBuildingController buildingController = BuildToWin.getBuildingController().getTileEntity(entityPlayer);
+                    TileEntityBuildingController buildingController = BuildToWin.buildingControllerListServer.getBuildingController(entityPlayer);
                     
                     if (buildingController != null) {
                         buildingController.disconnectPlayer(entityPlayer);
@@ -261,8 +261,6 @@ public class TileEntityBuildingController extends TileEntity {
                 this.addBlock(new BlockData(x, y, z, id, metadata));
                 blueprint.setBlockId(id);
                 blueprint.setMetadata(metadata);
-            } else {
-                throw new RuntimeException();
             }
         } else {
             if (this.worldObj.isRemote) {
@@ -386,12 +384,15 @@ public class TileEntityBuildingController extends TileEntity {
     }
     
     public ArrayList<BlockData> getBlockDataListRelative() {
-        ArrayList<BlockData> blockDataListRelative = new ArrayList<BlockData>(this.blockDataList);
+        ArrayList<BlockData> blockDataListRelative = new ArrayList<BlockData>();
         
-        for (BlockData blockData : blockDataListRelative) {
-            blockData.x -= this.xCoord;
-            blockData.y -= this.yCoord;
-            blockData.z -= this.zCoord;
+        for (BlockData blockData : blockDataList) {
+            blockDataListRelative.add(new BlockData(
+                    blockData.x - this.xCoord,
+                    blockData.y - this.yCoord,
+                    blockData.z - this.zCoord,
+                    blockData.id,
+                    blockData.metadata));
         }
         
         return blockDataListRelative;

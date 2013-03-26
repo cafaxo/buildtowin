@@ -5,13 +5,13 @@ import java.util.EnumSet;
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
 
-public class ClientTickHandler implements ITickHandler {
+public class ServerTickHandler implements ITickHandler {
     private short timer = 0;
     
     @Override
     public void tickStart(EnumSet<TickType> type, Object... tickData) {
         if (timer == 20) {
-            BuildToWin.buildingControllerListClient.updateClient();
+            BuildToWin.buildingControllerListServer.updateServer();
             timer = 0;
         }
         
@@ -24,11 +24,11 @@ public class ClientTickHandler implements ITickHandler {
     
     @Override
     public EnumSet<TickType> ticks() {
-        return EnumSet.of(TickType.CLIENT);
+        return EnumSet.of(TickType.SERVER);
     }
     
     @Override
     public String getLabel() {
-        return "clienttickhandler";
+        return "servertickhandler";
     }
 }

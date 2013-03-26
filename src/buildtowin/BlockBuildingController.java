@@ -101,22 +101,6 @@ public class BlockBuildingController extends BlockContainer {
         te.removeAllBlocks();
     }
     
-    public TileEntityBuildingController getTileEntity(EntityPlayer entityPlayer) {
-        for (int i = 0; i < entityPlayer.worldObj.loadedTileEntityList.size(); ++i) {
-            TileEntity te = (TileEntity) entityPlayer.worldObj.loadedTileEntityList.get(i);
-            
-            if (te instanceof TileEntityBuildingController) {
-                TileEntityBuildingController buildingController = (TileEntityBuildingController) te;
-                
-                if (buildingController.isPlayerConnectedAndOnline(entityPlayer)) {
-                    return buildingController;
-                }
-            }
-        }
-        
-        return null;
-    }
-    
     @Override
     public Icon getBlockTexture(IBlockAccess par1IBlockAccess, int par2, int par3, int par4, int par5) {
         TileEntityBuildingController buildingController = (TileEntityBuildingController) par1IBlockAccess.getBlockTileEntity(par2, par3, par4);

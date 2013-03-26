@@ -24,7 +24,7 @@ public class BlockBlueprint extends BlockContainer {
     
     @Override
     public void onBlockClicked(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer) {
-        TileEntityBuildingController buildingController = BuildToWin.getBuildingController().getTileEntity(par5EntityPlayer);
+        TileEntityBuildingController buildingController = BuildToWin.getBuildingControllerList(par1World).getBuildingController(par5EntityPlayer);
         
         if (buildingController != null) {
             BlockData blockData = buildingController.getBlockData(par2, par3, par4);

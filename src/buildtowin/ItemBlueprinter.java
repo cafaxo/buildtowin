@@ -15,9 +15,9 @@ public class ItemBlueprinter extends Item {
     public ItemBlueprinter(int id) {
         super(id);
         
-        setMaxStackSize(1);
-        setCreativeTab(CreativeTabs.tabTools);
-        setUnlocalizedName("Blueprinter");
+        this.setMaxStackSize(1);
+        this.setCreativeTab(CreativeTabs.tabTools);
+        this.setUnlocalizedName("Blueprinter");
     }
     
     @Override
@@ -25,7 +25,7 @@ public class ItemBlueprinter extends Item {
         int blockId = par3World.getBlockId(par4, par5, par6);
         
         if (blockId == BuildToWin.getBlueprint().blockID) {
-            TileEntityBuildingController buildingController = BuildToWin.getBuildingController().getTileEntity(par2EntityPlayer);
+            TileEntityBuildingController buildingController = BuildToWin.getBuildingControllerList(par3World).getBuildingController(par2EntityPlayer);
             
             if (buildingController != null) {
                 BlockData blockData = buildingController.getBlockData(par4, par5, par6);
@@ -47,13 +47,15 @@ public class ItemBlueprinter extends Item {
                 buildingController.connectPlayer(par2EntityPlayer);
             }
         } else {
-            TileEntityBuildingController buildingController = BuildToWin.getBuildingController().getTileEntity(par2EntityPlayer);
+            TileEntityBuildingController buildingController = BuildToWin.getBuildingControllerList(par3World).getBuildingController(par2EntityPlayer);
             
             if (buildingController != null) {
                 buildingController.placeBlueprint(par4, par5, par6, blockId, par3World.getBlockMetadata(par4, par5, par6));
                 
                 return true;
             } else {
+                System.out.println("fuuuuuuu");
+                
                 if (par3World.isRemote) {
                     Minecraft mc = FMLClientHandler.instance().getClient();
                     mc.ingameGUI.getChatGUI().printChatMessage(

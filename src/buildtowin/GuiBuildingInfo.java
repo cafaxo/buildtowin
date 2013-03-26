@@ -33,7 +33,7 @@ public class GuiBuildingInfo extends Gui {
         EntityPlayer player = Minecraft.getMinecraft().thePlayer;
         
         if (player != null) {
-            TileEntityBuildingController buildingController = BuildToWin.getBuildingController().getTileEntity(player);
+            TileEntityBuildingController buildingController = BuildToWin.buildingControllerListClient.getBuildingController(player);
             if (buildingController != null && buildingController.getDeadline() != 0) {
                 if (this.yPosition < 0) {
                     this.yPosition += this.ySpeed;

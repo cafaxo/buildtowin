@@ -1,6 +1,7 @@
 package buildtowin;
 
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Init;
 import cpw.mods.fml.common.Mod.Instance;
@@ -13,6 +14,8 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
+import cpw.mods.fml.common.registry.TickRegistry;
+import cpw.mods.fml.relauncher.Side;
 
 @Mod(modid = "BuildToWin", name = "Build To Win!", version = "0.1.0")
 @NetworkMod(clientSideRequired = true, serverSideRequired = false, channels = { "btwbcupdt", "btwtimsupdt", "btwbpupdt", "btwbpsav", "btwbpload", "btwstart", "btwstop" }, packetHandler = PacketHandler.class)
@@ -33,8 +36,24 @@ public class BuildToWin {
     
     public static BlueprintList clientBlueprintList;
     
+    public static BuildingControllerList buildingControllerListServer;
+    
+    public static BuildingControllerList buildingControllerListClient;
+    
+    public static BuildingControllerList getBuildingControllerList(World world) {
+        if (world.isRemote) {
+            return buildingControllerListClient;
+        } else {
+            return buildingControllerListServer;
+        }
+    }
+    
     @PreInit
     public void preInit(FMLPreInitializationEvent event) {
+        TickRegistry.registerTickHandler(new ServerTickHandler(), Side.SERVER);
+        
+        buildingControllerListServer = new BuildingControllerList();
+        buildingControllerListClient = new BuildingControllerList();
     }
     
     @Init

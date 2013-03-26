@@ -13,7 +13,9 @@ public class ClientProxy extends CommonProxy {
         
         BuildToWin.clientBlueprintList = new BlueprintList();
         
+        TickRegistry.registerTickHandler(new ClientRenderTickHandler(), Side.CLIENT);
         TickRegistry.registerTickHandler(new ClientTickHandler(), Side.CLIENT);
+        
         BuildToWin.blueprintRenderingId = RenderingRegistry.getNextAvailableRenderId();
         RenderingRegistry.registerBlockHandler(new BlueprintRenderer());
     }
