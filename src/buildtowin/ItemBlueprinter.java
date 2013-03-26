@@ -54,8 +54,6 @@ public class ItemBlueprinter extends Item {
                 
                 return true;
             } else {
-                System.out.println("fuuuuuuu");
-                
                 if (par3World.isRemote) {
                     Minecraft mc = FMLClientHandler.instance().getClient();
                     mc.ingameGUI.getChatGUI().printChatMessage(

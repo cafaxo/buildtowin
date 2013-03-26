@@ -37,8 +37,6 @@ public class BlueprintRenderer extends RenderBlocks implements ISimpleBlockRende
         this.fakeWorld = new FakeWorld(world);
         this.blockAccess = this.fakeWorld;
         
-        this.fakeWorld.overrideSurroundingBlueprints(par2, par3, par4);
-        
         this.renderMaxX = renderer.renderMaxX;
         this.renderMaxY = renderer.renderMaxY;
         this.renderMaxZ = renderer.renderMaxZ;
@@ -48,78 +46,31 @@ public class BlueprintRenderer extends RenderBlocks implements ISimpleBlockRende
         this.renderMinZ = renderer.renderMinZ;
         
         TileEntityBlueprint te = (TileEntityBlueprint) world.getBlockTileEntity(par2, par3, par4);
-        Block par1Block = Block.blocksList[te.getBlockId()];
+        Block fakeBlock = Block.blocksList[te.getBlockId()];
         
-        switch (par1Block.getRenderType()) {
-        case 0:
-            return this.renderStandardBlock(par1Block, par2, par3, par4);
+        switch (fakeBlock.getRenderType()) {
         case 31:
-            return this.renderBlockLog(par1Block, par2, par3, par4);
+            return this.renderBlockLog(fakeBlock, par2, par3, par4);
         case 1:
-            return this.renderCrossedSquares(par1Block, par2, par3, par4);
+            return this.renderCrossedSquares(fakeBlock, par2, par3, par4);
         case 2:
-            return this.renderBlockTorch(par1Block, par2, par3, par4);
-        case 20:
-            return this.renderBlockVine(par1Block, par2, par3, par4);
+            this.fakeWorld.overrideSurroundingBlueprints(par2, par3, par4);
+            return this.renderBlockTorch(fakeBlock, par2, par3, par4);
         case 11:
-            return this.renderBlockFence((BlockFence) par1Block, par2, par3, par4);
-        case 39:
-            return this.renderBlockQuartz(par1Block, par2, par3, par4);
-        case 5:
-            return this.renderBlockRedstoneWire(par1Block, par2, par3, par4);
-        case 13:
-            return this.renderBlockCactus(par1Block, par2, par3, par4);
-        case 9:
-            return this.renderBlockMinecartTrack((BlockRailBase) par1Block, par2, par3, par4);
-        case 19:
-            return this.renderBlockStem(par1Block, par2, par3, par4);
-        case 23:
-            return this.renderBlockLilyPad(par1Block, par2, par3, par4);
-        case 6:
-            return this.renderBlockCrops(par1Block, par2, par3, par4);
-        case 8:
-            return this.renderBlockLadder(par1Block, par2, par3, par4);
+            this.fakeWorld.overrideSurroundingBlueprints(par2, par3, par4);
+            return this.renderBlockFence((BlockFence) fakeBlock, par2, par3, par4);
         case 10:
-            return this.renderBlockStairs((BlockStairs) par1Block, par2, par3, par4);
-        case 27:
-            return this.renderBlockDragonEgg((BlockDragonEgg) par1Block, par2, par3, par4);
+            this.fakeWorld.overrideSurroundingBlueprints(par2, par3, par4);
+            return this.renderBlockStairs((BlockStairs) fakeBlock, par2, par3, par4);
         case 32:
-            return this.renderBlockWall((BlockWall) par1Block, par2, par3, par4);
-        case 12:
-            return this.renderBlockLever(par1Block, par2, par3, par4);
-        case 29:
-            return this.renderBlockTripWireSource(par1Block, par2, par3, par4);
-        case 30:
-            return this.renderBlockTripWire(par1Block, par2, par3, par4);
-        case 15:
-            return this.renderBlockRepeater((BlockRedstoneRepeater) par1Block, par2, par3, par4);
-        case 36:
-            return this.renderBlockRedstoneLogic((BlockRedstoneLogic) par1Block, par2, par3, par4);
-        case 37:
-            return this.renderBlockComparator((BlockComparator) par1Block, par2, par3, par4);
-        case 18:
-            return this.renderBlockPane((BlockPane) par1Block, par2, par3, par4);
+            this.fakeWorld.overrideSurroundingBlueprints(par2, par3, par4);
+            return this.renderBlockWall((BlockWall) fakeBlock, par2, par3, par4);
         case 21:
-            return this.renderBlockFenceGate((BlockFenceGate) par1Block, par2, par3, par4);
-        case 24:
-            return this.renderBlockCauldron((BlockCauldron) par1Block, par2, par3, par4);
-        case 33:
-            return this.renderBlockFlowerpot((BlockFlowerPot) par1Block, par2, par3, par4);
-        case 35:
-            return this.renderBlockAnvil((BlockAnvil) par1Block, par2, par3, par4);
-        case 25:
-            return this.renderBlockBrewingStand((BlockBrewingStand) par1Block, par2, par3, par4);
-        case 26:
-            return this.renderBlockEndPortalFrame((BlockEndPortalFrame) par1Block, par2, par3, par4);
-        case 28:
-            return this.renderBlockCocoa((BlockCocoa) par1Block, par2, par3, par4);
-        case 34:
-            return this.renderBlockBeacon((BlockBeacon) par1Block, par2, par3, par4);
-        case 38:
-            return this.renderBlockHopper((BlockHopper) par1Block, par2, par3, par4);
+            this.fakeWorld.overrideSurroundingBlueprints(par2, par3, par4);
+            return this.renderBlockFenceGate((BlockFenceGate) fakeBlock, par2, par3, par4);
+        default:
+            return this.renderStandardBlock(fakeBlock, par2, par3, par4);
         }
-        
-        return false;
     }
     
     @Override
