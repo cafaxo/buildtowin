@@ -31,7 +31,9 @@ public class ItemConnector extends Item {
                 
                 if (connectedBuildingController != buildingControllerToConnect) {
                     connectedBuildingController.addBuildingController(buildingControllerToConnect, true);
+                    
                     buildingControllerToConnect.addBuildingController(connectedBuildingController, true);
+                    buildingControllerToConnect.refreshColor(connectedBuildingController.getConnectedBuildingControllers().size());
                     
                     if (par3World.isRemote) {
                         Minecraft mc = FMLClientHandler.instance().getClient();

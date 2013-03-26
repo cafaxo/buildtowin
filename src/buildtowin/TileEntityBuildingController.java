@@ -38,6 +38,8 @@ public class TileEntityBuildingController extends TileEntity {
     
     private int finishedBlocks = 0;
     
+    private int color = 0;
+    
     public TileEntityBuildingController() {
     }
     
@@ -252,14 +254,7 @@ public class TileEntityBuildingController extends TileEntity {
             }
             
             if (realBlockId != BuildToWin.getBlueprint().blockID && realBlockId != blockData.id) {
-                this.worldObj.setBlock(blockData.x, blockData.y, blockData.z, BuildToWin.getBlueprint().blockID);
-                
-                TileEntityBlueprint te = (TileEntityBlueprint) this.worldObj.getBlockTileEntity(blockData.x, blockData.y, blockData.z);
-                
-                if (te != null) {
-                    te.setBlockId(blockData.id);
-                    te.setMetadata(blockData.metadata);
-                }
+                this.refreshBlueprint(blockData);
             }
         }
     }
@@ -320,6 +315,16 @@ public class TileEntityBuildingController extends TileEntity {
         }
     }
     
+    public void refreshBlueprint(BlockData blockData) {
+        this.worldObj.setBlock(blockData.x, blockData.y, blockData.z, BuildToWin.getBlueprint().blockID);
+        
+        TileEntityBlueprint blueprint = (TileEntityBlueprint) this.worldObj.getBlockTileEntity(blockData.x, blockData.y, blockData.z);
+        
+        blueprint.setBlockId(blockData.id);
+        blueprint.setMetadata(blockData.metadata);
+        blueprint.setColor(this.color);
+    }
+    
     public void placeBlueprint(BlockData blockData, boolean synchronize) {
         if (synchronize) {
             for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
@@ -331,12 +336,8 @@ public class TileEntityBuildingController extends TileEntity {
         int blockIdToOverwrite = this.worldObj.getBlockId(blockData.x, blockData.y, blockData.z);
         
         if (blockIdToOverwrite != BuildToWin.getBuildingController().blockID && blockIdToOverwrite != BuildToWin.getBlueprint().blockID) {
-            this.worldObj.setBlock(blockData.x, blockData.y, blockData.z, BuildToWin.getBlueprint().blockID);
-            TileEntityBlueprint blueprint = (TileEntityBlueprint) this.worldObj.getBlockTileEntity(blockData.x, blockData.y, blockData.z);
-            
+            this.refreshBlueprint(blockData);
             this.blockDataList.add(blockData);
-            blueprint.setBlockId(blockData.id);
-            blueprint.setMetadata(blockData.metadata);
         }
     }
     
@@ -367,7 +368,10 @@ public class TileEntityBuildingController extends TileEntity {
             }
         }
         
-        this.worldObj.setBlock(blockData.x, blockData.y, blockData.z, blockData.id, blockData.metadata, 3);
+        if (blockData != null) {
+            this.worldObj.setBlock(blockData.x, blockData.y, blockData.z, blockData.id, blockData.metadata, 3);
+        }
+        
         this.blockDataList.remove(blockData);
     }
     
@@ -432,15 +436,7 @@ public class TileEntityBuildingController extends TileEntity {
         
         while (iter.hasNext()) {
             BlockData blockData = iter.next();
-            
-            this.worldObj.setBlock(blockData.x, blockData.y, blockData.z, BuildToWin.getBlueprint().blockID);
-            
-            TileEntityBlueprint te = (TileEntityBlueprint) this.worldObj.getBlockTileEntity(blockData.x, blockData.y, blockData.z);
-            
-            if (te != null) {
-                te.setBlockId(blockData.id);
-                te.setMetadata(blockData.metadata);
-            }
+            this.refreshBlueprint(blockData);
         }
     }
     
@@ -523,6 +519,19 @@ public class TileEntityBuildingController extends TileEntity {
         }
         
         this.plannedTimespan = newTimespan;
+    }
+    
+    public void refreshColor(int color) {
+        this.color = color;
+        
+        for (BlockData blockData : this.blockDataList) {
+            TileEntityBlueprint blueprint = (TileEntityBlueprint) this.worldObj.getBlockTileEntity(blockData.x, blockData.y, blockData.z);
+            blueprint.setColor(this.color);
+        }
+    }
+    
+    public ArrayList<TileEntityBuildingController> getConnectedBuildingControllers() {
+        return connectedBuildingControllers;
     }
     
     public ArrayList<String> getConnectedPlayers() {

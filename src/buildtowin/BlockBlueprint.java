@@ -1,13 +1,11 @@
 package buildtowin;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.Icon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import cpw.mods.fml.client.FMLClientHandler;
@@ -77,11 +75,6 @@ public class BlockBlueprint extends BlockContainer {
     }
     
     @Override
-    public boolean shouldSideBeRendered(IBlockAccess par1IBlockAccess, int par2, int par3, int par4, int par5) {
-        return super.shouldSideBeRendered(par1IBlockAccess, par2, par3, par4, 1 - par5);
-    }
-    
-    @Override
     public TileEntityBlueprint createNewTileEntity(World world) {
         return new TileEntityBlueprint();
     }
@@ -102,17 +95,6 @@ public class BlockBlueprint extends BlockContainer {
         }
         
         return null;
-    }
-    
-    @Override
-    public Icon getBlockTexture(IBlockAccess par1IBlockAccess, int par2, int par3, int par4, int par5) {
-        TileEntityBlueprint te = (TileEntityBlueprint) par1IBlockAccess.getBlockTileEntity(par2, par3, par4);
-        
-        if (te.getBlockId() != 0) {
-            return Block.blocksList[te.getBlockId()].getBlockTextureFromSide(0);
-        } else {
-            return Block.blocksList[1].getBlockTextureFromSide(0);
-        }
     }
     
     @Override
