@@ -91,15 +91,18 @@ public class Blueprint {
             for (int y = 0; y < height; y++) {
                 for (int z = 0; z < length; z++) {
                     for (int x = 0; x < width; x++) {
-                        BlockData blockData = new BlockData(
-                                x,
-                                y,
-                                z,
-                                blockIds[index],
-                                blockMetadata[index]);
+                        if (blockIds[index] != 0) {
+                            BlockData blockData = new BlockData(
+                                    x,
+                                    y,
+                                    z,
+                                    blockIds[index],
+                                    blockMetadata[index]);
+                            
+                            this.blockDataList.add(blockData);
+                        }
                         
                         ++index;
-                        this.blockDataList.add(blockData);
                     }
                 }
             }
