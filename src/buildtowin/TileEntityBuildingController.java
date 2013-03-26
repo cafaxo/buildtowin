@@ -19,12 +19,13 @@ import net.minecraft.network.packet.Packet132TileEntityData;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.network.packet.Packet3Chat;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 
 public class TileEntityBuildingController extends TileEntity {
+    private ArrayList<TileEntityBuildingController> connectedBuildingControllers = new ArrayList<TileEntityBuildingController>();
+    
     private ArrayList<String> connectedPlayers = new ArrayList<String>();
     
     private ArrayList<EntityPlayer> connectedAndOnlinePlayers = new ArrayList<EntityPlayer>();
@@ -182,6 +183,36 @@ public class TileEntityBuildingController extends TileEntity {
         this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
     }
     
+    public void addBuildingController(TileEntityBuildingController buildingController) {
+        this.connectedBuildingControllers.add(buildingController);
+    }
+    
+    public void update() {
+        this.updateBlocks();
+        
+        if (this.getDeadline() != 0) {
+            if (this.getFinishedBlocks() == this.blockDataList.size()) {
+                this.deadline = 0;
+                
+                if (this.getConnectedAndOnlinePlayers().size() > 1) {
+                    this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Your team has won."), false);
+                } else {
+                    this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> You have won."), false);
+                }
+            } else if (this.getDeadline() <= this.worldObj.getTotalWorldTime()) {
+                this.deadline = 0;
+                
+                if (this.getConnectedAndOnlinePlayers().size() > 1) {
+                    this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Your team has lost."), false);
+                } else {
+                    this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> You have lost."), false);
+                }
+            }
+        }
+        
+        PacketDispatcher.sendPacketToAllPlayers(this.getDescriptionPacketOptimized());
+    }
+    
     public void updateBlocks() {
         Iterator<BlockData> iter = this.blockDataList.iterator();
         this.finishedBlocks = 0;
@@ -251,34 +282,66 @@ public class TileEntityBuildingController extends TileEntity {
         }
     }
     
-    public void placeBlueprint(int x, int y, int z, int id, int metadata) {
-        if (this.xCoord != x && this.yCoord != y && this.zCoord != z) {
-            if (this.getDeadline() == 0) {
-                this.worldObj.setBlock(x, y, z, BuildToWin.getBlueprint().blockID);
-                
-                TileEntityBlueprint blueprint = (TileEntityBlueprint) this.worldObj.getBlockTileEntity(x, y, z);
-                
-                if (blueprint != null) {
-                    this.addBlock(new BlockData(x, y, z, id, metadata));
-                    blueprint.setBlockId(id);
-                    blueprint.setMetadata(metadata);
-                }
-            } else {
-                if (this.worldObj.isRemote) {
-                    Minecraft mc = FMLClientHandler.instance().getClient();
-                    mc.ingameGUI.getChatGUI().printChatMessage(
-                            "<BuildToWin> Could not place the blueprint, because the game is running.");
-                }
+    public void placeBlueprint(BlockData blockData, boolean synchronize) {
+        if (synchronize) {
+            for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
+                buildingController.placeBlueprintRelative(new BlockData(
+                        blockData.x - this.xCoord, blockData.y - this.yCoord, blockData.z - this.zCoord, blockData.id, blockData.metadata), false);
             }
+        }
+        
+        int blockIdToOverwrite = this.worldObj.getBlockId(blockData.x, blockData.y, blockData.z);
+        
+        if (blockIdToOverwrite != BuildToWin.getBuildingController().blockID && blockIdToOverwrite != BuildToWin.getBlueprint().blockID) {
+            this.worldObj.setBlock(blockData.x, blockData.y, blockData.z, BuildToWin.getBlueprint().blockID);
+            TileEntityBlueprint blueprint = (TileEntityBlueprint) this.worldObj.getBlockTileEntity(blockData.x, blockData.y, blockData.z);
+            
+            this.blockDataList.add(blockData);
+            blueprint.setBlockId(blockData.id);
+            blueprint.setMetadata(blockData.metadata);
         }
     }
     
-    public void loadBlueprintRelative(ArrayList<BlockData> blockDataList) {
+    public void placeBlueprintRelative(BlockData blockData, boolean synchronize) {
+        this.placeBlueprint(new BlockData(
+                this.xCoord + blockData.x, this.yCoord + blockData.y, this.zCoord + blockData.z, blockData.id, blockData.metadata), synchronize);
+    }
+    
+    public void loadBlueprintRelative(ArrayList<BlockData> blockDataList, boolean synchronize) {
+        if (synchronize) {
+            for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
+                buildingController.loadBlueprintRelative(blockDataList, false);
+            }
+        }
+        
         this.removeAllBlocks();
         
         for (BlockData blockData : blockDataList) {
-            this.placeBlueprint(this.xCoord + blockData.x, this.yCoord + blockData.y, this.zCoord + blockData.z, blockData.id, blockData.metadata);
+            this.placeBlueprintRelative(blockData, false);
         }
+    }
+    
+    public void removeBlueprint(BlockData blockData, boolean synchronize) {
+        if (synchronize) {
+            for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
+                buildingController.removeBlueprintRelative(new BlockData(
+                        blockData.x - this.xCoord, blockData.y - this.yCoord, blockData.z - this.zCoord, blockData.id, blockData.metadata), false);
+            }
+        }
+        
+        this.worldObj.setBlock(blockData.x, blockData.y, blockData.z, blockData.id, blockData.metadata, 3);
+        this.blockDataList.remove(blockData);
+    }
+    
+    public void removeBlueprintRelative(BlockData blockData, boolean synchronize) {
+        if (synchronize) {
+            for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
+                buildingController.removeBlueprintRelative(blockData, false);
+            }
+        }
+        
+        BlockData blockDataToRemove = this.getBlockData(blockData.x + this.xCoord, blockData.y + this.yCoord, blockData.z + this.zCoord);
+        this.removeBlueprint(blockDataToRemove, false);
     }
     
     public BlockData getBlockData(int x, int y, int z) {
@@ -313,7 +376,13 @@ public class TileEntityBuildingController extends TileEntity {
         }
     }
     
-    public void sendPacketToConnectedPlayers(Packet packet) {
+    public void sendPacketToConnectedPlayers(Packet packet, boolean synchronize) {
+        if (synchronize) {
+            for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
+                buildingController.sendPacketToConnectedPlayers(packet, false);
+            }
+        }
+        
         for (EntityPlayer player : this.connectedAndOnlinePlayers) {
             PacketDispatcher.sendPacketToPlayer(packet, (Player) player);
         }
@@ -337,7 +406,13 @@ public class TileEntityBuildingController extends TileEntity {
         }
     }
     
-    public void startGame(EntityPlayer entityPlayer) {
+    public void startGame(EntityPlayer entityPlayer, boolean synchronize) {
+        if (synchronize) {
+            for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
+                buildingController.startGame(entityPlayer, false);
+            }
+        }
+        
         this.refreshConnectedAndOnlinePlayers();
         
         if (this.getConnectedAndOnlinePlayers().isEmpty()) {
@@ -346,18 +421,24 @@ public class TileEntityBuildingController extends TileEntity {
             PacketDispatcher.sendPacketToPlayer(new Packet3Chat("<BuildToWin> Could not start the game, because no blueprints exist."), (Player) entityPlayer);
         } else {
             this.resetAllBlocks();
-            this.setDeadline(this.worldObj.getTotalWorldTime() + this.getPlannedTimespan());
+            this.deadline = this.worldObj.getTotalWorldTime() + this.getPlannedTimespan();
             
             PacketDispatcher.sendPacketToPlayer(new Packet3Chat("<BuildToWin> Started the game successfully."), (Player) entityPlayer);
-            this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> The game has started."));
+            this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> The game has started."), true);
         }
     }
     
-    public void stopGame(EntityPlayer entityPlayer) {
-        this.setDeadline(0);
+    public void stopGame(EntityPlayer entityPlayer, boolean synchronize) {
+        if (synchronize) {
+            for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
+                buildingController.stopGame(entityPlayer, false);
+            }
+        }
+        
+        this.deadline = 0;
         
         PacketDispatcher.sendPacketToPlayer(new Packet3Chat("<BuildToWin> Stopped the game successfully."), (Player) entityPlayer);
-        PacketDispatcher.sendPacketToAllPlayers(new Packet3Chat("<BuildToWin> The game has been stopped."));
+        this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> The game has been stopped."), true);
     }
     
     public void removeAllBlocks() {
@@ -412,28 +493,17 @@ public class TileEntityBuildingController extends TileEntity {
         return plannedTimespan;
     }
     
-    public void setPlannedTimespan(long plannedTimespan) {
-        this.plannedTimespan = plannedTimespan;
-    }
-    
     public long getDeadline() {
         return deadline;
     }
     
-    public void setDeadline(long deadline) {
-        this.deadline = deadline;
-    }
-    
-    public void addBlock(BlockData blockData) {
-        this.blockDataList.add(blockData);
-    }
-    
-    public void removeBlock(BlockData blockData, World world) {
-        world.setBlock(blockData.x, blockData.y, blockData.z, blockData.id, blockData.metadata, 3);
-        this.blockDataList.remove(blockData);
-    }
-    
-    public void refreshTimespan(long newTimespan) {
+    public void refreshTimespan(long newTimespan, boolean synchronize) {
+        if (synchronize) {
+            for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
+                buildingController.refreshTimespan(newTimespan, false);
+            }
+        }
+        
         if (this.deadline != 0) {
             this.deadline = this.worldObj.getTotalWorldTime() + newTimespan;
         }

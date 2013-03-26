@@ -91,7 +91,7 @@ public class PacketHandler implements IPacketHandler {
             
             if (buildingController != null) {
                 if (blueprintIndex < BuildToWin.serverBlueprintList.getBlueprintList().size()) {
-                    buildingController.loadBlueprintRelative(BuildToWin.serverBlueprintList.getBlueprintList().get(blueprintIndex).getBlockDataList());
+                    buildingController.loadBlueprintRelative(BuildToWin.serverBlueprintList.getBlueprintList().get(blueprintIndex).getBlockDataList(), true);
                     PacketDispatcher.sendPacketToPlayer(new Packet3Chat("<BuildToWin> Loaded the blueprint successfully."), playerEntity);
                 }
             }
@@ -112,7 +112,7 @@ public class PacketHandler implements IPacketHandler {
             TileEntityBuildingController buildingController = (TileEntityBuildingController) player.worldObj.getBlockTileEntity(x, y, z);
             
             if (buildingController != null) {
-                buildingController.startGame(player);
+                buildingController.startGame(player, true);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -131,7 +131,7 @@ public class PacketHandler implements IPacketHandler {
             TileEntityBuildingController buildingController = (TileEntityBuildingController) player.worldObj.getBlockTileEntity(x, y, z);
             
             if (buildingController != null) {
-                buildingController.stopGame(player);
+                buildingController.stopGame(player, true);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -151,7 +151,7 @@ public class PacketHandler implements IPacketHandler {
             TileEntityBuildingController buildingController = (TileEntityBuildingController) player.worldObj.getBlockTileEntity(x, y, z);
             
             if (buildingController != null) {
-                buildingController.refreshTimespan(plannedTimespan);
+                buildingController.refreshTimespan(plannedTimespan, true);
             }
         } catch (IOException e) {
             e.printStackTrace();

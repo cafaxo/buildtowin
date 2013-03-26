@@ -31,7 +31,7 @@ public class ItemBlueprinter extends Item {
                 BlockData blockData = buildingController.getBlockData(par4, par5, par6);
                 
                 if (blockData != null) {
-                    buildingController.removeBlock(blockData, par3World);
+                    buildingController.removeBlueprint(blockData, true);
                 }
             } else if (par3World.isRemote) {
                 Minecraft mc = FMLClientHandler.instance().getClient();
@@ -50,7 +50,7 @@ public class ItemBlueprinter extends Item {
             TileEntityBuildingController buildingController = BuildToWin.getBuildingControllerList(par3World).getBuildingController(par2EntityPlayer);
             
             if (buildingController != null) {
-                buildingController.placeBlueprint(par4, par5, par6, blockId, par3World.getBlockMetadata(par4, par5, par6));
+                buildingController.placeBlueprint(new BlockData(par4, par5, par6, blockId, par3World.getBlockMetadata(par4, par5, par6)), true);
                 
                 return true;
             } else {

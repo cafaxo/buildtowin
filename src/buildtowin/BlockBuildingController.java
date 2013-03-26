@@ -8,13 +8,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.network.packet.Packet3Chat;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Icon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -40,32 +38,7 @@ public class BlockBuildingController extends BlockContainer {
     @Override
     public void updateTick(World par1World, int x, int y, int z, Random par5Random) {
         TileEntityBuildingController buildingController = (TileEntityBuildingController) par1World.getBlockTileEntity(x, y, z);
-        
-        buildingController.updateBlocks();
-        buildingController.refreshConnectedAndOnlinePlayers();
-        
-        if (buildingController.getDeadline() != 0) {
-            if (buildingController.getFinishedBlocks() == buildingController.getBlockDataList().size()) {
-                buildingController.setDeadline(0);
-                
-                if (buildingController.getConnectedAndOnlinePlayers().size() > 1) {
-                    buildingController.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Your team has won."));
-                } else {
-                    buildingController.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> You have won."));
-                }
-            } else if (buildingController.getDeadline() <= par1World.getTotalWorldTime()) {
-                buildingController.setDeadline(0);
-                
-                if (buildingController.getConnectedAndOnlinePlayers().size() > 1) {
-                    buildingController.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Your team has lost."));
-                } else {
-                    buildingController.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> You have lost."));
-                }
-            }
-        }
-        
-        PacketDispatcher.sendPacketToAllPlayers(BuildToWin.serverBlueprintList.getDescriptionPacket());
-        PacketDispatcher.sendPacketToAllPlayers(buildingController.getDescriptionPacketOptimized());
+        buildingController.update();
         
         par1World.scheduleBlockUpdate(x, y, z, this.blockID, this.tickRate(par1World));
     }
@@ -74,7 +47,8 @@ public class BlockBuildingController extends BlockContainer {
     public boolean onBlockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
     {
         if (par5EntityPlayer.getCurrentEquippedItem() != null) {
-            if (par5EntityPlayer.getCurrentEquippedItem().itemID == BuildToWin.getBlueprinter().itemID) {
+            if (par5EntityPlayer.getCurrentEquippedItem().itemID == BuildToWin.getBlueprinter().itemID ||
+                    par5EntityPlayer.getCurrentEquippedItem().itemID == BuildToWin.getConnector().itemID) {
                 return false;
             }
         }
