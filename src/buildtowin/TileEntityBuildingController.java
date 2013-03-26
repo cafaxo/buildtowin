@@ -252,21 +252,23 @@ public class TileEntityBuildingController extends TileEntity {
     }
     
     public void placeBlueprint(int x, int y, int z, int id, int metadata) {
-        if (this.getDeadline() == 0) {
-            this.worldObj.setBlock(x, y, z, BuildToWin.getBlueprint().blockID);
-            
-            TileEntityBlueprint blueprint = (TileEntityBlueprint) this.worldObj.getBlockTileEntity(x, y, z);
-            
-            if (blueprint != null) {
-                this.addBlock(new BlockData(x, y, z, id, metadata));
-                blueprint.setBlockId(id);
-                blueprint.setMetadata(metadata);
-            }
-        } else {
-            if (this.worldObj.isRemote) {
-                Minecraft mc = FMLClientHandler.instance().getClient();
-                mc.ingameGUI.getChatGUI().printChatMessage(
-                        "<BuildToWin> Could not place the blueprint, because the game is running.");
+        if (this.xCoord != x && this.yCoord != y && this.zCoord != z) {
+            if (this.getDeadline() == 0) {
+                this.worldObj.setBlock(x, y, z, BuildToWin.getBlueprint().blockID);
+                
+                TileEntityBlueprint blueprint = (TileEntityBlueprint) this.worldObj.getBlockTileEntity(x, y, z);
+                
+                if (blueprint != null) {
+                    this.addBlock(new BlockData(x, y, z, id, metadata));
+                    blueprint.setBlockId(id);
+                    blueprint.setMetadata(metadata);
+                }
+            } else {
+                if (this.worldObj.isRemote) {
+                    Minecraft mc = FMLClientHandler.instance().getClient();
+                    mc.ingameGUI.getChatGUI().printChatMessage(
+                            "<BuildToWin> Could not place the blueprint, because the game is running.");
+                }
             }
         }
     }

@@ -10,6 +10,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTTagCompound;
+
 public class Blueprint {
     private String name;
     
@@ -64,6 +67,51 @@ public class Blueprint {
         }
         
         return true;
+    }
+    
+    public boolean readSchematic(File file) {
+        NBTTagCompound nbt;
+        try {
+            nbt = CompressedStreamTools.readCompressed(new FileInputStream(file));
+            
+            this.name = file.getName();
+            this.author = "Unknown";
+            
+            int width = nbt.getShort("Width");
+            int height = nbt.getShort("Height");
+            int length = nbt.getShort("Length");
+            
+            byte[] blockIds = nbt.getByteArray("Blocks");
+            byte[] blockMetadata = nbt.getByteArray("Data");
+            
+            this.blockDataList = new ArrayList<BlockData>();
+            
+            int index = 0;
+            
+            for (int y = 0; y < height; y++) {
+                for (int z = 0; z < length; z++) {
+                    for (int x = 0; x < width; x++) {
+                        BlockData blockData = new BlockData(
+                                x,
+                                y,
+                                z,
+                                blockIds[index],
+                                blockMetadata[index]);
+                        
+                        ++index;
+                        this.blockDataList.add(blockData);
+                    }
+                }
+            }
+            
+            return true;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        return false;
     }
     
     public boolean write(File file) {

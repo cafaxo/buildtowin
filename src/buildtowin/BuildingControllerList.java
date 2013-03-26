@@ -45,14 +45,12 @@ public class BuildingControllerList {
         
         for (Object tileEntity : MinecraftServer.getServer().worldServers[0].loadedTileEntityList) {
             if (tileEntity instanceof TileEntityBuildingController) {
-                System.out.println("server tick: found bc");
                 TileEntityBuildingController buildingController = (TileEntityBuildingController) tileEntity;
                 
                 this.buildingControllerList.add(buildingController);
                 buildingController.refreshConnectedAndOnlinePlayers();
                 
                 for (EntityPlayer player : buildingController.getConnectedAndOnlinePlayers()) {
-                    System.out.println("server tick: connected player to bc");
                     playerToBuildingController.put(player.entityId, buildingController);
                 }
             }

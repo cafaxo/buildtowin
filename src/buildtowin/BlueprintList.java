@@ -38,12 +38,16 @@ public class BlueprintList {
             List<File> blueprintFiles = Arrays.asList(this.blueprintDir.listFiles());
             
             for (File blueprintFile : blueprintFiles) {
-                if (blueprintFile.getAbsolutePath().endsWith(".blueprint")) {
-                    
+                if (blueprintFile.getAbsolutePath().endsWith("blueprint")) {
                     Blueprint blueprint = new Blueprint();
                     
                     if (blueprint.read(blueprintFile)) {
-                        
+                        this.blueprintList.add(blueprint);
+                    }
+                } else if (blueprintFile.getAbsolutePath().endsWith("schematic")) {
+                    Blueprint blueprint = new Blueprint();
+                    
+                    if (blueprint.readSchematic(blueprintFile)) {
                         this.blueprintList.add(blueprint);
                     }
                 }

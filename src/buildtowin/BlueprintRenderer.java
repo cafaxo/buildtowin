@@ -1,22 +1,8 @@
 package buildtowin;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockAnvil;
-import net.minecraft.block.BlockBeacon;
-import net.minecraft.block.BlockBrewingStand;
-import net.minecraft.block.BlockCauldron;
-import net.minecraft.block.BlockCocoa;
-import net.minecraft.block.BlockComparator;
-import net.minecraft.block.BlockDragonEgg;
-import net.minecraft.block.BlockEndPortalFrame;
 import net.minecraft.block.BlockFence;
 import net.minecraft.block.BlockFenceGate;
-import net.minecraft.block.BlockFlowerPot;
-import net.minecraft.block.BlockHopper;
-import net.minecraft.block.BlockPane;
-import net.minecraft.block.BlockRailBase;
-import net.minecraft.block.BlockRedstoneLogic;
-import net.minecraft.block.BlockRedstoneRepeater;
 import net.minecraft.block.BlockStairs;
 import net.minecraft.block.BlockWall;
 import net.minecraft.client.renderer.EntityRenderer;
@@ -47,30 +33,33 @@ public class BlueprintRenderer extends RenderBlocks implements ISimpleBlockRende
         
         TileEntityBlueprint te = (TileEntityBlueprint) world.getBlockTileEntity(par2, par3, par4);
         Block fakeBlock = Block.blocksList[te.getBlockId()];
-        
-        switch (fakeBlock.getRenderType()) {
-        case 31:
-            return this.renderBlockLog(fakeBlock, par2, par3, par4);
-        case 1:
-            return this.renderCrossedSquares(fakeBlock, par2, par3, par4);
-        case 2:
-            this.fakeWorld.overrideSurroundingBlueprints(par2, par3, par4);
-            return this.renderBlockTorch(fakeBlock, par2, par3, par4);
-        case 11:
-            this.fakeWorld.overrideSurroundingBlueprints(par2, par3, par4);
-            return this.renderBlockFence((BlockFence) fakeBlock, par2, par3, par4);
-        case 10:
-            this.fakeWorld.overrideSurroundingBlueprints(par2, par3, par4);
-            return this.renderBlockStairs((BlockStairs) fakeBlock, par2, par3, par4);
-        case 32:
-            this.fakeWorld.overrideSurroundingBlueprints(par2, par3, par4);
-            return this.renderBlockWall((BlockWall) fakeBlock, par2, par3, par4);
-        case 21:
-            this.fakeWorld.overrideSurroundingBlueprints(par2, par3, par4);
-            return this.renderBlockFenceGate((BlockFenceGate) fakeBlock, par2, par3, par4);
-        default:
-            return this.renderStandardBlock(fakeBlock, par2, par3, par4);
+        if (fakeBlock != null) {
+            switch (fakeBlock.getRenderType()) {
+            case 31:
+                return this.renderBlockLog(fakeBlock, par2, par3, par4);
+            case 1:
+                return this.renderCrossedSquares(fakeBlock, par2, par3, par4);
+            case 2:
+                this.fakeWorld.overrideSurroundingBlueprints(par2, par3, par4);
+                return this.renderBlockTorch(fakeBlock, par2, par3, par4);
+            case 11:
+                this.fakeWorld.overrideSurroundingBlueprints(par2, par3, par4);
+                return this.renderBlockFence((BlockFence) fakeBlock, par2, par3, par4);
+            case 10:
+                this.fakeWorld.overrideSurroundingBlueprints(par2, par3, par4);
+                return this.renderBlockStairs((BlockStairs) fakeBlock, par2, par3, par4);
+            case 32:
+                this.fakeWorld.overrideSurroundingBlueprints(par2, par3, par4);
+                return this.renderBlockWall((BlockWall) fakeBlock, par2, par3, par4);
+            case 21:
+                this.fakeWorld.overrideSurroundingBlueprints(par2, par3, par4);
+                return this.renderBlockFenceGate((BlockFenceGate) fakeBlock, par2, par3, par4);
+            default:
+                return this.renderStandardBlock(fakeBlock, par2, par3, par4);
+            }
         }
+        
+        return false;
     }
     
     @Override
