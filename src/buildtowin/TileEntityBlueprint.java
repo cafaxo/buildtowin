@@ -17,7 +17,7 @@ public class TileEntityBlueprint extends TileEntity {
     
     private int metadata = 0;
     
-    private int color = 0;
+    private byte color = 0;
     
     public TileEntityBlueprint() {
     }
@@ -28,7 +28,7 @@ public class TileEntityBlueprint extends TileEntity {
         
         par1NBTTagCompound.setInteger("blockid", this.blockId);
         par1NBTTagCompound.setInteger("metadata", this.metadata);
-        par1NBTTagCompound.setInteger("color", this.color);
+        par1NBTTagCompound.setByte("color", this.color);
     }
     
     @Override
@@ -37,7 +37,7 @@ public class TileEntityBlueprint extends TileEntity {
         
         this.blockId = par1NBTTagCompound.getInteger("blockid");
         this.metadata = par1NBTTagCompound.getInteger("metadata");
-        this.color = par1NBTTagCompound.getInteger("color");
+        this.color = par1NBTTagCompound.getByte("color");
     }
     
     @Override
@@ -69,11 +69,11 @@ public class TileEntityBlueprint extends TileEntity {
         this.metadata = metadata;
     }
     
-    public int getColor() {
+    public byte getColor() {
         return color;
     }
     
-    public void setColor(int color) {
+    public void setColor(byte color) {
         this.color = color;
     }
 }

@@ -1,7 +1,9 @@
 package buildtowin;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Init;
 import cpw.mods.fml.common.Mod.Instance;
@@ -16,6 +18,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 @Mod(modid = "BuildToWin", name = "Build To Win!", version = "0.1.0")
 @NetworkMod(clientSideRequired = true, serverSideRequired = false, channels = { "btwbcupdt", "btwtimsupdt", "btwbpupdt", "btwbpsav", "btwbpload", "btwstart", "btwstop" }, packetHandler = PacketHandler.class)
@@ -40,14 +43,6 @@ public class BuildToWin {
     public static BuildingControllerList buildingControllerListServer;
     
     public static BuildingControllerList buildingControllerListClient;
-    
-    public static BuildingControllerList getBuildingControllerList(World world) {
-        if (world.isRemote) {
-            return buildingControllerListClient;
-        } else {
-            return buildingControllerListServer;
-        }
-    }
     
     @PreInit
     public void preInit(FMLPreInitializationEvent event) {
@@ -75,6 +70,22 @@ public class BuildToWin {
     
     @PostInit
     public void postInit(FMLPostInitializationEvent event) {
+    }
+    
+    public static BuildingControllerList getBuildingControllerList(World world) {
+        if (world.isRemote) {
+            return buildingControllerListClient;
+        } else {
+            return buildingControllerListServer;
+        }
+    }
+    
+    @SideOnly(Side.CLIENT)
+    public static void printChatMessage(World world, String string) {
+        if (world.isRemote) {
+            Minecraft mc = FMLClientHandler.instance().getClient();
+            mc.ingameGUI.getChatGUI().printChatMessage("<BuildToWin> " + string);
+        }
     }
     
     public static BlockBuildingController getBuildingController() {

@@ -1,12 +1,10 @@
 package buildtowin;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -32,10 +30,8 @@ public class ItemBlueprinter extends Item {
                 if (blockData != null) {
                     buildingController.removeBlueprint(blockData, true);
                 }
-            } else if (player.worldObj.isRemote) {
-                Minecraft mc = FMLClientHandler.instance().getClient();
-                mc.ingameGUI.getChatGUI().printChatMessage(
-                        "<BuildToWin> Please connect to the Building Controller.");
+            } else {
+                BuildToWin.printChatMessage(player.worldObj, "Please connect to the Building Controller.");
             }
         } else if (blockId == BuildToWin.getBuildingController().blockID) {
             TileEntityBuildingController buildingController = (TileEntityBuildingController) player.worldObj.getBlockTileEntity(x, y, z);
@@ -50,10 +46,8 @@ public class ItemBlueprinter extends Item {
             
             if (buildingController != null) {
                 buildingController.placeBlueprint(new BlockData(x, y, z, blockId, player.worldObj.getBlockMetadata(x, y, z)), true);
-            } else if (player.worldObj.isRemote) {
-                Minecraft mc = FMLClientHandler.instance().getClient();
-                mc.ingameGUI.getChatGUI().printChatMessage(
-                        "<BuildToWin> Please connect to the Building Controller.");
+            } else {
+                BuildToWin.printChatMessage(player.worldObj, "Please connect to the Building Controller.");
             }
         }
         

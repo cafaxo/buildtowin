@@ -2,13 +2,11 @@ package buildtowin;
 
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -29,28 +27,18 @@ public class BlockBlueprint extends BlockContainer {
             
             if (blockData != null) {
                 if (buildingController.getDeadline() == 0) {
-                    if (par1World.isRemote) {
-                        Minecraft mc = FMLClientHandler.instance().getClient();
-                        
-                        mc.ingameGUI.getChatGUI().printChatMessage(
-                                "<BuildToWin> The game has not started yet.");
-                    }
+                    BuildToWin.printChatMessage(par1World, "The game has not started yet.");
                 } else if (par5EntityPlayer.inventory.getCurrentItem() != null) {
                     if (par5EntityPlayer.inventory.getCurrentItem().itemID == blockData.id) {
                         par1World.setBlock(par2, par3, par4, blockData.id, blockData.metadata, 3);
                         par5EntityPlayer.inventory.consumeInventoryItem(blockData.id);
                     }
                 }
-            } else if (par1World.isRemote) {
-                Minecraft mc = FMLClientHandler.instance().getClient();
-                
-                mc.ingameGUI.getChatGUI().printChatMessage(
-                        "<BuildToWin> This blueprint does not belong to your Building Controller.");
+            } else {
+                BuildToWin.printChatMessage(par1World, "This blueprint does not belong to your Building Controller.");
             }
-        } else if (par1World.isRemote) {
-            Minecraft mc = FMLClientHandler.instance().getClient();
-            mc.ingameGUI.getChatGUI().printChatMessage(
-                    "<BuildToWin> Please connect to the Building Controller.");
+        } else {
+            BuildToWin.printChatMessage(par1World, "Please connect to the Building Controller.");
         }
     }
     
