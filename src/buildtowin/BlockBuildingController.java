@@ -54,7 +54,6 @@ public class BlockBuildingController extends BlockContainer {
         }
         
         if (par1World.isRemote) {
-            
             TileEntityBuildingController buildingController = (TileEntityBuildingController) par1World.getBlockTileEntity(par2, par3, par4);
             this.displayBuildingSettings(buildingController, par5EntityPlayer);
         }

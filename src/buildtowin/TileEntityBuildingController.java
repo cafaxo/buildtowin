@@ -5,8 +5,10 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -55,6 +57,16 @@ public class TileEntityBuildingController extends TileEntity {
         
         par1NBTTagCompound.setTag("players", connectedPlayersNbt);
         
+        int rawConnectedBuildingControllers[] = new int[this.connectedBuildingControllers.size() * 3];
+        
+        for (int i = 0; i < this.connectedBuildingControllers.size(); ++i) {
+            rawConnectedBuildingControllers[i * 3] = this.connectedBuildingControllers.get(i).xCoord;
+            rawConnectedBuildingControllers[i * 3 + 1] = this.connectedBuildingControllers.get(i).yCoord;
+            rawConnectedBuildingControllers[i * 3 + 2] = this.connectedBuildingControllers.get(i).zCoord;
+        }
+        
+        par1NBTTagCompound.setIntArray("buildingcontrollers", rawConnectedBuildingControllers);
+        
         int rawBlockDataList[] = new int[blockDataList.size() * 5];
         
         for (int i = 0; i < blockDataList.size(); ++i) {
@@ -72,6 +84,8 @@ public class TileEntityBuildingController extends TileEntity {
         par1NBTTagCompound.setLong("deadline", this.deadline);
         
         par1NBTTagCompound.setInteger("finishedblocks", this.finishedBlocks);
+        
+        par1NBTTagCompound.setInteger("color", this.color);
     }
     
     @Override
@@ -83,6 +97,16 @@ public class TileEntityBuildingController extends TileEntity {
         
         for (int i = 0; i < connectedPlayersNbt.tagCount(); ++i) {
             this.connectedPlayers.add(((NBTTagString) connectedPlayersNbt.tagAt(i)).data);
+        }
+        
+        this.connectedBuildingControllers.clear();
+        int rawConnectedBuildingControllers[] = par1NBTTagCompound.getIntArray("buildingcontrollers");
+        
+        for (int i = 0; i < rawConnectedBuildingControllers.length / 3; ++i) {
+            this.connectedBuildingControllers.add((TileEntityBuildingController) this.worldObj.getBlockTileEntity(
+                    rawConnectedBuildingControllers[i * 3],
+                    rawConnectedBuildingControllers[i * 3 + 1],
+                    rawConnectedBuildingControllers[i * 3 + 2]));
         }
         
         this.blockDataList.clear();
@@ -104,6 +128,8 @@ public class TileEntityBuildingController extends TileEntity {
         this.deadline = par1NBTTagCompound.getLong("deadline");
         
         this.finishedBlocks = par1NBTTagCompound.getInteger("finishedblocks");
+        
+        this.color = par1NBTTagCompound.getInteger("color");
     }
     
     @Override
@@ -136,6 +162,14 @@ public class TileEntityBuildingController extends TileEntity {
                 dataoutputstream.writeInt(player.entityId);
             }
             
+            dataoutputstream.writeInt(this.connectedBuildingControllers.size());
+            
+            for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
+                dataoutputstream.writeInt(buildingController.xCoord);
+                dataoutputstream.writeInt(buildingController.yCoord);
+                dataoutputstream.writeInt(buildingController.zCoord);
+            }
+            
             dataoutputstream.writeInt(this.blockDataList.size());
             
             for (BlockData blockData : this.blockDataList) {
@@ -149,6 +183,7 @@ public class TileEntityBuildingController extends TileEntity {
             dataoutputstream.writeLong(this.plannedTimespan);
             dataoutputstream.writeLong(this.deadline);
             dataoutputstream.writeInt(this.finishedBlocks);
+            dataoutputstream.writeInt(this.color);
             
             return new Packet250CustomPayload("btwbcupdt", bytearrayoutputstream.toByteArray());
         } catch (Exception exception) {
@@ -170,6 +205,18 @@ public class TileEntityBuildingController extends TileEntity {
             }
         }
         
+        this.connectedBuildingControllers.clear();
+        int connectedBuildingControllersCount = inputStream.readInt();
+        
+        for (int i = 0; i < connectedBuildingControllersCount; ++i) {
+            TileEntityBuildingController buildingController = (TileEntityBuildingController) this.worldObj.getBlockTileEntity(
+                    inputStream.readInt(), inputStream.readInt(), inputStream.readInt());
+            
+            if (buildingController != null) {
+                this.connectedBuildingControllers.add(buildingController);
+            }
+        }
+        
         this.blockDataList.clear();
         int blockDataCount = inputStream.readInt();
         
@@ -181,6 +228,7 @@ public class TileEntityBuildingController extends TileEntity {
         this.plannedTimespan = inputStream.readLong();
         this.deadline = inputStream.readLong();
         this.finishedBlocks = inputStream.readInt();
+        this.color = inputStream.readInt();
         
         this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
     }
@@ -189,7 +237,7 @@ public class TileEntityBuildingController extends TileEntity {
         this.updateBlocks();
         
         if (this.getDeadline() != 0) {
-            if (this.getFinishedBlocks() == this.blockDataList.size()) {
+            if (this.finishedBlocks == this.blockDataList.size()) {
                 this.deadline = 0;
                 
                 this.sendWinMessage();
@@ -198,7 +246,7 @@ public class TileEntityBuildingController extends TileEntity {
                     buildingController.deadline = 0;
                     buildingController.sendLoseMessage();
                 }
-            } else if (this.getDeadline() <= this.worldObj.getTotalWorldTime()) {
+            } else if (this.deadline <= this.worldObj.getTotalWorldTime()) {
                 this.deadline = 0;
                 
                 TileEntityBuildingController bestTeam = this;
@@ -211,7 +259,9 @@ public class TileEntityBuildingController extends TileEntity {
                 
                 bestTeam.sendWinMessage();
                 
-                this.sendLoseMessage();
+                if (this != bestTeam) {
+                    this.sendLoseMessage(); 
+                }
                 
                 for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
                     if (buildingController != bestTeam) {
@@ -234,10 +284,18 @@ public class TileEntityBuildingController extends TileEntity {
     }
     
     private void sendLoseMessage() {
-        if (this.getConnectedAndOnlinePlayers().size() > 1) {
-            this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Your team has lost."), false);
+        if (this.connectedBuildingControllers.size() > 0) {
+            if (this.getConnectedAndOnlinePlayers().size() > 1) {
+                this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Your team reached the " + this.getRanking() + ". place."), false);
+            } else {
+                this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> You have reached the " + this.getRanking() + ". place."), false);
+            }
         } else {
-            this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> You have lost."), false);
+            if (this.getConnectedAndOnlinePlayers().size() > 1) {
+                this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Your team has lost."), false);
+            } else {
+                this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> You have lost."), false);
+            }
         }
     }
     
@@ -333,12 +391,66 @@ public class TileEntityBuildingController extends TileEntity {
             }
         }
         
-        int blockIdToOverwrite = this.worldObj.getBlockId(blockData.x, blockData.y, blockData.z);
-        
-        if (blockIdToOverwrite != BuildToWin.getBuildingController().blockID && blockIdToOverwrite != BuildToWin.getBlueprint().blockID) {
-            this.refreshBlueprint(blockData);
-            this.blockDataList.add(blockData);
+        if (blockData.id != BuildToWin.getBuildingController().blockID && blockData.id != BuildToWin.getBlueprint().blockID) {
+            if (blockData.id == Block.doorWood.blockID) {
+                this.placeBlueprintDoor(blockData);
+            } else if (blockData.id == Block.bed.blockID) {
+                this.placeBlueprintBed(blockData);
+            } else {
+                this.refreshBlueprint(blockData);
+                this.blockDataList.add(blockData);
+            }
         }
+    }
+    
+    private void placeBlueprintDoor(BlockData blockData) {
+        if (this.worldObj.getBlockId(blockData.x, blockData.y + 1, blockData.z) == Block.doorWood.blockID) {
+            int metadata = this.worldObj.getBlockMetadata(blockData.x, blockData.y + 1, blockData.z);
+            BlockData overCurrentData = new BlockData(blockData.x, blockData.y + 1, blockData.z, Block.doorWood.blockID, metadata);
+            
+            this.refreshBlueprint(overCurrentData);
+            this.blockDataList.add(overCurrentData);
+        } else if (this.worldObj.getBlockId(blockData.x, blockData.y - 1, blockData.z) == Block.doorWood.blockID) {
+            int metadata = this.worldObj.getBlockMetadata(blockData.x, blockData.y - 1, blockData.z);
+            BlockData underCurrentData = new BlockData(blockData.x, blockData.y - 1, blockData.z, Block.doorWood.blockID, metadata);
+            
+            this.refreshBlueprint(underCurrentData);
+            this.blockDataList.add(underCurrentData);
+        }
+        
+        this.refreshBlueprint(blockData);
+        this.blockDataList.add(blockData);
+    }
+    
+    private void placeBlueprintBed(BlockData blockData) {
+        if (this.worldObj.getBlockId(blockData.x + 1, blockData.y, blockData.z) == Block.bed.blockID) {
+            int metadata = this.worldObj.getBlockMetadata(blockData.x + 1, blockData.y, blockData.z);
+            BlockData blockDataSecondPart = new BlockData(blockData.x + 1, blockData.y, blockData.z, Block.bed.blockID, metadata);
+            
+            this.refreshBlueprint(blockDataSecondPart);
+            this.blockDataList.add(blockDataSecondPart);
+        } else if (this.worldObj.getBlockId(blockData.x, blockData.y, blockData.z + 1) == Block.bed.blockID) {
+            int metadata = this.worldObj.getBlockMetadata(blockData.x, blockData.y, blockData.z + 1);
+            BlockData blockDataSecondPart = new BlockData(blockData.x, blockData.y, blockData.z + 1, Block.bed.blockID, metadata);
+            
+            this.refreshBlueprint(blockDataSecondPart);
+            this.blockDataList.add(blockDataSecondPart);
+        } else if (this.worldObj.getBlockId(blockData.x - 1, blockData.y, blockData.z) == Block.bed.blockID) {
+            int metadata = this.worldObj.getBlockMetadata(blockData.x - 1, blockData.y, blockData.z);
+            BlockData blockDataSecondPart = new BlockData(blockData.x - 1, blockData.y, blockData.z, Block.bed.blockID, metadata);
+            
+            this.refreshBlueprint(blockDataSecondPart);
+            this.blockDataList.add(blockDataSecondPart);
+        } else if (this.worldObj.getBlockId(blockData.x, blockData.y, blockData.z - 1) == Block.bed.blockID) {
+            int metadata = this.worldObj.getBlockMetadata(blockData.x, blockData.y, blockData.z - 1);
+            BlockData blockDataSecondPart = new BlockData(blockData.x, blockData.y, blockData.z - 1, Block.bed.blockID, metadata);
+            
+            this.refreshBlueprint(blockDataSecondPart);
+            this.blockDataList.add(blockDataSecondPart);
+        }
+        
+        this.refreshBlueprint(blockData);
+        this.blockDataList.add(blockData);
     }
     
     public void placeBlueprintRelative(BlockData blockData, boolean synchronize) {
@@ -369,10 +481,46 @@ public class TileEntityBuildingController extends TileEntity {
         }
         
         if (blockData != null) {
-            this.worldObj.setBlock(blockData.x, blockData.y, blockData.z, blockData.id, blockData.metadata, 3);
+            if (blockData.id == Block.doorWood.blockID) {
+                this.removeBlueprintDoor(blockData);
+            } else if (blockData.id == Block.bed.blockID) {
+                this.removeBlueprintBed(blockData);
+            } else {
+                this.worldObj.setBlock(blockData.x, blockData.y, blockData.z, blockData.id, blockData.metadata, 3);
+            }
         }
         
         this.blockDataList.remove(blockData);
+    }
+    
+    public void removeBlueprintDoor(BlockData blockData) {
+        BlockData secondPart = null;
+        
+        if ((secondPart = this.getBlockData(blockData.x, blockData.y + 1, blockData.z)) != null && secondPart.id == Block.doorWood.blockID) {
+        } else if ((secondPart = this.getBlockData(blockData.x, blockData.y - 1, blockData.z)) != null && secondPart.id == Block.doorWood.blockID) {
+        }
+        
+        this.blockDataList.remove(blockData);
+        this.blockDataList.remove(secondPart);
+        
+        this.worldObj.setBlock(blockData.x, blockData.y, blockData.z, blockData.id, blockData.metadata, 3);
+        this.worldObj.setBlock(secondPart.x, secondPart.y, secondPart.z, secondPart.id, secondPart.metadata, 3);
+    }
+    
+    private void removeBlueprintBed(BlockData blockData) {
+        BlockData secondPart = null;
+        
+        if ((secondPart = this.getBlockData(blockData.x + 1, blockData.y, blockData.z)) != null && secondPart.id == Block.bed.blockID) {
+        } else if ((secondPart = this.getBlockData(blockData.x, blockData.y, blockData.z + 1)) != null && secondPart.id == Block.bed.blockID) {
+        } else if ((secondPart = this.getBlockData(blockData.x - 1, blockData.y, blockData.z)) != null && secondPart.id == Block.bed.blockID) {
+        } else if ((secondPart = this.getBlockData(blockData.x, blockData.y, blockData.z - 1)) != null && secondPart.id == Block.bed.blockID) {
+        }
+        
+        this.blockDataList.remove(blockData);
+        this.blockDataList.remove(secondPart);
+        
+        this.worldObj.setBlock(blockData.x, blockData.y, blockData.z, blockData.id, blockData.metadata, 3);
+        this.worldObj.setBlock(secondPart.x, secondPart.y, secondPart.z, secondPart.id, secondPart.metadata, 3);
     }
     
     public void removeBlueprintRelative(BlockData blockData, boolean synchronize) {
@@ -556,6 +704,32 @@ public class TileEntityBuildingController extends TileEntity {
     
     public ArrayList<BlockData> getBlockDataList() {
         return blockDataList;
+    }
+    
+    public int getProgress() {
+        if (this.blockDataList.size() != 0) {
+            return 100 * this.finishedBlocks / this.blockDataList.size();
+        }
+        
+        return 100;
+    }
+    
+    public int getRanking() {
+        if (this.connectedBuildingControllers.size() == 0) {
+            return 0;
+        }
+        
+        ArrayList<Integer> unsortedProgresses = new ArrayList<Integer>();
+        Integer progress = this.getProgress();
+        unsortedProgresses.add(progress);
+        
+        for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
+            unsortedProgresses.add(buildingController.getProgress());
+        }
+        
+        Collections.sort(unsortedProgresses, Collections.reverseOrder());
+        
+        return unsortedProgresses.indexOf(progress);
     }
     
 }

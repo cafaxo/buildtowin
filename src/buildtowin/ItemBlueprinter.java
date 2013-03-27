@@ -6,7 +6,6 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -20,41 +19,40 @@ public class ItemBlueprinter extends Item {
         this.setUnlocalizedName("Blueprinter");
     }
     
-    @Override
-    public boolean onItemUse(ItemStack par1ItemStack, EntityPlayer par2EntityPlayer, World par3World, int par4, int par5, int par6, int par7, float par8, float par9, float par10) {
-        int blockId = par3World.getBlockId(par4, par5, par6);
+    public boolean onBlockStartBreak(ItemStack itemstack, int x, int y, int z, EntityPlayer player) {
+        int blockId = player.worldObj.getBlockId(x, y, z);
         
         if (blockId == BuildToWin.getBlueprint().blockID) {
-            TileEntityBuildingController buildingController = BuildToWin.getBuildingControllerList(par3World).getBuildingController(par2EntityPlayer);
+            TileEntityBuildingController buildingController = BuildToWin.getBuildingControllerList(player.worldObj).getBuildingController(player);
             
             if (buildingController != null) {
-                BlockData blockData = buildingController.getBlockData(par4, par5, par6);
+                BlockData blockData = buildingController.getBlockData(x, y, z);
                 
                 if (blockData != null) {
                     buildingController.removeBlueprint(blockData, true);
                 }
-            } else if (par3World.isRemote) {
+            } else if (player.worldObj.isRemote) {
                 Minecraft mc = FMLClientHandler.instance().getClient();
                 mc.ingameGUI.getChatGUI().printChatMessage(
                         "<BuildToWin> Please connect to the Building Controller.");
             }
         } else if (blockId == BuildToWin.getBuildingController().blockID) {
-            TileEntityBuildingController buildingController = (TileEntityBuildingController) par3World.getBlockTileEntity(par4, par5, par6);
+            TileEntityBuildingController buildingController = (TileEntityBuildingController) player.worldObj.getBlockTileEntity(x, y, z);
             
-            if (buildingController.isPlayerConnectedAndOnline(par2EntityPlayer)) {
-                buildingController.disconnectPlayer(par2EntityPlayer);
+            if (buildingController.isPlayerConnectedAndOnline(player)) {
+                buildingController.disconnectPlayer(player);
             } else {
-                buildingController.connectPlayer(par2EntityPlayer);
+                buildingController.connectPlayer(player);
             }
-        } else {
-            TileEntityBuildingController buildingController = BuildToWin.getBuildingControllerList(par3World).getBuildingController(par2EntityPlayer);
+        } else if (blockId != BuildToWin.getBlueprint().blockID && blockId != BuildToWin.getBuildingController().blockID) {
+            TileEntityBuildingController buildingController = BuildToWin.getBuildingControllerList(player.worldObj).getBuildingController(player);
             
             if (buildingController != null) {
-                buildingController.placeBlueprint(new BlockData(par4, par5, par6, blockId, par3World.getBlockMetadata(par4, par5, par6)), true);
+                buildingController.placeBlueprint(new BlockData(x, y, z, blockId, player.worldObj.getBlockMetadata(x, y, z)), true);
                 
                 return true;
             } else {
-                if (par3World.isRemote) {
+                if (player.worldObj.isRemote) {
                     Minecraft mc = FMLClientHandler.instance().getClient();
                     mc.ingameGUI.getChatGUI().printChatMessage(
                             "<BuildToWin> Please connect to the Building Controller.");
@@ -62,7 +60,7 @@ public class ItemBlueprinter extends Item {
             }
         }
         
-        return false;
+        return true;
     }
     
     @Override

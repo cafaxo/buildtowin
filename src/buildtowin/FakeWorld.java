@@ -17,13 +17,15 @@ public class FakeWorld implements IBlockAccess {
     }
     
     public void overrideSurroundingBlueprints(int x, int y, int z) {
-        fakeBlockDataList = new BlockData[5];
+        fakeBlockDataList = new BlockData[7];
         
         fakeBlockDataList[0] = BuildToWin.getBlueprint().getBlockData(world, x, y, z);
         fakeBlockDataList[1] = BuildToWin.getBlueprint().getBlockData(world, x - 1, y, z);
         fakeBlockDataList[2] = BuildToWin.getBlueprint().getBlockData(world, x, y, z - 1);
         fakeBlockDataList[3] = BuildToWin.getBlueprint().getBlockData(world, x + 1, y, z);
         fakeBlockDataList[4] = BuildToWin.getBlueprint().getBlockData(world, x, y, z + 1);
+        fakeBlockDataList[5] = BuildToWin.getBlueprint().getBlockData(world, x, y + 1, z);
+        fakeBlockDataList[6] = BuildToWin.getBlueprint().getBlockData(world, x, y - 1, z);
     }
     
     @Override
