@@ -6,7 +6,6 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -22,20 +21,21 @@ public class ItemConnector extends Item {
     }
     
     @Override
-    public boolean onItemUse(ItemStack par1ItemStack, EntityPlayer par2EntityPlayer, World par3World, int par4, int par5, int par6, int par7, float par8, float par9, float par10) {
-        if (par3World.getBlockId(par4, par5, par6) == BuildToWin.getBuildingController().blockID) {
-            TileEntityBuildingController connectedBuildingController = BuildToWin.getBuildingControllerList(par3World).getBuildingController(par2EntityPlayer);
+    public boolean onBlockStartBreak(ItemStack itemstack, int x, int y, int z, EntityPlayer player) {
+        if (player.worldObj.getBlockId(x, y, z) == BuildToWin.getBuildingController().blockID) {
+            TileEntityBuildingController connectedBuildingController = BuildToWin.getBuildingControllerList(player.worldObj).getBuildingController(player);
             
             if (connectedBuildingController != null) {
-                TileEntityBuildingController buildingControllerToConnect = (TileEntityBuildingController) par3World.getBlockTileEntity(par4, par5, par6);
+                TileEntityBuildingController buildingControllerToConnect = (TileEntityBuildingController) player.worldObj.getBlockTileEntity(x, y, z);
                 
                 if (connectedBuildingController != buildingControllerToConnect) {
                     connectedBuildingController.addBuildingController(buildingControllerToConnect, true);
                     
                     buildingControllerToConnect.addBuildingController(connectedBuildingController, true);
                     buildingControllerToConnect.refreshColor(connectedBuildingController.getConnectedBuildingControllers().size());
+                    buildingControllerToConnect.loadBlueprintRelative(connectedBuildingController.getBlockDataListRelative(), false);
                     
-                    if (par3World.isRemote) {
+                    if (player.worldObj.isRemote) {
                         Minecraft mc = FMLClientHandler.instance().getClient();
                         mc.ingameGUI.getChatGUI().printChatMessage(
                                 "<BuildToWin> Connected the building controller to your game.");
@@ -46,13 +46,13 @@ public class ItemConnector extends Item {
             }
         }
         
-        if (par3World.isRemote) {
+        if (player.worldObj.isRemote) {
             Minecraft mc = FMLClientHandler.instance().getClient();
             mc.ingameGUI.getChatGUI().printChatMessage(
                     "<BuildToWin> Please connect to the Building Controller.");
         }
         
-        return false;
+        return true;
     }
     
     @Override

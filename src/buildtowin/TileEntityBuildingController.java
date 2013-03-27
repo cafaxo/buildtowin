@@ -26,6 +26,9 @@ import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 
 public class TileEntityBuildingController extends TileEntity {
+    
+    private int rawConnectedBuildingControllers[];
+    
     private ArrayList<TileEntityBuildingController> connectedBuildingControllers = new ArrayList<TileEntityBuildingController>();
     
     private ArrayList<String> connectedPlayers = new ArrayList<String>();
@@ -100,14 +103,7 @@ public class TileEntityBuildingController extends TileEntity {
         }
         
         this.connectedBuildingControllers.clear();
-        int rawConnectedBuildingControllers[] = par1NBTTagCompound.getIntArray("buildingcontrollers");
-        
-        for (int i = 0; i < rawConnectedBuildingControllers.length / 3; ++i) {
-            this.connectedBuildingControllers.add((TileEntityBuildingController) this.worldObj.getBlockTileEntity(
-                    rawConnectedBuildingControllers[i * 3],
-                    rawConnectedBuildingControllers[i * 3 + 1],
-                    rawConnectedBuildingControllers[i * 3 + 2]));
-        }
+        this.rawConnectedBuildingControllers = par1NBTTagCompound.getIntArray("buildingcontrollers");
         
         this.blockDataList.clear();
         int rawBlockDataList[] = par1NBTTagCompound.getIntArray("blockdatalist");
@@ -236,6 +232,17 @@ public class TileEntityBuildingController extends TileEntity {
     public void update() {
         this.updateBlocks();
         
+        if (this.rawConnectedBuildingControllers != null) {
+            if (this.rawConnectedBuildingControllers.length != 0 && this.connectedBuildingControllers.size() == 0) {
+                for (int i = 0; i < this.rawConnectedBuildingControllers.length / 3; ++i) {
+                    this.connectedBuildingControllers.add((TileEntityBuildingController) this.worldObj.getBlockTileEntity(
+                            this.rawConnectedBuildingControllers[i * 3],
+                            this.rawConnectedBuildingControllers[i * 3 + 1],
+                            this.rawConnectedBuildingControllers[i * 3 + 2]));
+                }
+            }
+        }
+        
         if (this.getDeadline() != 0) {
             if (this.finishedBlocks == this.blockDataList.size()) {
                 this.deadline = 0;
@@ -260,7 +267,7 @@ public class TileEntityBuildingController extends TileEntity {
                 bestTeam.sendWinMessage();
                 
                 if (this != bestTeam) {
-                    this.sendLoseMessage(); 
+                    this.sendLoseMessage();
                 }
                 
                 for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {

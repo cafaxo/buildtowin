@@ -43,11 +43,7 @@ public class GuiBuildingInfo extends Gui {
                     this.ySpeed = 0;
                 }
                 
-                this.progress = 100;
-                
-                if (buildingController.getBlockDataList().size() != 0) {
-                    this.progress = 100 * buildingController.getFinishedBlocks() / buildingController.getBlockDataList().size();
-                }
+                this.progress = buildingController.getProgress();
                 
                 this.daysLeft = String.format("%.2f", ((buildingController.getDeadline() - player.worldObj.getTotalWorldTime()) / 24000.F));
             } else {

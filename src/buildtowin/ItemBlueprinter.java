@@ -19,6 +19,7 @@ public class ItemBlueprinter extends Item {
         this.setUnlocalizedName("Blueprinter");
     }
     
+    @Override
     public boolean onBlockStartBreak(ItemStack itemstack, int x, int y, int z, EntityPlayer player) {
         int blockId = player.worldObj.getBlockId(x, y, z);
         
@@ -49,14 +50,10 @@ public class ItemBlueprinter extends Item {
             
             if (buildingController != null) {
                 buildingController.placeBlueprint(new BlockData(x, y, z, blockId, player.worldObj.getBlockMetadata(x, y, z)), true);
-                
-                return true;
-            } else {
-                if (player.worldObj.isRemote) {
-                    Minecraft mc = FMLClientHandler.instance().getClient();
-                    mc.ingameGUI.getChatGUI().printChatMessage(
-                            "<BuildToWin> Please connect to the Building Controller.");
-                }
+            } else if (player.worldObj.isRemote) {
+                Minecraft mc = FMLClientHandler.instance().getClient();
+                mc.ingameGUI.getChatGUI().printChatMessage(
+                        "<BuildToWin> Please connect to the Building Controller.");
             }
         }
         
