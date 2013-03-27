@@ -29,7 +29,7 @@ public class GuiScreenBuildingSettings extends GuiScreen {
         if (buildingController.getDeadline() == 0) {
             this.plannedTimespan = buildingController.getPlannedTimespan();
         } else {
-            this.plannedTimespan = buildingController.getDeadline() - buildingController.worldObj.getTotalWorldTime();
+            this.plannedTimespan = buildingController.getDeadline() - buildingController.getRealWorldTime();
         }
         
         this.isPlayerCreative = isPlayerCreative;

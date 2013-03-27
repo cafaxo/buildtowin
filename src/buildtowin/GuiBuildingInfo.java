@@ -42,15 +42,10 @@ public class GuiBuildingInfo extends Gui {
                     this.yPosition = 0;
                     this.ySpeed = 0;
                 }
-                
-                this.progress = buildingController.getProgress();
-                
-                this.daysLeft = String.format("%.2f", ((buildingController.getDeadline() - player.worldObj.getTotalWorldTime()) / 24000.F));
             } else {
                 if (this.yPosition > -32) {
                     this.yPosition -= this.ySpeed;
                     this.ySpeed += 0.1F;
-                    this.progress = 100;
                 } else {
                     this.yPosition = -32;
                     this.ySpeed = 0;
@@ -58,6 +53,15 @@ public class GuiBuildingInfo extends Gui {
             }
             
             if (this.yPosition != -32) {
+                this.progress = buildingController.getProgress();
+                float daysLeftFloat = (buildingController.getDeadline() - buildingController.getRealWorldTime()) / 24000.F;
+                
+                if (daysLeftFloat > 0.F) {
+                    this.daysLeft = String.format("%.2f", daysLeftFloat);
+                } else {
+                    this.daysLeft = "0,00";
+                }
+                
                 GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
                 GL11.glEnable(GL11.GL_TEXTURE_2D);
                 this.theGame.renderEngine.bindTexture("/achievement/bg.png");

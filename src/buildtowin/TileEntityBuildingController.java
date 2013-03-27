@@ -41,6 +41,8 @@ public class TileEntityBuildingController extends TileEntity {
     
     private long deadline = 0;
     
+    private long sleptTime = 0;
+    
     private int finishedBlocks = 0;
     
     private int color = 0;
@@ -86,6 +88,8 @@ public class TileEntityBuildingController extends TileEntity {
         
         par1NBTTagCompound.setLong("deadline", this.deadline);
         
+        par1NBTTagCompound.setLong("slepttime", this.sleptTime);
+        
         par1NBTTagCompound.setInteger("finishedblocks", this.finishedBlocks);
         
         par1NBTTagCompound.setInteger("color", this.color);
@@ -122,6 +126,8 @@ public class TileEntityBuildingController extends TileEntity {
         this.plannedTimespan = par1NBTTagCompound.getLong("plantmspn");
         
         this.deadline = par1NBTTagCompound.getLong("deadline");
+        
+        this.sleptTime = par1NBTTagCompound.getLong("slepttime");
         
         this.finishedBlocks = par1NBTTagCompound.getInteger("finishedblocks");
         
@@ -178,6 +184,7 @@ public class TileEntityBuildingController extends TileEntity {
             
             dataoutputstream.writeLong(this.plannedTimespan);
             dataoutputstream.writeLong(this.deadline);
+            dataoutputstream.writeLong(this.sleptTime);
             dataoutputstream.writeInt(this.finishedBlocks);
             dataoutputstream.writeInt(this.color);
             
@@ -223,6 +230,7 @@ public class TileEntityBuildingController extends TileEntity {
         
         this.plannedTimespan = inputStream.readLong();
         this.deadline = inputStream.readLong();
+        this.sleptTime = inputStream.readLong();
         this.finishedBlocks = inputStream.readInt();
         this.color = inputStream.readInt();
         
@@ -253,27 +261,31 @@ public class TileEntityBuildingController extends TileEntity {
                     buildingController.deadline = 0;
                     buildingController.sendLoseMessage();
                 }
-            } else if (this.deadline <= this.worldObj.getTotalWorldTime()) {
+            } else if (this.deadline <= this.getRealWorldTime()) {
                 this.deadline = 0;
                 
-                TileEntityBuildingController bestTeam = this;
-                
-                for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
-                    if (buildingController.getFinishedBlocks() > bestTeam.getFinishedBlocks()) {
-                        bestTeam = buildingController;
-                    }
-                }
-                
-                bestTeam.sendWinMessage();
-                
-                if (this != bestTeam) {
+                if (this.connectedBuildingControllers.size() == 0) {
                     this.sendLoseMessage();
-                }
-                
-                for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
-                    if (buildingController != bestTeam) {
-                        buildingController.deadline = 0;
-                        buildingController.sendLoseMessage();
+                } else {
+                    TileEntityBuildingController bestTeam = this;
+                    
+                    for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
+                        if (buildingController.getFinishedBlocks() > bestTeam.getFinishedBlocks()) {
+                            bestTeam = buildingController;
+                        }
+                    }
+                    
+                    bestTeam.sendWinMessage();
+                    
+                    if (this != bestTeam) {
+                        this.sendLoseMessage();
+                    }
+                    
+                    for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
+                        if (buildingController != bestTeam) {
+                            buildingController.deadline = 0;
+                            buildingController.sendLoseMessage();
+                        }
                     }
                 }
             }
@@ -610,7 +622,7 @@ public class TileEntityBuildingController extends TileEntity {
             PacketDispatcher.sendPacketToPlayer(new Packet3Chat("<BuildToWin> Could not start the game, because no blueprints exist."), (Player) entityPlayer);
         } else {
             this.resetAllBlocks();
-            this.deadline = this.worldObj.getTotalWorldTime() + this.getPlannedTimespan();
+            this.deadline = this.getRealWorldTime() + this.getPlannedTimespan();
             
             PacketDispatcher.sendPacketToPlayer(new Packet3Chat("<BuildToWin> Started the game successfully."), (Player) entityPlayer);
             this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> The game has started."), true);
@@ -670,7 +682,7 @@ public class TileEntityBuildingController extends TileEntity {
         }
         
         if (this.deadline != 0) {
-            this.deadline = this.worldObj.getTotalWorldTime() + newTimespan;
+            this.deadline = this.getRealWorldTime() + newTimespan;
         }
         
         this.plannedTimespan = newTimespan;
@@ -703,6 +715,18 @@ public class TileEntityBuildingController extends TileEntity {
     
     public long getDeadline() {
         return deadline;
+    }
+    
+    public long getSleptTime() {
+        return sleptTime;
+    }
+    
+    public long getRealWorldTime() {
+        return this.worldObj.getTotalWorldTime() + this.sleptTime;
+    }
+    
+    public void setSleptTime(long sleptTime) {
+        this.sleptTime = sleptTime;
     }
     
     public int getFinishedBlocks() {

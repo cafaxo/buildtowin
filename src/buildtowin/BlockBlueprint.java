@@ -33,7 +33,7 @@ public class BlockBlueprint extends BlockContainer {
                         Minecraft mc = FMLClientHandler.instance().getClient();
                         
                         mc.ingameGUI.getChatGUI().printChatMessage(
-                                "<BuildToWin> The game has not started yet, " + par5EntityPlayer.getEntityName() + ".");
+                                "<BuildToWin> The game has not started yet.");
                     }
                 } else if (par5EntityPlayer.inventory.getCurrentItem() != null) {
                     if (par5EntityPlayer.inventory.getCurrentItem().itemID == blockData.id) {
@@ -45,7 +45,7 @@ public class BlockBlueprint extends BlockContainer {
                 Minecraft mc = FMLClientHandler.instance().getClient();
                 
                 mc.ingameGUI.getChatGUI().printChatMessage(
-                        "<BuildToWin> This blueprint does not belong to your Building Controller, " + par5EntityPlayer.getEntityName() + ".");
+                        "<BuildToWin> This blueprint does not belong to your Building Controller.");
             }
         } else if (par1World.isRemote) {
             Minecraft mc = FMLClientHandler.instance().getClient();

@@ -2,6 +2,7 @@ package buildtowin;
 
 import java.util.EnumSet;
 
+import net.minecraft.entity.player.EntityPlayer;
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.common.network.PacketDispatcher;
@@ -11,13 +12,25 @@ public class ServerTickHandler implements ITickHandler {
     
     @Override
     public void tickStart(EnumSet<TickType> type, Object... tickData) {
-        if (timer == 20) {
-            BuildToWin.buildingControllerListServer.updateServer();
-            PacketDispatcher.sendPacketToAllPlayers(BuildToWin.serverBlueprintList.getDescriptionPacket());
-            timer = 0;
+        if (type.equals(EnumSet.of(TickType.PLAYER))) {
+            EntityPlayer player = (EntityPlayer) tickData[0];
+            
+            if (player.getSleepTimer() > 99) {
+                TileEntityBuildingController buildingController = BuildToWin.buildingControllerListServer.getBuildingController(player);
+                
+                if (buildingController != null) {
+                    buildingController.setSleptTime(buildingController.getSleptTime() + 1000);
+                }
+            }
+        } else {
+            if (timer == 20) {
+                BuildToWin.buildingControllerListServer.updateServer();
+                PacketDispatcher.sendPacketToAllPlayers(BuildToWin.serverBlueprintList.getDescriptionPacket());
+                timer = 0;
+            }
+            
+            ++timer;
         }
-        
-        ++timer;
     }
     
     @Override
@@ -26,7 +39,7 @@ public class ServerTickHandler implements ITickHandler {
     
     @Override
     public EnumSet<TickType> ticks() {
-        return EnumSet.of(TickType.SERVER);
+        return EnumSet.of(TickType.SERVER, TickType.PLAYER);
     }
     
     @Override
