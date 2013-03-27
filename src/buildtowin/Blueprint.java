@@ -51,8 +51,8 @@ public class Blueprint {
                         dataInputStream.readInt(),
                         dataInputStream.readInt(),
                         dataInputStream.readInt(),
-                        dataInputStream.readShort(),
-                        dataInputStream.readByte());
+                        dataInputStream.readInt(),
+                        dataInputStream.readInt());
                 
                 this.blockDataList.add(blockData);
             }
@@ -132,8 +132,8 @@ public class Blueprint {
                 dataOutputStream.writeInt(blockData.x);
                 dataOutputStream.writeInt(blockData.y);
                 dataOutputStream.writeInt(blockData.z);
-                dataOutputStream.writeShort(blockData.id);
-                dataOutputStream.writeByte(blockData.metadata);
+                dataOutputStream.writeInt(blockData.id);
+                dataOutputStream.writeInt(blockData.metadata);
             }
             
             dataOutputStream.close();

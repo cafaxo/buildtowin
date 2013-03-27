@@ -531,7 +531,7 @@ public class TileEntityBuildingController extends TileEntity {
             }
         }
         
-        this.worldObj.setBlock(blockData.x, blockData.y, blockData.z, BuildToWin.getBlueprint().blockID);
+        this.worldObj.setBlock(blockData.x, blockData.y, blockData.z, BuildToWin.getBlueprint().blockID, 0, 2);
         
         TileEntityBlueprint blueprint = (TileEntityBlueprint) this.worldObj.getBlockTileEntity(blockData.x, blockData.y, blockData.z);
         
@@ -542,7 +542,7 @@ public class TileEntityBuildingController extends TileEntity {
     
     public void placeBlueprint(BlockData blockData, boolean synchronize) {
         if (blockData.id != BuildToWin.getBuildingController().blockID && blockData.id != BuildToWin.getBlueprint().blockID) {
-            if (blockData.id == Block.doorWood.blockID) {
+            if (blockData.id == Block.doorWood.blockID || blockData.id == Block.doorSteel.blockID) {
                 this.placeBlueprintDoor(blockData, synchronize);
             } else if (blockData.id == Block.bed.blockID) {
                 this.placeBlueprintBed(blockData, synchronize);
@@ -554,15 +554,15 @@ public class TileEntityBuildingController extends TileEntity {
     }
     
     private void placeBlueprintDoor(BlockData blockData, boolean synchronize) {
-        if (this.worldObj.getBlockId(blockData.x, blockData.y + 1, blockData.z) == Block.doorWood.blockID) {
+        if (this.worldObj.getBlockId(blockData.x, blockData.y + 1, blockData.z) == blockData.id) {
             int metadata = this.worldObj.getBlockMetadata(blockData.x, blockData.y + 1, blockData.z);
-            BlockData overCurrentData = new BlockData(blockData.x, blockData.y + 1, blockData.z, Block.doorWood.blockID, metadata);
+            BlockData overCurrentData = new BlockData(blockData.x, blockData.y + 1, blockData.z, blockData.id, metadata);
             
             this.refreshBlueprint(overCurrentData, synchronize);
             this.addBlockData(overCurrentData, synchronize);
-        } else if (this.worldObj.getBlockId(blockData.x, blockData.y - 1, blockData.z) == Block.doorWood.blockID) {
+        } else if (this.worldObj.getBlockId(blockData.x, blockData.y - 1, blockData.z) == blockData.id) {
             int metadata = this.worldObj.getBlockMetadata(blockData.x, blockData.y - 1, blockData.z);
-            BlockData underCurrentData = new BlockData(blockData.x, blockData.y - 1, blockData.z, Block.doorWood.blockID, metadata);
+            BlockData underCurrentData = new BlockData(blockData.x, blockData.y - 1, blockData.z, blockData.id, metadata);
             
             this.refreshBlueprint(underCurrentData, synchronize);
             this.addBlockData(underCurrentData, synchronize);
@@ -573,27 +573,27 @@ public class TileEntityBuildingController extends TileEntity {
     }
     
     private void placeBlueprintBed(BlockData blockData, boolean synchronize) {
-        if (this.worldObj.getBlockId(blockData.x + 1, blockData.y, blockData.z) == Block.bed.blockID) {
+        if (this.worldObj.getBlockId(blockData.x + 1, blockData.y, blockData.z) == blockData.id) {
             int metadata = this.worldObj.getBlockMetadata(blockData.x + 1, blockData.y, blockData.z);
-            BlockData blockDataSecondPart = new BlockData(blockData.x + 1, blockData.y, blockData.z, Block.bed.blockID, metadata);
+            BlockData blockDataSecondPart = new BlockData(blockData.x + 1, blockData.y, blockData.z, blockData.id, metadata);
             
             this.refreshBlueprint(blockDataSecondPart, synchronize);
             this.addBlockData(blockDataSecondPart, synchronize);
-        } else if (this.worldObj.getBlockId(blockData.x, blockData.y, blockData.z + 1) == Block.bed.blockID) {
+        } else if (this.worldObj.getBlockId(blockData.x, blockData.y, blockData.z + 1) == blockData.id) {
             int metadata = this.worldObj.getBlockMetadata(blockData.x, blockData.y, blockData.z + 1);
-            BlockData blockDataSecondPart = new BlockData(blockData.x, blockData.y, blockData.z + 1, Block.bed.blockID, metadata);
+            BlockData blockDataSecondPart = new BlockData(blockData.x, blockData.y, blockData.z + 1, blockData.id, metadata);
             
             this.refreshBlueprint(blockDataSecondPart, synchronize);
             this.addBlockData(blockDataSecondPart, synchronize);
-        } else if (this.worldObj.getBlockId(blockData.x - 1, blockData.y, blockData.z) == Block.bed.blockID) {
+        } else if (this.worldObj.getBlockId(blockData.x - 1, blockData.y, blockData.z) == blockData.id) {
             int metadata = this.worldObj.getBlockMetadata(blockData.x - 1, blockData.y, blockData.z);
-            BlockData blockDataSecondPart = new BlockData(blockData.x - 1, blockData.y, blockData.z, Block.bed.blockID, metadata);
+            BlockData blockDataSecondPart = new BlockData(blockData.x - 1, blockData.y, blockData.z, blockData.id, metadata);
             
             this.refreshBlueprint(blockDataSecondPart, synchronize);
             this.addBlockData(blockDataSecondPart, synchronize);
-        } else if (this.worldObj.getBlockId(blockData.x, blockData.y, blockData.z - 1) == Block.bed.blockID) {
+        } else if (this.worldObj.getBlockId(blockData.x, blockData.y, blockData.z - 1) == blockData.id) {
             int metadata = this.worldObj.getBlockMetadata(blockData.x, blockData.y, blockData.z - 1);
-            BlockData blockDataSecondPart = new BlockData(blockData.x, blockData.y, blockData.z - 1, Block.bed.blockID, metadata);
+            BlockData blockDataSecondPart = new BlockData(blockData.x, blockData.y, blockData.z - 1, blockData.id, metadata);
             
             this.refreshBlueprint(blockDataSecondPart, synchronize);
             this.addBlockData(blockDataSecondPart, synchronize);
@@ -627,7 +627,7 @@ public class TileEntityBuildingController extends TileEntity {
         }
         
         if (blockData != null) {
-            if (blockData.id == Block.doorWood.blockID) {
+            if (blockData.id == Block.doorWood.blockID || blockData.id == Block.doorSteel.blockID) {
                 this.removeBlueprintDoor(blockData);
             } else if (blockData.id == Block.bed.blockID) {
                 this.removeBlueprintBed(blockData);
@@ -642,8 +642,8 @@ public class TileEntityBuildingController extends TileEntity {
     public void removeBlueprintDoor(BlockData blockData) {
         BlockData secondPart = null;
         
-        if ((secondPart = this.getBlockData(blockData.x, blockData.y + 1, blockData.z)) != null && secondPart.id == Block.doorWood.blockID) {
-        } else if ((secondPart = this.getBlockData(blockData.x, blockData.y - 1, blockData.z)) != null && secondPart.id == Block.doorWood.blockID) {
+        if ((secondPart = this.getBlockData(blockData.x, blockData.y + 1, blockData.z)) != null && secondPart.id == blockData.id) {
+        } else if ((secondPart = this.getBlockData(blockData.x, blockData.y - 1, blockData.z)) != null && secondPart.id == blockData.id) {
         }
         
         this.blockDataList.remove(blockData);
@@ -656,10 +656,10 @@ public class TileEntityBuildingController extends TileEntity {
     private void removeBlueprintBed(BlockData blockData) {
         BlockData secondPart = null;
         
-        if ((secondPart = this.getBlockData(blockData.x + 1, blockData.y, blockData.z)) != null && secondPart.id == Block.bed.blockID) {
-        } else if ((secondPart = this.getBlockData(blockData.x, blockData.y, blockData.z + 1)) != null && secondPart.id == Block.bed.blockID) {
-        } else if ((secondPart = this.getBlockData(blockData.x - 1, blockData.y, blockData.z)) != null && secondPart.id == Block.bed.blockID) {
-        } else if ((secondPart = this.getBlockData(blockData.x, blockData.y, blockData.z - 1)) != null && secondPart.id == Block.bed.blockID) {
+        if ((secondPart = this.getBlockData(blockData.x + 1, blockData.y, blockData.z)) != null && secondPart.id == blockData.id) {
+        } else if ((secondPart = this.getBlockData(blockData.x, blockData.y, blockData.z + 1)) != null && secondPart.id == blockData.id) {
+        } else if ((secondPart = this.getBlockData(blockData.x - 1, blockData.y, blockData.z)) != null && secondPart.id == blockData.id) {
+        } else if ((secondPart = this.getBlockData(blockData.x, blockData.y, blockData.z - 1)) != null && secondPart.id == blockData.id) {
         }
         
         this.blockDataList.remove(blockData);

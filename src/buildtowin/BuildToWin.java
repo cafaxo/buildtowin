@@ -80,7 +80,6 @@ public class BuildToWin {
         }
     }
     
-    @SideOnly(Side.CLIENT)
     public static void printChatMessage(World world, String string) {
         if (world.isRemote) {
             Minecraft mc = FMLClientHandler.instance().getClient();

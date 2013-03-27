@@ -53,13 +53,15 @@ public class GuiBuildingInfo extends Gui {
             }
             
             if (this.yPosition != -32) {
-                this.progress = buildingController.getProgress();
-                float daysLeftFloat = (buildingController.getDeadline() - buildingController.getRealWorldTime()) / 24000.F;
-                
-                if (daysLeftFloat > 0.F) {
-                    this.daysLeft = String.format("%.2f", daysLeftFloat);
-                } else {
-                    this.daysLeft = "0,00";
+                if (buildingController != null) {
+                    this.progress = buildingController.getProgress();
+                    float daysLeftFloat = (buildingController.getDeadline() - buildingController.getRealWorldTime()) / 24000.F;
+                    
+                    if (daysLeftFloat > 0.F) {
+                        this.daysLeft = String.format("%.2f", daysLeftFloat);
+                    } else {
+                        this.daysLeft = "0,00";
+                    }
                 }
                 
                 GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
