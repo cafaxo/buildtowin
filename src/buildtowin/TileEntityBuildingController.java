@@ -254,9 +254,11 @@ public class TileEntityBuildingController extends TileEntity {
         this.updateBlockData();
         
         if (!this.worldObj.isRemote) {
-            this.checkGameStatus();
+            if (mode != 2) {
+                this.checkGameStatus();
+            }
             
-            if (this.timer == 100) {
+            if (this.timer == 30) {
                 PacketDispatcher.sendPacketToAllPlayers(this.getDescriptionPacketOptimized());
                 this.timer = 0;
             }
@@ -309,24 +311,24 @@ public class TileEntityBuildingController extends TileEntity {
     
     private void sendWinMessage() {
         if (this.getConnectedAndOnlinePlayers().size() > 1) {
-            this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Your team has won."), false);
+            this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Your team has won."));
         } else {
-            this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> You have won."), false);
+            this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> You have won."));
         }
     }
     
     private void sendLoseMessage() {
-        if (this.connectedBuildingControllers.size() > 0) {
+        if (this.connectedBuildingControllers.size() > 1) {
             if (this.getConnectedAndOnlinePlayers().size() > 1) {
-                this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Your team reached the " + this.getRanking() + ". place."), false);
+                this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Your team reached the " + this.getRanking() + ". place."));
             } else {
-                this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> You have reached the " + this.getRanking() + ". place."), false);
+                this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> You have reached the " + this.getRanking() + ". place."));
             }
         } else {
             if (this.getConnectedAndOnlinePlayers().size() > 1) {
-                this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Your team has lost."), false);
+                this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Your team has lost."));
             } else {
-                this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> You have lost."), false);
+                this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> You have lost."));
             }
         }
     }
@@ -417,13 +419,7 @@ public class TileEntityBuildingController extends TileEntity {
         }
     }
     
-    public void sendPacketToConnectedPlayers(Packet packet, boolean synchronize) {
-        if (this.mode == 1 && synchronize) {
-            for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
-                buildingController.sendPacketToConnectedPlayers(packet, false);
-            }
-        }
-        
+    public void sendPacketToConnectedPlayers(Packet packet) {
         for (EntityPlayer player : this.connectedAndOnlinePlayers) {
             PacketDispatcher.sendPacketToPlayer(packet, (Player) player);
         }
@@ -446,8 +442,7 @@ public class TileEntityBuildingController extends TileEntity {
             this.resetAllBlocks();
             this.deadline = this.getRealWorldTime() + this.getPlannedTimespan();
             
-            PacketDispatcher.sendPacketToPlayer(new Packet3Chat("<BuildToWin> Started the game successfully."), (Player) entityPlayer);
-            this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> The game has started."), true);
+            this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> The game has started."));
         }
     }
     
@@ -458,10 +453,10 @@ public class TileEntityBuildingController extends TileEntity {
             }
         }
         
+        this.resetAllBlocks();
         this.deadline = 0;
         
-        PacketDispatcher.sendPacketToPlayer(new Packet3Chat("<BuildToWin> Stopped the game successfully."), (Player) entityPlayer);
-        this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> The game has been stopped."), true);
+        this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> The game has been stopped."));
     }
     
     public void addBuildingController(TileEntityBuildingController buildingControllerToConnect) {

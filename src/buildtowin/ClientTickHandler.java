@@ -22,7 +22,7 @@ public class ClientTickHandler implements ITickHandler {
         if (type.equals(EnumSet.of(TickType.PLAYER))) {
             EntityPlayer player = (EntityPlayer) tickData[0];
             
-            if (player.getSleepTimer() > 99) {
+            if (player.isPlayerFullyAsleep()) {
                 TileEntityBuildingController buildingController = BuildToWin.buildingControllerListClient.getBuildingController(player);
                 
                 if (buildingController != null) {
