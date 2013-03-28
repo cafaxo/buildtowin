@@ -254,9 +254,7 @@ public class TileEntityBuildingController extends TileEntity {
         this.updateBlockData();
         
         if (!this.worldObj.isRemote) {
-            if (mode != 2) {
-                this.checkGameStatus();
-            }
+            this.checkGameStatus();
             
             if (this.timer == 30) {
                 PacketDispatcher.sendPacketToAllPlayers(this.getDescriptionPacketOptimized());
@@ -353,7 +351,7 @@ public class TileEntityBuildingController extends TileEntity {
     
     public void connectPlayer(EntityPlayer entityPlayer) {
         if (this.getDeadline() != 0) {
-            BuildToWin.printChatMessage(this.worldObj, "Could not connect, because the game is running.");
+            BuildToWin.printChatMessage(this.worldObj, "Could not connect, because the game is already running.");
         } else {
             if (!this.worldObj.isRemote) {
                 if (!this.isPlayerConnected(entityPlayer)) {
@@ -383,7 +381,7 @@ public class TileEntityBuildingController extends TileEntity {
     
     public void disconnectPlayer(EntityPlayer entityPlayer) {
         if (this.getDeadline() != 0) {
-            BuildToWin.printChatMessage(this.worldObj, "Could not disconnect, because the game is running.");
+            BuildToWin.printChatMessage(this.worldObj, "Could not disconnect, because the game is already running.");
         } else {
             if (!this.worldObj.isRemote) {
                 if (this.isPlayerConnected(entityPlayer)) {
@@ -446,17 +444,19 @@ public class TileEntityBuildingController extends TileEntity {
         }
     }
     
-    public void stopGame(EntityPlayer entityPlayer, boolean synchronize) {
+    public void stopGame(boolean synchronize) {
         if (this.mode == 1 && synchronize) {
             for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
-                buildingController.stopGame(entityPlayer, false);
+                buildingController.stopGame(false);
             }
         }
         
-        this.resetAllBlocks();
-        this.deadline = 0;
-        
-        this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> The game has been stopped."));
+        if (this.deadline != 0) {
+            this.resetAllBlocks();
+            this.deadline = 0;
+            
+            this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> The game has been stopped."));
+        }
     }
     
     public void addBuildingController(TileEntityBuildingController buildingControllerToConnect) {
@@ -467,13 +467,19 @@ public class TileEntityBuildingController extends TileEntity {
     
     public void removeBuildingController(TileEntityBuildingController buildingControllerToRemove) {
         this.connectedBuildingControllers.remove(buildingControllerToRemove);
+        
+        if (this.mode == 1 && this.connectedBuildingControllers.size() == 0) {
+            this.mode = 0;
+        }
     }
     
     public void disconnectFromBuildingControllers() {
         for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
             if (this.mode == 1) {
                 buildingController.getConnectedBuildingControllers().clear();
+                buildingController.stopGame(false);
                 buildingController.mode = 0;
+                buildingController.refreshColor((byte) 0);
             } else {
                 buildingController.removeBuildingController(this);
             }

@@ -16,7 +16,7 @@ public class ServerTickHandler implements ITickHandler {
         if (type.equals(EnumSet.of(TickType.PLAYER))) {
             EntityPlayer player = (EntityPlayer) tickData[0];
             
-            if (player.isPlayerFullyAsleep()) {
+            if (player.isPlayerSleeping()) {
                 TileEntityBuildingController buildingController = BuildToWin.buildingControllerListServer.getBuildingController(player);
                 
                 if (buildingController != null) {

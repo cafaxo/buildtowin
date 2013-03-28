@@ -28,6 +28,17 @@ public class BlockBuildingController extends BlockContainer {
     }
     
     @Override
+    public void onBlockClicked(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer) {
+        TileEntityBuildingController buildingController = (TileEntityBuildingController) par5EntityPlayer.worldObj.getBlockTileEntity(par2, par3, par4);
+        
+        if (buildingController.isPlayerConnectedAndOnline(par5EntityPlayer)) {
+            buildingController.disconnectPlayer(par5EntityPlayer);
+        } else {
+            buildingController.connectPlayer(par5EntityPlayer);
+        }
+    }
+    
+    @Override
     public boolean onBlockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9) {
         if (par5EntityPlayer.getCurrentEquippedItem() != null) {
             if (par5EntityPlayer.getCurrentEquippedItem().itemID == BuildToWin.getBlueprinter().itemID ||
@@ -47,7 +58,6 @@ public class BlockBuildingController extends BlockContainer {
     @SideOnly(Side.CLIENT)
     public void displayBuildingSettings(TileEntityBuildingController buildingController, EntityPlayer player) {
         Minecraft mc = FMLClientHandler.instance().getClient();
-        
         mc.displayGuiScreen(new GuiScreenBuildingSettings(buildingController, player.capabilities.isCreativeMode));
     }
     
@@ -59,6 +69,7 @@ public class BlockBuildingController extends BlockContainer {
     }
     
     @Override
+    @SideOnly(Side.CLIENT)
     public Icon getBlockTexture(IBlockAccess par1IBlockAccess, int par2, int par3, int par4, int par5) {
         TileEntityBuildingController buildingController = (TileEntityBuildingController) par1IBlockAccess.getBlockTileEntity(par2, par3, par4);
         

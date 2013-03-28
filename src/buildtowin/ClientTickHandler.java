@@ -6,7 +6,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
+@SideOnly(Side.CLIENT)
 public class ClientTickHandler implements ITickHandler {
     
     private short timer = 0;
@@ -22,7 +25,7 @@ public class ClientTickHandler implements ITickHandler {
         if (type.equals(EnumSet.of(TickType.PLAYER))) {
             EntityPlayer player = (EntityPlayer) tickData[0];
             
-            if (player.isPlayerFullyAsleep()) {
+            if (player.isPlayerSleeping()) {
                 TileEntityBuildingController buildingController = BuildToWin.buildingControllerListClient.getBuildingController(player);
                 
                 if (buildingController != null) {

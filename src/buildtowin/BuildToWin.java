@@ -19,9 +19,15 @@ import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 
-@Mod(modid = "BuildToWin", name = "Build To Win!", version = "0.1.0")
+@Mod(modid = "BuildToWin", name = "Build To Win!", version = "0.2.0")
 @NetworkMod(clientSideRequired = true, serverSideRequired = false, channels = { "btwbcupdt", "btwtimsupdt", "btwbpupdt", "btwbpsav", "btwbpload", "btwstart", "btwstop" }, packetHandler = PacketHandler.class)
 public class BuildToWin {
+    
+    @Instance("BuildToWin")
+    public static BuildToWin instance;
+    
+    @SidedProxy(clientSide = "buildtowin.ClientProxy", serverSide = "buildtowin.CommonProxy")
+    public static CommonProxy proxy;
     
     private final static BlockBuildingController buildingController = new BlockBuildingController(244);
     
@@ -30,12 +36,6 @@ public class BuildToWin {
     private final static ItemBlueprinter blueprinter = new ItemBlueprinter(5000);
     
     private final static ItemConnector connector = new ItemConnector(5001);
-    
-    @Instance("BuildToWin")
-    public static BuildToWin instance;
-    
-    @SidedProxy(clientSide = "buildtowin.ClientProxy", serverSide = "buildtowin.CommonProxy")
-    public static CommonProxy proxy;
     
     public static int blueprintRenderId;
     
