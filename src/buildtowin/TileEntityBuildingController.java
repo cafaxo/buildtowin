@@ -6,11 +6,14 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
@@ -48,6 +51,15 @@ public class TileEntityBuildingController extends TileEntity {
     private byte color = 0;
     
     private int timer = 0;
+    
+    private static final Map<Integer, Integer> blockToItemId;
+    
+    static {
+        blockToItemId = new HashMap<Integer, Integer>();
+        blockToItemId.put(Block.bed.blockID, Item.bed.itemID);
+        blockToItemId.put(Block.doorWood.blockID, Item.doorWood.itemID);
+        blockToItemId.put(Block.doorSteel.blockID, Item.doorSteel.itemID);
+    }
     
     public TileEntityBuildingController() {
     }
@@ -485,6 +497,16 @@ public class TileEntityBuildingController extends TileEntity {
             this.mode = 0;
             this.setColor((byte) 0);
         }
+    }
+    
+    public int getItemId(int blockId) {
+        Integer itemId = this.blockToItemId.get(blockId);
+        
+        if (itemId != null) {
+            return itemId;
+        }
+        
+        return blockId;
     }
     
     public void addBlockData(BlockData blockData, boolean synchronize) {
