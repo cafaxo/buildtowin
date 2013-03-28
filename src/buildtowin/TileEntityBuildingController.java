@@ -502,7 +502,8 @@ public class TileEntityBuildingController extends TileEntity {
         while (iter.hasNext()) {
             TileEntityBuildingController buildingController = iter.next();
             
-            if (this.worldObj.getBlockTileEntity(buildingController.xCoord, buildingController.yCoord, buildingController.zCoord) == null) {
+            if (buildingController == null
+                    || this.worldObj.getBlockTileEntity(buildingController.xCoord, buildingController.yCoord, buildingController.zCoord) != buildingController) {
                 iter.remove();
             }
         }

@@ -1,5 +1,7 @@
 package buildtowin;
 
+import java.util.Random;
+
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
@@ -64,23 +66,27 @@ public class BlockBlueprint extends BlockContainer {
     }
     
     @Override
+    public int idDropped(int par1, Random par2Random, int par3) {
+        return 0;
+    }
+    
+    @Override
+    public int idPicked(World par1World, int par2, int par3, int par4) {
+        return 0;
+    }
+    
+    @Override
     public TileEntityBlueprint createNewTileEntity(World world) {
         return new TileEntityBlueprint();
     }
     
-    public TileEntityBlueprint getTileEntity(IBlockAccess world, int x, int y, int z) {
-        if (world.getBlockId(x, y, z) == BuildToWin.getBlueprint().blockID) {
-            return (TileEntityBlueprint) world.getBlockTileEntity(x, y, z);
-        }
-        
-        return null;
-    }
-    
     public BlockData getBlockData(IBlockAccess world, int x, int y, int z) {
-        TileEntityBlueprint blueprint = this.getTileEntity(world, x, y, z);
-        
-        if (blueprint != null) {
-            return new BlockData(x, y, z, blueprint.getBlockId(), blueprint.getMetadata());
+        if (world.getBlockId(x, y, z) == this.blockID) {
+            TileEntityBlueprint blueprint = (TileEntityBlueprint) world.getBlockTileEntity(x, y, z);
+            
+            if (blueprint != null) {
+                return new BlockData(x, y, z, blueprint.getBlockId(), blueprint.getMetadata());
+            }
         }
         
         return null;
