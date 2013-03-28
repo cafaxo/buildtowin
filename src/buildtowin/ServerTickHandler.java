@@ -8,6 +8,7 @@ import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.common.network.PacketDispatcher;
 
 public class ServerTickHandler implements ITickHandler {
+    
     private short timer = 0;
     
     @Override
@@ -23,13 +24,13 @@ public class ServerTickHandler implements ITickHandler {
                 }
             }
         } else {
-            if (timer == 20) {
+            if (this.timer == 20) {
                 BuildToWin.buildingControllerListServer.updateServer();
-                PacketDispatcher.sendPacketToAllPlayers(BuildToWin.serverBlueprintList.getDescriptionPacket());
-                timer = 0;
+                PacketDispatcher.sendPacketToAllPlayers(BuildToWin.blueprintListServer.getDescriptionPacket());
+                this.timer = 0;
             }
             
-            ++timer;
+            ++this.timer;
         }
     }
     

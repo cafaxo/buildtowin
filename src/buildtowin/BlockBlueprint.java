@@ -11,6 +11,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 public class BlockBlueprint extends BlockContainer {
+    
     protected BlockBlueprint(int id) {
         super(id, Material.glass);
         
@@ -54,7 +55,7 @@ public class BlockBlueprint extends BlockContainer {
     
     @Override
     public int getRenderType() {
-        return BuildToWin.blueprintRenderingId;
+        return BuildToWin.blueprintRenderId;
     }
     
     @Override

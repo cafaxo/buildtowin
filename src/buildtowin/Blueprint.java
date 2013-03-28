@@ -14,6 +14,7 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class Blueprint {
+    
     private String name;
     
     private String author;
@@ -149,14 +150,14 @@ public class Blueprint {
     }
     
     public String getName() {
-        return name;
+        return this.name;
     }
     
     public String getAuthor() {
-        return author;
+        return this.author;
     }
     
     public ArrayList<BlockData> getBlockDataList() {
-        return blockDataList;
+        return this.blockDataList;
     }
 }

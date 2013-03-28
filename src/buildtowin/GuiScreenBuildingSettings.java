@@ -15,6 +15,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiScreenBuildingSettings extends GuiScreen {
+    
     private TileEntityBuildingController buildingController;
     
     private long plannedTimespan = 0;
@@ -64,7 +65,7 @@ public class GuiScreenBuildingSettings extends GuiScreen {
         save.enabled = this.isPlayerCreative && this.buildingController.getDeadline() == 0;
         this.buttonList.add(save);
         
-        saveFileName = new GuiTextField(this.fontRenderer, this.width / 2 - 45, this.height / 2 + 5, 90, 15);
+        this.saveFileName = new GuiTextField(this.fontRenderer, this.width / 2 - 45, this.height / 2 + 5, 90, 15);
     }
     
     @Override
@@ -96,11 +97,13 @@ public class GuiScreenBuildingSettings extends GuiScreen {
         this.saveFileName.updateCursorCounter();
     }
     
+    @Override
     protected void keyTyped(char par1, int par2) {
         super.keyTyped(par1, par2);
         this.saveFileName.textboxKeyTyped(par1, par2);
     }
     
+    @Override
     protected void mouseClicked(int par1, int par2, int par3) {
         super.mouseClicked(par1, par2, par3);
         this.saveFileName.mouseClicked(par1, par2, par3);
@@ -175,16 +178,16 @@ public class GuiScreenBuildingSettings extends GuiScreen {
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.mc.renderEngine.bindTexture("/gui/btw_settings.png");
         
-        int x = (width - 170) / 2;
-        int y = (height - 150) / 2 - 32;
+        int x = (this.width - 170) / 2;
+        int y = (this.height - 150) / 2 - 32;
         this.drawTexturedModalRect(x, y, 0, 0, 170, 200);
         
-        this.fontRenderer.drawString("Settings", this.width / 2 - 10, height / 2 - 62, 4210752);
+        this.fontRenderer.drawString("Settings", this.width / 2 - 10, this.height / 2 - 62, 4210752);
         
-        this.fontRenderer.drawString("Days left:", (this.width - this.fontRenderer.getStringWidth("Days left:")) / 2, height / 2 - 40, 4210752);
+        this.fontRenderer.drawString("Days left:", (this.width - this.fontRenderer.getStringWidth("Days left:")) / 2, this.height / 2 - 40, 4210752);
         
         String daysLeft = String.format("%.2f", this.plannedTimespan / 24000D);
-        this.fontRenderer.drawString(daysLeft, (this.width - this.fontRenderer.getStringWidth(daysLeft)) / 2, height / 2 - 21, 4210752);
+        this.fontRenderer.drawString(daysLeft, (this.width - this.fontRenderer.getStringWidth(daysLeft)) / 2, this.height / 2 - 21, 4210752);
         
         this.saveFileName.drawTextBox();
         
@@ -192,6 +195,6 @@ public class GuiScreenBuildingSettings extends GuiScreen {
     }
     
     public TileEntityBuildingController getBuildingController() {
-        return buildingController;
+        return this.buildingController;
     }
 }

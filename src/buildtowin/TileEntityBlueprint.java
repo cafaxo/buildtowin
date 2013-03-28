@@ -7,6 +7,7 @@ import net.minecraft.network.packet.Packet132TileEntityData;
 import net.minecraft.tileentity.TileEntity;
 
 public class TileEntityBlueprint extends TileEntity {
+    
     public static final float colors[] = new float[] {
             0.3F, 0.3F, 1.0F, 0.7F,
             1.0F, 0.3F, 0.3F, 0.7F,
@@ -54,7 +55,7 @@ public class TileEntityBlueprint extends TileEntity {
     }
     
     public int getBlockId() {
-        return blockId;
+        return this.blockId;
     }
     
     public void setBlockId(int blockId) {
@@ -62,7 +63,7 @@ public class TileEntityBlueprint extends TileEntity {
     }
     
     public int getMetadata() {
-        return metadata;
+        return this.metadata;
     }
     
     public void setMetadata(int metadata) {
@@ -70,7 +71,7 @@ public class TileEntityBlueprint extends TileEntity {
     }
     
     public byte getColor() {
-        return color;
+        return this.color;
     }
     
     public void setColor(byte color) {

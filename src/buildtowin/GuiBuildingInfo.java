@@ -11,6 +11,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiBuildingInfo extends Gui {
+    
     private Minecraft theGame;
     
     private float ySpeed;
@@ -68,8 +69,8 @@ public class GuiBuildingInfo extends Gui {
                 GL11.glEnable(GL11.GL_TEXTURE_2D);
                 this.theGame.renderEngine.bindTexture("/achievement/bg.png");
                 
-                this.drawTexturedModalRect(0, Math.round(yPosition), 96, 202, 160, 32);
-                this.drawTexturedModalRect(45, Math.round(yPosition), 96 + 30, 202, 160 - 30, 32);
+                this.drawTexturedModalRect(0, Math.round(this.yPosition), 96, 202, 160, 32);
+                this.drawTexturedModalRect(45, Math.round(this.yPosition), 96 + 30, 202, 160 - 30, 32);
                 this.theGame.fontRenderer.drawStringWithShadow("Days left: " + this.daysLeft, 10, Math.round(this.yPosition) + 12, 0xffffff);
                 this.theGame.fontRenderer.drawStringWithShadow("Progress: " + this.progress + "%", 90, Math.round(this.yPosition) + 12, 0xffffff);
             }

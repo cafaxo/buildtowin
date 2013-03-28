@@ -13,6 +13,7 @@ import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 
 public class PacketHandler implements IPacketHandler {
+    
     @Override
     public void onPacketData(INetworkManager manager, Packet250CustomPayload packet, Player playerEntity) {
         if (packet.channel.equals("btwbcupdt")) {
@@ -52,7 +53,7 @@ public class PacketHandler implements IPacketHandler {
     }
     
     private void handleBlueprintListPacket(Packet250CustomPayload packet, Player playerEntity) {
-        BuildToWin.clientBlueprintList.onDataPacket(packet);
+        BuildToWin.blueprintListClient.onDataPacket(packet);
     }
     
     private void handleBlueprintSavePacket(Packet250CustomPayload packet, Player playerEntity) {
@@ -69,7 +70,7 @@ public class PacketHandler implements IPacketHandler {
             TileEntityBuildingController buildingController = (TileEntityBuildingController) player.worldObj.getBlockTileEntity(x, y, z);
             
             if (buildingController != null) {
-                BuildToWin.serverBlueprintList.save(buildingController.getBlockDataListRelative(), (EntityPlayer) playerEntity, name);
+                BuildToWin.blueprintListServer.save(buildingController.getBlockDataListRelative(), (EntityPlayer) playerEntity, name);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -90,8 +91,8 @@ public class PacketHandler implements IPacketHandler {
             TileEntityBuildingController buildingController = (TileEntityBuildingController) player.worldObj.getBlockTileEntity(x, y, z);
             
             if (buildingController != null) {
-                if (blueprintIndex < BuildToWin.serverBlueprintList.getBlueprintList().size()) {
-                    buildingController.loadBlueprintRelative(BuildToWin.serverBlueprintList.getBlueprintList().get(blueprintIndex).getBlockDataList(), true);
+                if (blueprintIndex < BuildToWin.blueprintListServer.getBlueprintList().size()) {
+                    buildingController.loadBlueprintRelative(BuildToWin.blueprintListServer.getBlueprintList().get(blueprintIndex).getBlockDataList(), true);
                     PacketDispatcher.sendPacketToPlayer(new Packet3Chat("<BuildToWin> Loaded the blueprint successfully."), playerEntity);
                 }
             }

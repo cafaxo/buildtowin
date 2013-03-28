@@ -11,12 +11,13 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 public class BuildingControllerList {
+    
     private ArrayList<TileEntityBuildingController> buildingControllerList = new ArrayList<TileEntityBuildingController>();
     
     private Map<Integer, TileEntityBuildingController> playerToBuildingController = new HashMap<Integer, TileEntityBuildingController>();
     
     public TileEntityBuildingController getBuildingController(EntityPlayer player) {
-        return playerToBuildingController.get(player.entityId);
+        return this.playerToBuildingController.get(player.entityId);
     }
     
     @SideOnly(Side.CLIENT)
@@ -32,7 +33,7 @@ public class BuildingControllerList {
                     this.buildingControllerList.add(buildingController);
                     
                     for (EntityPlayer player : buildingController.getConnectedAndOnlinePlayers()) {
-                        playerToBuildingController.put(player.entityId, buildingController);
+                        this.playerToBuildingController.put(player.entityId, buildingController);
                     }
                 }
             }
@@ -51,7 +52,7 @@ public class BuildingControllerList {
                 buildingController.refreshConnectedAndOnlinePlayers();
                 
                 for (EntityPlayer player : buildingController.getConnectedAndOnlinePlayers()) {
-                    playerToBuildingController.put(player.entityId, buildingController);
+                    this.playerToBuildingController.put(player.entityId, buildingController);
                 }
             }
         }

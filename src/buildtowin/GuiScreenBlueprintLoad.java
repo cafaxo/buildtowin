@@ -29,7 +29,7 @@ public class GuiScreenBlueprintLoad extends GuiScreen {
         this.blueprintSlot.registerScrollButtons(this.buttonList, 7, 8);
         
         GuiButton load = new GuiButton(1, this.width / 2 - 45 - 50, this.height - 35, 90, 20, "Load");
-        load.enabled = BuildToWin.clientBlueprintList.getBlueprintList().size() > 0;
+        load.enabled = BuildToWin.blueprintListClient.getBlueprintList().size() > 0;
         this.buttonList.add(load);
         
         this.buttonList.add(new GuiButton(2, this.width / 2 - 45 + 50, this.height - 35, 90, 20, "Cancel"));
@@ -41,7 +41,7 @@ public class GuiScreenBlueprintLoad extends GuiScreen {
             this.sendBlueprintLoadPacket();
             this.mc.displayGuiScreen((GuiScreen) null);
         } else if (par1GuiButton.id == 2) {
-            this.mc.displayGuiScreen((GuiScreen) guiScreenBuildingSettings);
+            this.mc.displayGuiScreen(this.guiScreenBuildingSettings);
         } else {
             this.blueprintSlot.actionPerformed(par1GuiButton);
         }
@@ -72,7 +72,7 @@ public class GuiScreenBlueprintLoad extends GuiScreen {
     }
     
     public int getSelectedBlueprint() {
-        return selectedBlueprint;
+        return this.selectedBlueprint;
     }
     
     public void setSelectedBlueprint(int selectedBlueprint) {

@@ -17,15 +17,15 @@ public class FakeWorld implements IBlockAccess {
     }
     
     public void overrideSurroundingBlueprints(int x, int y, int z) {
-        fakeBlockDataList = new BlockData[7];
+        this.fakeBlockDataList = new BlockData[7];
         
-        fakeBlockDataList[0] = BuildToWin.getBlueprint().getBlockData(world, x, y, z);
-        fakeBlockDataList[1] = BuildToWin.getBlueprint().getBlockData(world, x - 1, y, z);
-        fakeBlockDataList[2] = BuildToWin.getBlueprint().getBlockData(world, x, y, z - 1);
-        fakeBlockDataList[3] = BuildToWin.getBlueprint().getBlockData(world, x + 1, y, z);
-        fakeBlockDataList[4] = BuildToWin.getBlueprint().getBlockData(world, x, y, z + 1);
-        fakeBlockDataList[5] = BuildToWin.getBlueprint().getBlockData(world, x, y + 1, z);
-        fakeBlockDataList[6] = BuildToWin.getBlueprint().getBlockData(world, x, y - 1, z);
+        this.fakeBlockDataList[0] = BuildToWin.getBlueprint().getBlockData(this.world, x, y, z);
+        this.fakeBlockDataList[1] = BuildToWin.getBlueprint().getBlockData(this.world, x - 1, y, z);
+        this.fakeBlockDataList[2] = BuildToWin.getBlueprint().getBlockData(this.world, x, y, z - 1);
+        this.fakeBlockDataList[3] = BuildToWin.getBlueprint().getBlockData(this.world, x + 1, y, z);
+        this.fakeBlockDataList[4] = BuildToWin.getBlueprint().getBlockData(this.world, x, y, z + 1);
+        this.fakeBlockDataList[5] = BuildToWin.getBlueprint().getBlockData(this.world, x, y + 1, z);
+        this.fakeBlockDataList[6] = BuildToWin.getBlueprint().getBlockData(this.world, x, y - 1, z);
     }
     
     @Override
@@ -40,17 +40,17 @@ public class FakeWorld implements IBlockAccess {
             }
         }
         
-        return world.getBlockId(x, y, z);
+        return this.world.getBlockId(x, y, z);
     }
     
     @Override
     public TileEntity getBlockTileEntity(int i, int j, int k) {
-        return world.getBlockTileEntity(i, j, k);
+        return this.world.getBlockTileEntity(i, j, k);
     }
     
     @Override
     public int getLightBrightnessForSkyBlocks(int i, int j, int k, int l) {
-        return world.getLightBrightnessForSkyBlocks(i, j, k, l);
+        return this.world.getLightBrightnessForSkyBlocks(i, j, k, l);
     }
     
     @Override
@@ -65,67 +65,67 @@ public class FakeWorld implements IBlockAccess {
             }
         }
         
-        return world.getBlockMetadata(x, y, z);
+        return this.world.getBlockMetadata(x, y, z);
     }
     
     @Override
     public float getBrightness(int i, int j, int k, int l) {
-        return world.getBrightness(i, j, k, l);
+        return this.world.getBrightness(i, j, k, l);
     }
     
     @Override
     public float getLightBrightness(int i, int j, int k) {
-        return world.getLightBrightness(i, j, k);
+        return this.world.getLightBrightness(i, j, k);
     }
     
     @Override
     public Material getBlockMaterial(int i, int j, int k) {
-        return world.getBlockMaterial(i, j, k);
+        return this.world.getBlockMaterial(i, j, k);
     }
     
     @Override
     public boolean isBlockOpaqueCube(int i, int j, int k) {
-        return world.isBlockOpaqueCube(i, j, k);
+        return this.world.isBlockOpaqueCube(i, j, k);
     }
     
     @Override
     public boolean isBlockNormalCube(int i, int j, int k) {
-        return world.isBlockNormalCube(i, j, k);
+        return this.world.isBlockNormalCube(i, j, k);
     }
     
     @Override
     public boolean isAirBlock(int i, int j, int k) {
-        return world.isAirBlock(i, j, k);
+        return this.world.isAirBlock(i, j, k);
     }
     
     @Override
     public BiomeGenBase getBiomeGenForCoords(int i, int j) {
-        return world.getBiomeGenForCoords(i, j);
+        return this.world.getBiomeGenForCoords(i, j);
     }
     
     @Override
     public int getHeight() {
-        return world.getHeight();
+        return this.world.getHeight();
     }
     
     @Override
     public boolean extendedLevelsInChunkCache() {
-        return world.extendedLevelsInChunkCache();
+        return this.world.extendedLevelsInChunkCache();
     }
     
     @Override
     public boolean doesBlockHaveSolidTopSurface(int i, int j, int k) {
-        return world.doesBlockHaveSolidTopSurface(i, j, k);
+        return this.world.doesBlockHaveSolidTopSurface(i, j, k);
     }
     
     @Override
     public Vec3Pool getWorldVec3Pool() {
-        return world.getWorldVec3Pool();
+        return this.world.getWorldVec3Pool();
     }
     
     @Override
     public int isBlockProvidingPowerTo(int i, int j, int k, int l) {
-        return world.isBlockProvidingPowerTo(i, j, k, l);
+        return this.world.isBlockProvidingPowerTo(i, j, k, l);
     }
     
 }

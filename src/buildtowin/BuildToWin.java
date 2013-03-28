@@ -18,14 +18,17 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 @Mod(modid = "BuildToWin", name = "Build To Win!", version = "0.1.0")
 @NetworkMod(clientSideRequired = true, serverSideRequired = false, channels = { "btwbcupdt", "btwtimsupdt", "btwbpupdt", "btwbpsav", "btwbpload", "btwstart", "btwstop" }, packetHandler = PacketHandler.class)
 public class BuildToWin {
+    
     private final static BlockBuildingController buildingController = new BlockBuildingController(244);
+    
     private final static BlockBlueprint blueprint = new BlockBlueprint(243);
+    
     private final static ItemBlueprinter blueprinter = new ItemBlueprinter(5000);
+    
     private final static ItemConnector connector = new ItemConnector(5001);
     
     @Instance("BuildToWin")
@@ -34,11 +37,11 @@ public class BuildToWin {
     @SidedProxy(clientSide = "buildtowin.ClientProxy", serverSide = "buildtowin.CommonProxy")
     public static CommonProxy proxy;
     
-    public static int blueprintRenderingId;
+    public static int blueprintRenderId;
     
-    public static BlueprintList serverBlueprintList;
+    public static BlueprintList blueprintListServer;
     
-    public static BlueprintList clientBlueprintList;
+    public static BlueprintList blueprintListClient;
     
     public static BuildingControllerList buildingControllerListServer;
     
@@ -48,8 +51,8 @@ public class BuildToWin {
     public void preInit(FMLPreInitializationEvent event) {
         TickRegistry.registerTickHandler(new ServerTickHandler(), Side.SERVER);
         
-        buildingControllerListServer = new BuildingControllerList();
-        buildingControllerListClient = new BuildingControllerList();
+        BuildToWin.buildingControllerListServer = new BuildingControllerList();
+        BuildToWin.buildingControllerListClient = new BuildingControllerList();
     }
     
     @Init

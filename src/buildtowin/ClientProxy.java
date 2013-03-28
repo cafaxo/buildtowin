@@ -6,16 +6,17 @@ import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 
 public class ClientProxy extends CommonProxy {
+    
     @Override
     public void init() {
-        BuildToWin.serverBlueprintList = new BlueprintList(Minecraft.getMinecraftDir().getAbsolutePath());
-        BuildToWin.serverBlueprintList.read();
+        BuildToWin.blueprintListServer = new BlueprintList(Minecraft.getMinecraftDir().getAbsolutePath());
+        BuildToWin.blueprintListServer.read();
         
-        BuildToWin.clientBlueprintList = new BlueprintList();
+        BuildToWin.blueprintListClient = new BlueprintList();
         
         TickRegistry.registerTickHandler(new ClientTickHandler(), Side.CLIENT);
         
-        BuildToWin.blueprintRenderingId = RenderingRegistry.getNextAvailableRenderId();
+        BuildToWin.blueprintRenderId = RenderingRegistry.getNextAvailableRenderId();
         RenderingRegistry.registerBlockHandler(new BlueprintRenderer());
     }
 }

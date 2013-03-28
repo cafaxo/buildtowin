@@ -23,7 +23,7 @@ public class BlueprintList {
     private ArrayList<Blueprint> blueprintList = new ArrayList<Blueprint>();
     
     public ArrayList<Blueprint> getBlueprintList() {
-        return blueprintList;
+        return this.blueprintList;
     }
     
     public BlueprintList() {
@@ -67,9 +67,9 @@ public class BlueprintList {
         DataOutputStream dataoutputstream = new DataOutputStream(bytearrayoutputstream);
         
         try {
-            dataoutputstream.writeInt(blueprintList.size());
+            dataoutputstream.writeInt(this.blueprintList.size());
             
-            for (Blueprint blueprint : blueprintList) {
+            for (Blueprint blueprint : this.blueprintList) {
                 dataoutputstream.writeUTF(blueprint.getName());
                 dataoutputstream.writeUTF(blueprint.getAuthor());
             }

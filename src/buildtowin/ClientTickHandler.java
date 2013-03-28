@@ -8,6 +8,7 @@ import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
 
 public class ClientTickHandler implements ITickHandler {
+    
     private short timer = 0;
     
     private GuiBuildingInfo buildingInfo;
@@ -29,12 +30,12 @@ public class ClientTickHandler implements ITickHandler {
                 }
             }
         } else if (type.equals(EnumSet.of(TickType.CLIENT))) {
-            if (timer == 20) {
+            if (this.timer == 20) {
                 BuildToWin.buildingControllerListClient.updateClient();
-                timer = 0;
+                this.timer = 0;
             }
             
-            ++timer;
+            ++this.timer;
         }
     }
     

@@ -1,7 +1,5 @@
 package buildtowin;
 
-import java.util.Random;
-
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
@@ -17,6 +15,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 public class BlockBuildingController extends BlockContainer {
+    
     private Icon iconDisconnected;
     
     protected BlockBuildingController(int id) {
@@ -26,21 +25,6 @@ public class BlockBuildingController extends BlockContainer {
         this.setBlockUnbreakable();
         this.setResistance(6000000.0F);
         this.setUnlocalizedName("Building Controller");
-    }
-    
-    @Override
-    public void onBlockAdded(World par1World, int x, int y, int z) {
-        super.onBlockAdded(par1World, x, y, z);
-        
-        par1World.scheduleBlockUpdate(x, y, z, this.blockID, this.tickRate(par1World));
-    }
-    
-    @Override
-    public void updateTick(World par1World, int x, int y, int z, Random par5Random) {
-        TileEntityBuildingController buildingController = (TileEntityBuildingController) par1World.getBlockTileEntity(x, y, z);
-        buildingController.update();
-        
-        par1World.scheduleBlockUpdate(x, y, z, this.blockID, this.tickRate(par1World));
     }
     
     @Override
@@ -79,7 +63,7 @@ public class BlockBuildingController extends BlockContainer {
     public Icon getBlockTexture(IBlockAccess par1IBlockAccess, int par2, int par3, int par4, int par5) {
         TileEntityBuildingController buildingController = (TileEntityBuildingController) par1IBlockAccess.getBlockTileEntity(par2, par3, par4);
         
-        if (buildingController.getConnectedAndOnlinePlayers().contains(Minecraft.getMinecraft().thePlayer)) {
+        if (buildingController.isPlayerConnectedAndOnline(Minecraft.getMinecraft().thePlayer)) {
             return this.blockIcon;
         } else {
             return this.iconDisconnected;

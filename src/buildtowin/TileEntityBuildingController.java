@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.Iterator;
 
 import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -21,7 +20,6 @@ import net.minecraft.network.packet.Packet132TileEntityData;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.network.packet.Packet3Chat;
 import net.minecraft.tileentity.TileEntity;
-import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 
@@ -48,6 +46,8 @@ public class TileEntityBuildingController extends TileEntity {
     private int finishedBlocks = 0;
     
     private byte color = 0;
+    
+    private int timer = 0;
     
     public TileEntityBuildingController() {
     }
@@ -76,14 +76,14 @@ public class TileEntityBuildingController extends TileEntity {
         
         par1NBTTagCompound.setIntArray("buildingcontrollers", rawConnectedBuildingControllers);
         
-        int rawBlockDataList[] = new int[blockDataList.size() * 5];
+        int rawBlockDataList[] = new int[this.blockDataList.size() * 5];
         
-        for (int i = 0; i < blockDataList.size(); ++i) {
-            rawBlockDataList[i * 5] = blockDataList.get(i).x;
-            rawBlockDataList[i * 5 + 1] = blockDataList.get(i).y;
-            rawBlockDataList[i * 5 + 2] = blockDataList.get(i).z;
-            rawBlockDataList[i * 5 + 3] = blockDataList.get(i).id;
-            rawBlockDataList[i * 5 + 4] = blockDataList.get(i).metadata;
+        for (int i = 0; i < this.blockDataList.size(); ++i) {
+            rawBlockDataList[i * 5] = this.blockDataList.get(i).x;
+            rawBlockDataList[i * 5 + 1] = this.blockDataList.get(i).y;
+            rawBlockDataList[i * 5 + 2] = this.blockDataList.get(i).z;
+            rawBlockDataList[i * 5 + 3] = this.blockDataList.get(i).id;
+            rawBlockDataList[i * 5 + 4] = this.blockDataList.get(i).metadata;
         }
         
         par1NBTTagCompound.setIntArray("blockdatalist", rawBlockDataList);
@@ -243,17 +243,29 @@ public class TileEntityBuildingController extends TileEntity {
         this.sleptTime = inputStream.readLong();
         this.finishedBlocks = inputStream.readInt();
         this.color = inputStream.readByte();
-        
-        this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
     }
     
-    public void update() {
-        if (mode != 0) {
+    @Override
+    public void updateEntity() {
+        if (this.mode != 0) {
             this.refreshBuildingControllers();
         }
         
         this.updateBlockData();
         
+        if (!this.worldObj.isRemote) {
+            this.checkGameStatus();
+            
+            if (this.timer == 100) {
+                PacketDispatcher.sendPacketToAllPlayers(this.getDescriptionPacketOptimized());
+                this.timer = 0;
+            }
+            
+            ++this.timer;
+        }
+    }
+    
+    private void checkGameStatus() {
         if (this.getDeadline() != 0) {
             if (this.finishedBlocks == this.blockDataList.size()) {
                 this.deadline = 0;
@@ -293,8 +305,6 @@ public class TileEntityBuildingController extends TileEntity {
                 }
             }
         }
-        
-        PacketDispatcher.sendPacketToAllPlayers(this.getDescriptionPacketOptimized());
     }
     
     private void sendWinMessage() {
@@ -341,14 +351,10 @@ public class TileEntityBuildingController extends TileEntity {
     
     public void connectPlayer(EntityPlayer entityPlayer) {
         if (this.getDeadline() != 0) {
-            if (this.worldObj.isRemote) {
-                Minecraft mc = FMLClientHandler.instance().getClient();
-                mc.ingameGUI.getChatGUI().printChatMessage(
-                        "<BuildToWin> Could not connect, because the game is running.");
-            }
+            BuildToWin.printChatMessage(this.worldObj, "Could not connect, because the game is running.");
         } else {
             if (!this.worldObj.isRemote) {
-                if (!isPlayerConnected(entityPlayer)) {
+                if (!this.isPlayerConnected(entityPlayer)) {
                     TileEntityBuildingController buildingController = BuildToWin.buildingControllerListServer.getBuildingController(entityPlayer);
                     
                     if (buildingController != null) {
@@ -356,29 +362,37 @@ public class TileEntityBuildingController extends TileEntity {
                     }
                     
                     this.connectedPlayers.add(entityPlayer.username);
+                    this.connectedAndOnlinePlayers.add(entityPlayer);
                 }
-            } else {
-                Minecraft mc = FMLClientHandler.instance().getClient();
-                mc.ingameGUI.getChatGUI().printChatMessage(
-                        "<BuildToWin> Connected to the Building Controller.");
+            } else if (!this.isPlayerConnectedAndOnline(entityPlayer)) {
+                TileEntityBuildingController buildingController = BuildToWin.buildingControllerListClient.getBuildingController(entityPlayer);
+                
+                if (buildingController != null) {
+                    buildingController.disconnectPlayer(entityPlayer);
+                }
+                
+                this.connectedAndOnlinePlayers.add(entityPlayer);
+                
+                this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
+                BuildToWin.printChatMessage(this.worldObj, "Connected to the Building Controller.");
             }
         }
     }
     
     public void disconnectPlayer(EntityPlayer entityPlayer) {
         if (this.getDeadline() != 0) {
-            if (this.worldObj.isRemote) {
-                Minecraft mc = FMLClientHandler.instance().getClient();
-                mc.ingameGUI.getChatGUI().printChatMessage(
-                        "<BuildToWin> Could not disconnect, because the game is running.");
-            }
+            BuildToWin.printChatMessage(this.worldObj, "Could not disconnect, because the game is running.");
         } else {
             if (!this.worldObj.isRemote) {
-                this.connectedPlayers.remove(entityPlayer.username);
-            } else {
-                Minecraft mc = FMLClientHandler.instance().getClient();
-                mc.ingameGUI.getChatGUI().printChatMessage(
-                        "<BuildToWin> Disconnected from the Building Controller.");
+                if (this.isPlayerConnected(entityPlayer)) {
+                    this.connectedPlayers.remove(entityPlayer.username);
+                    this.connectedAndOnlinePlayers.remove(entityPlayer);
+                }
+            } else if (this.isPlayerConnectedAndOnline(entityPlayer)) {
+                this.connectedAndOnlinePlayers.remove(entityPlayer);
+                
+                this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
+                BuildToWin.printChatMessage(this.worldObj, "Disconnected from the Building Controller.");
             }
         }
     }
@@ -404,7 +418,7 @@ public class TileEntityBuildingController extends TileEntity {
     }
     
     public void sendPacketToConnectedPlayers(Packet packet, boolean synchronize) {
-        if (mode == 1 && synchronize) {
+        if (this.mode == 1 && synchronize) {
             for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
                 buildingController.sendPacketToConnectedPlayers(packet, false);
             }
@@ -416,7 +430,7 @@ public class TileEntityBuildingController extends TileEntity {
     }
     
     public void startGame(EntityPlayer entityPlayer, boolean synchronize) {
-        if (mode == 1 && synchronize) {
+        if (this.mode == 1 && synchronize) {
             for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
                 buildingController.startGame(entityPlayer, false);
             }
@@ -438,7 +452,7 @@ public class TileEntityBuildingController extends TileEntity {
     }
     
     public void stopGame(EntityPlayer entityPlayer, boolean synchronize) {
-        if (mode == 1 && synchronize) {
+        if (this.mode == 1 && synchronize) {
             for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
                 buildingController.stopGame(entityPlayer, false);
             }
@@ -462,7 +476,7 @@ public class TileEntityBuildingController extends TileEntity {
     
     public void disconnectFromBuildingControllers() {
         for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
-            if (mode == 1) {
+            if (this.mode == 1) {
                 buildingController.getConnectedBuildingControllers().clear();
                 buildingController.mode = 0;
             } else {
@@ -699,7 +713,7 @@ public class TileEntityBuildingController extends TileEntity {
     public ArrayList<BlockData> getBlockDataListRelative() {
         ArrayList<BlockData> blockDataListRelative = new ArrayList<BlockData>();
         
-        for (BlockData blockData : blockDataList) {
+        for (BlockData blockData : this.blockDataList) {
             blockDataListRelative.add(this.makeBlockDataRelative(blockData));
         }
         
@@ -729,8 +743,12 @@ public class TileEntityBuildingController extends TileEntity {
         }
     }
     
+    public byte getColor() {
+        return this.color;
+    }
+    
     public byte getMode() {
-        return mode;
+        return this.mode;
     }
     
     public void setMode(byte mode) {
@@ -738,27 +756,27 @@ public class TileEntityBuildingController extends TileEntity {
     }
     
     public ArrayList<TileEntityBuildingController> getConnectedBuildingControllers() {
-        return connectedBuildingControllers;
+        return this.connectedBuildingControllers;
     }
     
     public ArrayList<String> getConnectedPlayers() {
-        return connectedPlayers;
+        return this.connectedPlayers;
     }
     
     public ArrayList<EntityPlayer> getConnectedAndOnlinePlayers() {
-        return connectedAndOnlinePlayers;
+        return this.connectedAndOnlinePlayers;
     }
     
     public long getPlannedTimespan() {
-        return plannedTimespan;
+        return this.plannedTimespan;
     }
     
     public long getDeadline() {
-        return deadline;
+        return this.deadline;
     }
     
     public long getSleptTime() {
-        return sleptTime;
+        return this.sleptTime;
     }
     
     public long getRealWorldTime() {
@@ -770,11 +788,11 @@ public class TileEntityBuildingController extends TileEntity {
     }
     
     public int getFinishedBlocks() {
-        return finishedBlocks;
+        return this.finishedBlocks;
     }
     
     public ArrayList<BlockData> getBlockDataList() {
-        return blockDataList;
+        return this.blockDataList;
     }
     
     public int getProgress() {

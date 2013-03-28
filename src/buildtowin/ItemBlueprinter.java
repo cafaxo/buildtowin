@@ -9,6 +9,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 public class ItemBlueprinter extends Item {
+    
     public ItemBlueprinter(int id) {
         super(id);
         
