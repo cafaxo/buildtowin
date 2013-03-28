@@ -4,7 +4,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockAnvil;
 import net.minecraft.block.BlockFence;
 import net.minecraft.block.BlockFenceGate;
-import net.minecraft.block.BlockGrass;
 import net.minecraft.block.BlockStairs;
 import net.minecraft.block.BlockWall;
 import net.minecraft.client.renderer.EntityRenderer;
@@ -86,118 +85,62 @@ public class BlueprintRenderer extends RenderBlocks implements ISimpleBlockRende
     
     @Override
     public boolean renderStandardBlock(Block block, int x, int y, int z) {
-        float par5 = this.red;
-        float par6 = this.green;
-        float par7 = this.blue;
-        
         this.enableAO = false;
         Tessellator tessellator = Tessellator.instance;
         boolean flag = false;
-        float f3 = 0.5F;
-        float f4 = 1.0F;
-        float f5 = 0.8F;
-        float f6 = 0.6F;
-        float f7 = f4 * par5;
-        float f8 = f4 * par6;
-        float f9 = f4 * par7;
-        float f10 = f3;
-        float f11 = f5;
-        float f12 = f6;
-        float f13 = f3;
-        float f14 = f5;
-        float f15 = f6;
-        float f16 = f3;
-        float f17 = f5;
-        float f18 = f6;
         
-        if (block != Block.grass) {
-            f10 = f3 * par5;
-            f11 = f5 * par5;
-            f12 = f6 * par5;
-            f13 = f3 * par6;
-            f14 = f5 * par6;
-            f15 = f6 * par6;
-            f16 = f3 * par7;
-            f17 = f5 * par7;
-            f18 = f6 * par7;
-        }
-        
-        int l = block.getMixedBrightnessForBlock(this.blockAccess, x, y, z);
+        int brightness = block.getMixedBrightnessForBlock(this.blockAccess, x, y, z);
         
         if (this.realWorld.getBlockId(x, y - 1, z) != BuildToWin.getBlueprint().blockID
                 && (this.renderAllFaces || block.shouldSideBeRendered(this.blockAccess, x, y - 1, z, 0))) {
-            tessellator.setBrightness(this.renderMinY > 0.0D ? l : block.getMixedBrightnessForBlock(this.blockAccess, x, y - 1, z));
-            tessellator.setColorRGBA_F(f10, f13, f16, this.alpha);
+            tessellator.setBrightness(this.renderMinY > 0.0D ? brightness : block.getMixedBrightnessForBlock(this.blockAccess, x, y - 1, z));
+            tessellator.setColorRGBA_F(this.red, this.green, this.blue, this.alpha);
             this.renderBottomFace(block, x, y, z, this.getBlockIcon(block, this.blockAccess, x, y, z, 0));
+            
             flag = true;
         }
         
         if (this.realWorld.getBlockId(x, y + 1, z) != BuildToWin.getBlueprint().blockID
                 && (this.renderAllFaces || block.shouldSideBeRendered(this.blockAccess, x, y + 1, z, 1))) {
-            tessellator.setBrightness(this.renderMaxY < 1.0D ? l : block.getMixedBrightnessForBlock(this.blockAccess, x, y + 1, z));
-            tessellator.setColorRGBA_F(f7, f8, f9, this.alpha);
+            tessellator.setBrightness(this.renderMaxY < 1.0D ? brightness : block.getMixedBrightnessForBlock(this.blockAccess, x, y + 1, z));
+            tessellator.setColorRGBA_F(this.red, this.green, this.blue, this.alpha);
             this.renderTopFace(block, x, y, z, this.getBlockIcon(block, this.blockAccess, x, y, z, 1));
+            
             flag = true;
         }
         
-        Icon icon;
-        
         if (this.realWorld.getBlockId(x, y, z - 1) != BuildToWin.getBlueprint().blockID
                 && (this.renderAllFaces || block.shouldSideBeRendered(this.blockAccess, x, y, z - 1, 2))) {
-            tessellator.setBrightness(this.renderMinZ > 0.0D ? l : block.getMixedBrightnessForBlock(this.blockAccess, x, y, z - 1));
-            tessellator.setColorRGBA_F(f11, f14, f17, this.alpha);
-            icon = this.getBlockIcon(block, this.blockAccess, x, y, z, 2);
-            this.renderEastFace(block, x, y, z, icon);
-            
-            if (fancyGrass && icon.getIconName().equals("grass_side") && !this.hasOverrideBlockTexture()) {
-                tessellator.setColorRGBA_F(f11 * par5, f14 * par6, f17 * par7, this.alpha);
-                this.renderEastFace(block, x, y, z, BlockGrass.getIconSideOverlay());
-            }
+            tessellator.setBrightness(this.renderMinZ > 0.0D ? brightness : block.getMixedBrightnessForBlock(this.blockAccess, x, y, z - 1));
+            tessellator.setColorRGBA_F(this.red, this.green, this.blue, this.alpha);
+            this.renderEastFace(block, x, y, z, this.getBlockIcon(block, this.blockAccess, x, y, z, 2));
             
             flag = true;
         }
         
         if (this.realWorld.getBlockId(x, y, z + 1) != BuildToWin.getBlueprint().blockID
                 && (this.renderAllFaces || block.shouldSideBeRendered(this.blockAccess, x, y, z + 1, 3))) {
-            tessellator.setBrightness(this.renderMaxZ < 1.0D ? l : block.getMixedBrightnessForBlock(this.blockAccess, x, y, z + 1));
-            tessellator.setColorRGBA_F(f11, f14, f17, this.alpha);
-            icon = this.getBlockIcon(block, this.blockAccess, x, y, z, 3);
-            this.renderWestFace(block, x, y, z, icon);
-            
-            if (fancyGrass && icon.getIconName().equals("grass_side") && !this.hasOverrideBlockTexture()) {
-                tessellator.setColorRGBA_F(f11 * par5, f14 * par6, f17 * par7, this.alpha);
-                this.renderWestFace(block, x, y, z, BlockGrass.getIconSideOverlay());
-            }
+            tessellator.setBrightness(this.renderMaxZ < 1.0D ? brightness : block.getMixedBrightnessForBlock(this.blockAccess, x, y, z + 1));
+            tessellator.setColorRGBA_F(this.red, this.green, this.blue, this.alpha);
+            this.renderWestFace(block, x, y, z, this.getBlockIcon(block, this.blockAccess, x, y, z, 3));
             
             flag = true;
         }
         
         if (this.realWorld.getBlockId(x - 1, y, z) != BuildToWin.getBlueprint().blockID
                 && (this.renderAllFaces || block.shouldSideBeRendered(this.blockAccess, x - 1, y, z, 4))) {
-            tessellator.setBrightness(this.renderMinX > 0.0D ? l : block.getMixedBrightnessForBlock(this.blockAccess, x - 1, y, z));
-            tessellator.setColorRGBA_F(f12, f15, f18, this.alpha);
-            icon = this.getBlockIcon(block, this.blockAccess, x, y, z, 4);
-            this.renderNorthFace(block, x, y, z, icon);
-            
-            if (fancyGrass && icon.getIconName().equals("grass_side") && !this.hasOverrideBlockTexture()) {
-                tessellator.setColorRGBA_F(f12 * par5, f15 * par6, f18 * par7, this.alpha);
-                this.renderNorthFace(block, x, y, z, BlockGrass.getIconSideOverlay());
-            }
+            tessellator.setBrightness(this.renderMinX > 0.0D ? brightness : block.getMixedBrightnessForBlock(this.blockAccess, x - 1, y, z));
+            tessellator.setColorRGBA_F(this.red, this.green, this.blue, this.alpha);
+            this.renderNorthFace(block, x, y, z, this.getBlockIcon(block, this.blockAccess, x, y, z, 4));
             
             flag = true;
         }
         
         if (this.realWorld.getBlockId(x + 1, y, z) != BuildToWin.getBlueprint().blockID
                 && (this.renderAllFaces || block.shouldSideBeRendered(this.blockAccess, x + 1, y, z, 5))) {
-            tessellator.setBrightness(this.renderMaxX < 1.0D ? l : block.getMixedBrightnessForBlock(this.blockAccess, x + 1, y, z));
-            tessellator.setColorRGBA_F(f12, f15, f18, this.alpha);
-            icon = this.getBlockIcon(block, this.blockAccess, x, y, z, 5);
-            this.renderSouthFace(block, x, y, z, icon);
-            
-            if (fancyGrass && icon.getIconName().equals("grass_side") && !this.hasOverrideBlockTexture()) {
-                tessellator.setColorRGBA_F(f12 * par5, f15 * par6, f18 * par7, this.alpha);
-                this.renderSouthFace(block, x, y, z, BlockGrass.getIconSideOverlay());
-            }
+            tessellator.setBrightness(this.renderMaxX < 1.0D ? brightness : block.getMixedBrightnessForBlock(this.blockAccess, x + 1, y, z));
+            tessellator.setColorRGBA_F(this.red, this.green, this.blue, this.alpha);
+            this.renderSouthFace(block, x, y, z, this.getBlockIcon(block, this.blockAccess, x, y, z, 5));
             
             flag = true;
         }
