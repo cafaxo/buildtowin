@@ -64,7 +64,6 @@ public class BlockBuildingController extends BlockContainer {
     @Override
     public void onBlockHarvested(World par1World, int par2, int par3, int par4, int par5, EntityPlayer par6EntityPlayer) {
         TileEntityBuildingController buildingController = (TileEntityBuildingController) par1World.getBlockTileEntity(par2, par3, par4);
-        buildingController.disconnectFromBuildingControllers();
         buildingController.removeAllBlocks();
     }
     

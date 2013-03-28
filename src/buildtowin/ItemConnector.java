@@ -42,7 +42,7 @@ public class ItemConnector extends Item {
                     
                     buildingControllerToConnect.setMode((byte) 2);
                     buildingControllerToConnect.addBuildingController(connectedBuildingController);
-                    buildingControllerToConnect.refreshColor((byte) connectedBuildingController.getConnectedBuildingControllers().size());
+                    buildingControllerToConnect.setColor((byte) connectedBuildingController.getConnectedBuildingControllers().size());
                     buildingControllerToConnect.loadBlueprintRelative(connectedBuildingController.getBlockDataListRelative(), false);
                     
                     BuildToWin.printChatMessage(player.worldObj, "Connected the building controller to your game.");

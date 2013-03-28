@@ -331,24 +331,6 @@ public class TileEntityBuildingController extends TileEntity {
         }
     }
     
-    public void updateBlockData() {
-        Iterator<BlockData> iter = this.blockDataList.iterator();
-        this.finishedBlocks = 0;
-        
-        while (iter.hasNext()) {
-            BlockData blockData = iter.next();
-            int realBlockId = this.worldObj.getBlockId(blockData.x, blockData.y, blockData.z);
-            
-            if (realBlockId == blockData.id) {
-                ++this.finishedBlocks;
-            }
-            
-            if (realBlockId != BuildToWin.getBlueprint().blockID && realBlockId != blockData.id) {
-                this.refreshBlueprint(blockData, false);
-            }
-        }
-    }
-    
     public void connectPlayer(EntityPlayer entityPlayer) {
         if (this.getDeadline() != 0) {
             BuildToWin.printChatMessage(this.worldObj, "Could not connect, because the game is already running.");
@@ -473,19 +455,6 @@ public class TileEntityBuildingController extends TileEntity {
         }
     }
     
-    public void disconnectFromBuildingControllers() {
-        for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
-            if (this.mode == 1) {
-                buildingController.getConnectedBuildingControllers().clear();
-                buildingController.stopGame(false);
-                buildingController.mode = 0;
-                buildingController.refreshColor((byte) 0);
-            } else {
-                buildingController.removeBuildingController(this);
-            }
-        }
-    }
-    
     public void refreshBuildingControllers() {
         if (this.rawConnectedBuildingControllers != null) {
             if (this.rawConnectedBuildingControllers.length != 0 && this.connectedBuildingControllers.size() == 0) {
@@ -496,6 +465,8 @@ public class TileEntityBuildingController extends TileEntity {
                             this.rawConnectedBuildingControllers[i * 3 + 2]));
                 }
             }
+            
+            this.rawConnectedBuildingControllers = null;
         }
         
         Iterator<TileEntityBuildingController> iter = this.connectedBuildingControllers.iterator();
@@ -507,6 +478,12 @@ public class TileEntityBuildingController extends TileEntity {
                     || this.worldObj.getBlockTileEntity(buildingController.xCoord, buildingController.yCoord, buildingController.zCoord) != buildingController) {
                 iter.remove();
             }
+        }
+        
+        if (this.mode == 2 && this.connectedBuildingControllers.size() == 0) {
+            this.stopGame(false);
+            this.mode = 0;
+            this.setColor((byte) 0);
         }
     }
     
@@ -532,6 +509,24 @@ public class TileEntityBuildingController extends TileEntity {
         return null;
     }
     
+    public void updateBlockData() {
+        Iterator<BlockData> iter = this.blockDataList.iterator();
+        this.finishedBlocks = 0;
+        
+        while (iter.hasNext()) {
+            BlockData blockData = iter.next();
+            int realBlockId = this.worldObj.getBlockId(blockData.x, blockData.y, blockData.z);
+            
+            if (realBlockId == blockData.id) {
+                ++this.finishedBlocks;
+            }
+            
+            if (realBlockId != BuildToWin.getBlueprint().blockID && realBlockId != blockData.id) {
+                this.refreshBlueprint(blockData, false);
+            }
+        }
+    }
+    
     public BlockData makeBlockDataAbsolute(BlockData blockData) {
         return new BlockData(this.xCoord + blockData.x, this.yCoord + blockData.y, this.zCoord + blockData.z, blockData.id, blockData.metadata);
     }
@@ -547,13 +542,20 @@ public class TileEntityBuildingController extends TileEntity {
             }
         }
         
-        this.worldObj.setBlock(blockData.x, blockData.y, blockData.z, BuildToWin.getBlueprint().blockID, 0, 2);
+        int blockId = this.worldObj.getBlockId(blockData.x, blockData.y, blockData.z);
         
-        TileEntityBlueprint blueprint = (TileEntityBlueprint) this.worldObj.getBlockTileEntity(blockData.x, blockData.y, blockData.z);
-        
-        blueprint.setBlockId(blockData.id);
-        blueprint.setMetadata(blockData.metadata);
-        blueprint.setColor(this.color);
+        if (blockId != BuildToWin.getBuildingController().blockID) {
+            this.worldObj.setBlock(blockData.x, blockData.y, blockData.z, BuildToWin.getBlueprint().blockID, 0, 2);
+            this.worldObj.markBlockForRenderUpdate(blockData.x, blockData.y, blockData.z);
+            
+            TileEntityBlueprint blueprint = (TileEntityBlueprint) this.worldObj.getBlockTileEntity(blockData.x, blockData.y, blockData.z);
+            
+            if (blueprint != null) {
+                blueprint.setBlockId(blockData.id);
+                blueprint.setMetadata(blockData.metadata);
+                blueprint.setColor(this.color);
+            }
+        }
     }
     
     public void placeBlueprint(BlockData blockData, boolean synchronize) {
@@ -736,13 +738,9 @@ public class TileEntityBuildingController extends TileEntity {
         this.plannedTimespan = newTimespan;
     }
     
-    public void refreshColor(byte color) {
+    public void setColor(byte color) {
         this.color = color;
-        
-        for (BlockData blockData : this.blockDataList) {
-            TileEntityBlueprint blueprint = (TileEntityBlueprint) this.worldObj.getBlockTileEntity(blockData.x, blockData.y, blockData.z);
-            blueprint.setColor(this.color);
-        }
+        this.resetAllBlocks();
     }
     
     public byte getColor() {
