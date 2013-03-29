@@ -28,7 +28,7 @@ import cpw.mods.fml.common.network.Player;
 
 public class TileEntityBuildingController extends TileEntity {
     
-    private byte mode; // 0 = Time; 1 = versus controller; 2 = versus member
+    private byte mode;
     
     private int rawConnectedBuildingControllers[];
     
@@ -417,24 +417,46 @@ public class TileEntityBuildingController extends TileEntity {
         }
     }
     
-    public void startGame(EntityPlayer entityPlayer, boolean synchronize) {
-        if (this.mode == 1 && synchronize) {
-            for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
-                buildingController.startGame(entityPlayer, false);
-            }
-        }
-        
+    public void startGame(EntityPlayer entityPlayer) {
         this.refreshConnectedAndOnlinePlayers();
+        this.refreshBuildingControllers();
         
-        if (this.getConnectedAndOnlinePlayers().isEmpty()) {
-            PacketDispatcher.sendPacketToPlayer(new Packet3Chat("<BuildToWin> Could not start the game, because no players are connected."), (Player) entityPlayer);
-        } else if (this.getBlockDataList().size() == 0) {
-            PacketDispatcher.sendPacketToPlayer(new Packet3Chat("<BuildToWin> Could not start the game, because no blueprints exist."), (Player) entityPlayer);
-        } else {
-            this.resetAllBlocks();
-            this.deadline = this.getRealWorldTime() + this.getPlannedTimespan();
+        if (mode == 1) {
+            boolean areAllReady = true;
             
-            this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> The game has started."));
+            for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
+                buildingController.refreshConnectedAndOnlinePlayers();
+                
+                if (buildingController.connectedAndOnlinePlayers.isEmpty()) {
+                    PacketDispatcher.sendPacketToPlayer(new Packet3Chat("<BuildToWin> Could not start the game, because some teams are still empty."), (Player) entityPlayer);
+                    areAllReady = false;
+                    break;
+                } else if (this.getBlockDataList().isEmpty()) {
+                    PacketDispatcher.sendPacketToPlayer(new Packet3Chat("<BuildToWin> Could not start the game, because a Building Controller has no blueprints."), (Player) entityPlayer);
+                    areAllReady = false;
+                    break;
+                }
+            }
+            
+            if (areAllReady) {
+                for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
+                    buildingController.resetAllBlocks();
+                    buildingController.deadline = this.getRealWorldTime() + this.getPlannedTimespan();
+                    
+                    buildingController.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> The game has started."));
+                }
+            }
+        } else {
+            if (this.getConnectedAndOnlinePlayers().isEmpty()) {
+                PacketDispatcher.sendPacketToPlayer(new Packet3Chat("<BuildToWin> Could not start the game, because no players are connected."), (Player) entityPlayer);
+            } else if (this.getBlockDataList().isEmpty()) {
+                PacketDispatcher.sendPacketToPlayer(new Packet3Chat("<BuildToWin> Could not start the game, because no blueprints exist."), (Player) entityPlayer);
+            } else {
+                this.resetAllBlocks();
+                this.deadline = this.getRealWorldTime() + this.getPlannedTimespan();
+                
+                this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> The game has started."));
+            }
         }
     }
     
@@ -453,18 +475,52 @@ public class TileEntityBuildingController extends TileEntity {
         }
     }
     
-    public void addBuildingController(TileEntityBuildingController buildingControllerToConnect) {
-        if (!this.connectedBuildingControllers.contains(buildingControllerToConnect)) {
-            this.connectedBuildingControllers.add(buildingControllerToConnect);
+    public void addBuildingController(TileEntityBuildingController buildingController) {
+        if (!this.connectedBuildingControllers.contains(buildingController)) {
+            this.connectedBuildingControllers.add(buildingController);
         }
     }
     
-    public void removeBuildingController(TileEntityBuildingController buildingControllerToRemove) {
-        this.connectedBuildingControllers.remove(buildingControllerToRemove);
-        
-        if (this.mode == 1 && this.connectedBuildingControllers.size() == 0) {
-            this.mode = 0;
+    public boolean connectBuildingController(TileEntityBuildingController buildingController, EntityPlayer player) {
+        if (this == buildingController) {
+            return false;
         }
+        
+        if (buildingController.getMode() != (byte) 0) {
+            BuildToWin.printChatMessage(player.worldObj, "This building controller is already participating in a game.");
+            return false;
+        }
+        
+        if (!this.connectedBuildingControllers.contains(buildingController)) {
+            if (this.getMode() == (byte) 2) {
+                BuildToWin.printChatMessage(player.worldObj, "Your building controller is already participating in a game.");
+                return false;
+            }
+            
+            this.setMode((byte) 1);
+            this.addBuildingController(buildingController);
+            
+            buildingController.setMode((byte) 2);
+            buildingController.addBuildingController(this);
+            buildingController.setColor((byte) this.getConnectedBuildingControllers().size());
+            buildingController.loadBlueprintRelative(this.getBlockDataListRelative(), false);
+            
+            BuildToWin.printChatMessage(player.worldObj, "Connected the building controller to your game.");
+            return true;
+        }
+        
+        return false;
+    }
+    
+    public boolean disconnectBuildingController(TileEntityBuildingController buildingController, EntityPlayer player) {
+        if (this.connectedBuildingControllers.contains(buildingController)) {
+            this.connectedBuildingControllers.remove(buildingController);
+            BuildToWin.printChatMessage(player.worldObj, "Disconnected the building controller from your game.");
+            
+            return true;
+        }
+        
+        return false;
     }
     
     public void refreshBuildingControllers() {
@@ -487,12 +543,13 @@ public class TileEntityBuildingController extends TileEntity {
             TileEntityBuildingController buildingController = iter.next();
             
             if (buildingController == null
-                    || this.worldObj.getBlockTileEntity(buildingController.xCoord, buildingController.yCoord, buildingController.zCoord) != buildingController) {
+                    || this.worldObj.getBlockTileEntity(buildingController.xCoord, buildingController.yCoord, buildingController.zCoord) != buildingController
+                    || !buildingController.getConnectedBuildingControllers().contains(this)) {
                 iter.remove();
             }
         }
         
-        if (this.mode == 2 && this.connectedBuildingControllers.size() == 0) {
+        if (this.mode == 2 && this.connectedBuildingControllers.isEmpty()) {
             this.stopGame(false);
             this.mode = 0;
             this.setColor((byte) 0);

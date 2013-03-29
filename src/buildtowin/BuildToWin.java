@@ -35,8 +35,6 @@ public class BuildToWin {
     
     private final static ItemBlueprinter blueprinter = new ItemBlueprinter(5000);
     
-    private final static ItemConnector connector = new ItemConnector(5001);
-    
     public static int blueprintRenderId;
     
     public static BlueprintList blueprintListServer;
@@ -68,7 +66,6 @@ public class BuildToWin {
         LanguageRegistry.addName(buildingController, "Building Controller");
         LanguageRegistry.addName(blueprint, "Blueprint");
         LanguageRegistry.addName(blueprinter, "Blueprinter");
-        LanguageRegistry.addName(connector, "Connector");
     }
     
     @PostInit
@@ -100,9 +97,5 @@ public class BuildToWin {
     
     public static ItemBlueprinter getBlueprinter() {
         return blueprinter;
-    }
-    
-    public static ItemConnector getConnector() {
-        return connector;
     }
 }

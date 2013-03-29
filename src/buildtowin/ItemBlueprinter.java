@@ -40,7 +40,15 @@ public class ItemBlueprinter extends Item {
             if (buildingController.isPlayerConnectedAndOnline(player)) {
                 buildingController.disconnectPlayer(player);
             } else {
-                buildingController.connectPlayer(player);
+                TileEntityBuildingController connectedBuildingController = BuildToWin.getBuildingControllerList(player.worldObj).getBuildingController(player);
+                
+                if (connectedBuildingController == null) {
+                    buildingController.connectPlayer(player);
+                } else if (!connectedBuildingController.getConnectedBuildingControllers().contains(buildingController)) {
+                    connectedBuildingController.connectBuildingController(buildingController, player);
+                } else {
+                    connectedBuildingController.disconnectBuildingController(buildingController, player);
+                }
             }
         } else if (blockId != BuildToWin.getBlueprint().blockID && blockId != BuildToWin.getBuildingController().blockID) {
             TileEntityBuildingController buildingController = BuildToWin.getBuildingControllerList(player.worldObj).getBuildingController(player);
