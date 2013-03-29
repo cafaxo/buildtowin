@@ -431,7 +431,7 @@ public class TileEntityBuildingController extends TileEntity {
                     PacketDispatcher.sendPacketToPlayer(new Packet3Chat("<BuildToWin> Could not start the game, because some teams are still empty."), (Player) entityPlayer);
                     areAllReady = false;
                     break;
-                } else if (this.getBlockDataList().isEmpty()) {
+                } else if (buildingController.getBlockDataList().isEmpty()) {
                     PacketDispatcher.sendPacketToPlayer(new Packet3Chat("<BuildToWin> Could not start the game, because a Building Controller has no blueprints."), (Player) entityPlayer);
                     areAllReady = false;
                     break;
@@ -441,10 +441,15 @@ public class TileEntityBuildingController extends TileEntity {
             if (areAllReady) {
                 for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
                     buildingController.resetAllBlocks();
-                    buildingController.deadline = this.getRealWorldTime() + this.getPlannedTimespan();
+                    buildingController.deadline = buildingController.getRealWorldTime() + buildingController.getPlannedTimespan();
                     
                     buildingController.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> The game has started."));
                 }
+                
+                this.resetAllBlocks();
+                this.deadline = this.getRealWorldTime() + this.getPlannedTimespan();
+                
+                this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> The game has started."));
             }
         } else {
             if (this.getConnectedAndOnlinePlayers().isEmpty()) {
@@ -543,8 +548,7 @@ public class TileEntityBuildingController extends TileEntity {
             TileEntityBuildingController buildingController = iter.next();
             
             if (buildingController == null
-                    || this.worldObj.getBlockTileEntity(buildingController.xCoord, buildingController.yCoord, buildingController.zCoord) != buildingController
-                    || !buildingController.getConnectedBuildingControllers().contains(this)) {
+                    || this.worldObj.getBlockTileEntity(buildingController.xCoord, buildingController.yCoord, buildingController.zCoord) != buildingController) {
                 iter.remove();
             }
         }
@@ -716,41 +720,45 @@ public class TileEntityBuildingController extends TileEntity {
         }
     }
     
-    public void removeBlueprint(BlockData blockData, boolean synchronize) {
+    public void removeBlueprint(BlockData blockData, boolean removeFromList, boolean synchronize) {
         if (this.mode == 1 && synchronize) {
             for (TileEntityBuildingController buildingController : this.connectedBuildingControllers) {
-                buildingController.removeBlueprint(buildingController.makeBlockDataAbsolute(this.makeBlockDataRelative(blockData)), false);
+                buildingController.removeBlueprint(buildingController.makeBlockDataAbsolute(this.makeBlockDataRelative(blockData)), removeFromList, false);
             }
         }
         
         if (blockData != null) {
             if (blockData.id == Block.doorWood.blockID || blockData.id == Block.doorSteel.blockID) {
-                this.removeBlueprintDoor(blockData);
+                this.removeBlueprintDoor(blockData, removeFromList);
             } else if (blockData.id == Block.bed.blockID) {
-                this.removeBlueprintBed(blockData);
+                this.removeBlueprintBed(blockData, removeFromList);
             } else {
                 this.worldObj.setBlock(blockData.x, blockData.y, blockData.z, blockData.id, blockData.metadata, 3);
+                
+                if (removeFromList) {
+                    this.blockDataList.remove(blockData);
+                }
             }
         }
-        
-        this.blockDataList.remove(blockData);
     }
     
-    public void removeBlueprintDoor(BlockData blockData) {
+    public void removeBlueprintDoor(BlockData blockData, boolean removeFromList) {
         BlockData secondPart = null;
         
         if ((secondPart = this.getBlockData(blockData.x, blockData.y + 1, blockData.z)) != null && secondPart.id == blockData.id) {
         } else if ((secondPart = this.getBlockData(blockData.x, blockData.y - 1, blockData.z)) != null && secondPart.id == blockData.id) {
         }
         
-        this.blockDataList.remove(blockData);
-        this.blockDataList.remove(secondPart);
+        if (removeFromList) {
+            this.blockDataList.remove(blockData);
+            this.blockDataList.remove(secondPart);
+        }
         
         this.worldObj.setBlock(blockData.x, blockData.y, blockData.z, blockData.id, blockData.metadata, 3);
         this.worldObj.setBlock(secondPart.x, secondPart.y, secondPart.z, secondPart.id, secondPart.metadata, 3);
     }
     
-    private void removeBlueprintBed(BlockData blockData) {
+    private void removeBlueprintBed(BlockData blockData, boolean removeFromList) {
         BlockData secondPart = null;
         
         if ((secondPart = this.getBlockData(blockData.x + 1, blockData.y, blockData.z)) != null && secondPart.id == blockData.id) {
@@ -759,8 +767,10 @@ public class TileEntityBuildingController extends TileEntity {
         } else if ((secondPart = this.getBlockData(blockData.x, blockData.y, blockData.z - 1)) != null && secondPart.id == blockData.id) {
         }
         
-        this.blockDataList.remove(blockData);
-        this.blockDataList.remove(secondPart);
+        if (removeFromList) {
+            this.blockDataList.remove(blockData);
+            this.blockDataList.remove(secondPart);
+        }
         
         this.worldObj.setBlock(blockData.x, blockData.y, blockData.z, blockData.id, blockData.metadata, 3);
         this.worldObj.setBlock(secondPart.x, secondPart.y, secondPart.z, secondPart.id, secondPart.metadata, 3);

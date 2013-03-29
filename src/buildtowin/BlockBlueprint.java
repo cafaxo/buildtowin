@@ -33,8 +33,8 @@ public class BlockBlueprint extends BlockContainer {
                     BuildToWin.printChatMessage(par1World, "The game has not started yet.");
                 } else if (par5EntityPlayer.inventory.getCurrentItem() != null) {
                     if (par5EntityPlayer.inventory.getCurrentItem().itemID == buildingController.getItemId(blockData.id)) {
-                        buildingController.removeBlueprint(blockData, false);
-                        par5EntityPlayer.inventory.consumeInventoryItem(blockData.id);
+                        buildingController.removeBlueprint(blockData, false, false);
+                        par5EntityPlayer.inventory.consumeInventoryItem(buildingController.getItemId(blockData.id));
                     }
                 }
             } else {
