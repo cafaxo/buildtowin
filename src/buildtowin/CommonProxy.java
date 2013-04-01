@@ -1,9 +1,13 @@
 package buildtowin;
 
+import buildtowin.blueprint.BlueprintList;
+
 public class CommonProxy {
     
     public void init() {
-        BuildToWin.blueprintListServer = new BlueprintList(".");
-        BuildToWin.blueprintListServer.read();
+        if (BlueprintList.blueprintListServer == null) {
+            BlueprintList.blueprintListServer = new BlueprintList(".");
+            BlueprintList.blueprintListServer.read();
+        }
     }
 }

@@ -3,6 +3,9 @@ package buildtowin;
 import java.util.EnumSet;
 
 import net.minecraft.entity.player.EntityPlayer;
+import buildtowin.blueprint.BlueprintList;
+import buildtowin.tileentity.TileEntityGameHub;
+import buildtowin.tileentity.TileEntityTeamHub;
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.common.network.PacketDispatcher;
@@ -14,19 +17,18 @@ public class ServerTickHandler implements ITickHandler {
     @Override
     public void tickStart(EnumSet<TickType> type, Object... tickData) {
         if (type.equals(EnumSet.of(TickType.PLAYER))) {
-            EntityPlayer player = (EntityPlayer) tickData[0];
+            EntityPlayer entityPlayer = (EntityPlayer) tickData[0];
             
-            if (player.isPlayerSleeping()) {
-                TileEntityBuildingController buildingController = BuildToWin.buildingControllerListServer.getBuildingController(player);
+            if (entityPlayer.isPlayerSleeping()) {
+                TileEntityGameHub gameHub = TileEntityTeamHub.getTeamHub(entityPlayer).getGameHub();
                 
-                if (buildingController != null) {
-                    buildingController.setSleptTime(buildingController.getSleptTime() + 1000);
+                if (gameHub != null) {
+                    gameHub.setSleptTime(gameHub.getSleptTime() + 100);
                 }
             }
         } else {
             if (this.timer == 20) {
-                BuildToWin.buildingControllerListServer.updateServer();
-                PacketDispatcher.sendPacketToAllPlayers(BuildToWin.blueprintListServer.getDescriptionPacket());
+                PacketDispatcher.sendPacketToAllPlayers(BlueprintList.blueprintListServer.getUpdatePacket());
                 this.timer = 0;
             }
             

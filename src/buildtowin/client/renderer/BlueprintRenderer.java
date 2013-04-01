@@ -1,4 +1,4 @@
-package buildtowin;
+package buildtowin.client.renderer;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAnvil;
@@ -12,6 +12,8 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Icon;
 import net.minecraft.world.IBlockAccess;
+import buildtowin.BuildToWin;
+import buildtowin.tileentity.TileEntityBlueprint;
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -19,9 +21,9 @@ import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class BlueprintRenderer extends RenderBlocks implements ISimpleBlockRenderingHandler {
     
-    float red, green, blue, alpha;
+    private float red, green, blue, alpha;
     
-    IBlockAccess realWorld;
+    private IBlockAccess realWorld;
     
     @Override
     public void renderInventoryBlock(Block block, int metadata, int modelID, RenderBlocks renderer) {
@@ -41,7 +43,7 @@ public class BlueprintRenderer extends RenderBlocks implements ISimpleBlockRende
         this.blue = TileEntityBlueprint.colors[existingColor * 4 + 2];
         this.alpha = TileEntityBlueprint.colors[existingColor * 4 + 3];
         
-        Block fakeBlock = Block.blocksList[blueprint.getBlockId()];
+        Block fakeBlock = Block.blocksList[blueprint.getBlockData().id];
         
         if (fakeBlock != null) {
             if (fakeBlock.getRenderType() == 0) {
@@ -50,7 +52,6 @@ public class BlueprintRenderer extends RenderBlocks implements ISimpleBlockRende
                 return this.renderStandardBlock(fakeBlock, par2, par3, par4);
             }
             
-            ((FakeWorld) this.blockAccess).overrideSurroundingBlueprints(par2, par3, par4);
             fakeBlock.setBlockBoundsBasedOnState(this.blockAccess, par2, par3, par4);
             this.setRenderBoundsFromBlock(fakeBlock);
             
@@ -91,7 +92,7 @@ public class BlueprintRenderer extends RenderBlocks implements ISimpleBlockRende
         
         int brightness = block.getMixedBrightnessForBlock(this.blockAccess, x, y, z);
         
-        if (this.realWorld.getBlockId(x, y - 1, z) != BuildToWin.getBlueprint().blockID
+        if (this.realWorld.getBlockId(x, y - 1, z) != BuildToWin.blueprint.blockID
                 && (this.renderAllFaces || block.shouldSideBeRendered(this.blockAccess, x, y - 1, z, 0))) {
             tessellator.setBrightness(this.renderMinY > 0.0D ? brightness : block.getMixedBrightnessForBlock(this.blockAccess, x, y - 1, z));
             tessellator.setColorRGBA_F(this.red, this.green, this.blue, this.alpha);
@@ -100,7 +101,7 @@ public class BlueprintRenderer extends RenderBlocks implements ISimpleBlockRende
             flag = true;
         }
         
-        if (this.realWorld.getBlockId(x, y + 1, z) != BuildToWin.getBlueprint().blockID
+        if (this.realWorld.getBlockId(x, y + 1, z) != BuildToWin.blueprint.blockID
                 && (this.renderAllFaces || block.shouldSideBeRendered(this.blockAccess, x, y + 1, z, 1))) {
             tessellator.setBrightness(this.renderMaxY < 1.0D ? brightness : block.getMixedBrightnessForBlock(this.blockAccess, x, y + 1, z));
             tessellator.setColorRGBA_F(this.red, this.green, this.blue, this.alpha);
@@ -109,7 +110,7 @@ public class BlueprintRenderer extends RenderBlocks implements ISimpleBlockRende
             flag = true;
         }
         
-        if (this.realWorld.getBlockId(x, y, z - 1) != BuildToWin.getBlueprint().blockID
+        if (this.realWorld.getBlockId(x, y, z - 1) != BuildToWin.blueprint.blockID
                 && (this.renderAllFaces || block.shouldSideBeRendered(this.blockAccess, x, y, z - 1, 2))) {
             tessellator.setBrightness(this.renderMinZ > 0.0D ? brightness : block.getMixedBrightnessForBlock(this.blockAccess, x, y, z - 1));
             tessellator.setColorRGBA_F(this.red, this.green, this.blue, this.alpha);
@@ -118,7 +119,7 @@ public class BlueprintRenderer extends RenderBlocks implements ISimpleBlockRende
             flag = true;
         }
         
-        if (this.realWorld.getBlockId(x, y, z + 1) != BuildToWin.getBlueprint().blockID
+        if (this.realWorld.getBlockId(x, y, z + 1) != BuildToWin.blueprint.blockID
                 && (this.renderAllFaces || block.shouldSideBeRendered(this.blockAccess, x, y, z + 1, 3))) {
             tessellator.setBrightness(this.renderMaxZ < 1.0D ? brightness : block.getMixedBrightnessForBlock(this.blockAccess, x, y, z + 1));
             tessellator.setColorRGBA_F(this.red, this.green, this.blue, this.alpha);
@@ -127,7 +128,7 @@ public class BlueprintRenderer extends RenderBlocks implements ISimpleBlockRende
             flag = true;
         }
         
-        if (this.realWorld.getBlockId(x - 1, y, z) != BuildToWin.getBlueprint().blockID
+        if (this.realWorld.getBlockId(x - 1, y, z) != BuildToWin.blueprint.blockID
                 && (this.renderAllFaces || block.shouldSideBeRendered(this.blockAccess, x - 1, y, z, 4))) {
             tessellator.setBrightness(this.renderMinX > 0.0D ? brightness : block.getMixedBrightnessForBlock(this.blockAccess, x - 1, y, z));
             tessellator.setColorRGBA_F(this.red, this.green, this.blue, this.alpha);
@@ -136,7 +137,7 @@ public class BlueprintRenderer extends RenderBlocks implements ISimpleBlockRende
             flag = true;
         }
         
-        if (this.realWorld.getBlockId(x + 1, y, z) != BuildToWin.getBlueprint().blockID
+        if (this.realWorld.getBlockId(x + 1, y, z) != BuildToWin.blueprint.blockID
                 && (this.renderAllFaces || block.shouldSideBeRendered(this.blockAccess, x + 1, y, z, 5))) {
             tessellator.setBrightness(this.renderMaxX < 1.0D ? brightness : block.getMixedBrightnessForBlock(this.blockAccess, x + 1, y, z));
             tessellator.setColorRGBA_F(this.red, this.green, this.blue, this.alpha);
@@ -228,39 +229,47 @@ public class BlueprintRenderer extends RenderBlocks implements ISimpleBlockRende
         float f1 = 1.0F;
         float f2 = 0.8F;
         float f3 = 0.6F;
+        
         int i1 = par1Block.getMixedBrightnessForBlock(this.blockAccess, par2, par3, par4);
         tessellator.setBrightness(this.renderMinY > 0.0D ? i1 : par1Block.getMixedBrightnessForBlock(this.blockAccess, par2, par3 - 1, par4));
         tessellator.setColorRGBA_F(this.red, this.green, this.blue, this.alpha);
         this.renderBottomFace(par1Block, par2, par3, par4, this.getBlockIcon(par1Block, this.blockAccess, par2, par3, par4, 0));
         flag = true;
+        
         tessellator.setBrightness(this.renderMaxY < 1.0D ? i1 : par1Block.getMixedBrightnessForBlock(this.blockAccess, par2, par3 + 1, par4));
         tessellator.setColorRGBA_F(this.red, this.green, this.blue, this.alpha);
         this.renderTopFace(par1Block, par2, par3, par4, this.getBlockIcon(par1Block, this.blockAccess, par2, par3, par4, 1));
         flag = true;
+        
         tessellator.setBrightness(this.renderMinZ > 0.0D ? i1 : par1Block.getMixedBrightnessForBlock(this.blockAccess, par2, par3, par4 - 1));
         tessellator.setColorRGBA_F(this.red, this.green, this.blue, this.alpha);
         Icon icon = this.getBlockIcon(par1Block, this.blockAccess, par2, par3, par4, 2);
         this.renderEastFace(par1Block, par2, par3, par4, icon);
         flag = true;
+        
         this.flipTexture = false;
         tessellator.setBrightness(this.renderMaxZ < 1.0D ? i1 : par1Block.getMixedBrightnessForBlock(this.blockAccess, par2, par3, par4 + 1));
         tessellator.setColorRGBA_F(this.red, this.green, this.blue, this.alpha);
         icon = this.getBlockIcon(par1Block, this.blockAccess, par2, par3, par4, 3);
         this.renderWestFace(par1Block, par2, par3, par4, icon);
         flag = true;
+        
         this.flipTexture = false;
         tessellator.setBrightness(this.renderMinX > 0.0D ? i1 : par1Block.getMixedBrightnessForBlock(this.blockAccess, par2 - 1, par3, par4));
         tessellator.setColorRGBA_F(this.red, this.green, this.blue, this.alpha);
         icon = this.getBlockIcon(par1Block, this.blockAccess, par2, par3, par4, 4);
         this.renderNorthFace(par1Block, par2, par3, par4, icon);
         flag = true;
+        
         this.flipTexture = false;
         tessellator.setBrightness(this.renderMaxX < 1.0D ? i1 : par1Block.getMixedBrightnessForBlock(this.blockAccess, par2 + 1, par3, par4));
         tessellator.setColorRGBA_F(this.red, this.green, this.blue, this.alpha);
         icon = this.getBlockIcon(par1Block, this.blockAccess, par2, par3, par4, 5);
         this.renderSouthFace(par1Block, par2, par3, par4, icon);
         flag = true;
+        
         this.flipTexture = false;
+        
         return flag;
     }
     
@@ -291,6 +300,7 @@ public class BlueprintRenderer extends RenderBlocks implements ISimpleBlockRende
         double d6 = par3 + this.renderMinY + 0.1875D;
         double d7 = par4 + this.renderMinZ;
         double d8 = par4 + this.renderMaxZ;
+        
         tessellator.addVertexWithUV(d4, d6, d8, d0, d3);
         tessellator.addVertexWithUV(d4, d6, d7, d0, d2);
         tessellator.addVertexWithUV(d5, d6, d7, d1, d2);
@@ -342,6 +352,7 @@ public class BlueprintRenderer extends RenderBlocks implements ISimpleBlockRende
         double d14 = par3 + this.renderMaxY;
         double d15 = par4 + this.renderMinZ;
         double d16 = par4 + this.renderMaxZ;
+        
         tessellator.addVertexWithUV(d13, d14, d16, d8, d10);
         tessellator.addVertexWithUV(d13, d14, d15, d4, d6);
         tessellator.addVertexWithUV(d12, d14, d15, d5, d7);

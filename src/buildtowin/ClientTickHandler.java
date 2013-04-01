@@ -4,6 +4,9 @@ import java.util.EnumSet;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
+import buildtowin.client.gui.GuiBuildingInfo;
+import buildtowin.tileentity.TileEntityGameHub;
+import buildtowin.tileentity.TileEntityTeamHub;
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.relauncher.Side;
@@ -11,8 +14,6 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class ClientTickHandler implements ITickHandler {
-    
-    private short timer = 0;
     
     private GuiBuildingInfo buildingInfo;
     
@@ -23,22 +24,15 @@ public class ClientTickHandler implements ITickHandler {
     @Override
     public void tickStart(EnumSet<TickType> type, Object... tickData) {
         if (type.equals(EnumSet.of(TickType.PLAYER))) {
-            EntityPlayer player = (EntityPlayer) tickData[0];
+            EntityPlayer entityPlayer = (EntityPlayer) tickData[0];
             
-            if (player.isPlayerSleeping()) {
-                TileEntityBuildingController buildingController = BuildToWin.buildingControllerListClient.getBuildingController(player);
+            if (entityPlayer.isPlayerSleeping()) {
+                TileEntityGameHub gameHub = TileEntityTeamHub.getTeamHub(entityPlayer).getGameHub();
                 
-                if (buildingController != null) {
-                    buildingController.setSleptTime(buildingController.getSleptTime() + 1000);
+                if (gameHub != null) {
+                    gameHub.setSleptTime(gameHub.getSleptTime() + 100);
                 }
             }
-        } else if (type.equals(EnumSet.of(TickType.CLIENT))) {
-            if (this.timer == 20) {
-                BuildToWin.buildingControllerListClient.updateClient();
-                this.timer = 0;
-            }
-            
-            ++this.timer;
         }
     }
     
@@ -53,7 +47,7 @@ public class ClientTickHandler implements ITickHandler {
     
     @Override
     public EnumSet<TickType> ticks() {
-        return EnumSet.of(TickType.CLIENT, TickType.RENDER, TickType.PLAYER);
+        return EnumSet.of(TickType.RENDER, TickType.PLAYER);
     }
     
     @Override

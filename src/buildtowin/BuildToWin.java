@@ -1,8 +1,22 @@
 package buildtowin;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.packet.Packet3Chat;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
+import buildtowin.block.BlockBlueprint;
+import buildtowin.block.BlockBuildingHub;
+import buildtowin.block.BlockConnectionWire;
+import buildtowin.block.BlockGameHub;
+import buildtowin.block.BlockTeamHub;
+import buildtowin.item.ItemBlueprinter;
+import buildtowin.network.PacketHandler;
+import buildtowin.tileentity.TileEntityBlueprint;
+import buildtowin.tileentity.TileEntityBuildingHub;
+import buildtowin.tileentity.TileEntityConnectionWire;
+import buildtowin.tileentity.TileEntityGameHub;
+import buildtowin.tileentity.TileEntityTeamHub;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Init;
@@ -14,13 +28,15 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
+import cpw.mods.fml.common.network.PacketDispatcher;
+import cpw.mods.fml.common.network.Player;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 
-@Mod(modid = "BuildToWin", name = "Build To Win!", version = "0.2.0")
-@NetworkMod(clientSideRequired = true, serverSideRequired = false, channels = { "btwbcupdt", "btwtimsupdt", "btwbpupdt", "btwbpsav", "btwbpload", "btwstart", "btwstop" }, packetHandler = PacketHandler.class)
+@Mod(modid = "BuildToWin", name = "Build To Win!", version = "0.3.0")
+@NetworkMod(clientSideRequired = true, serverSideRequired = false, channels = { "btw" }, packetHandler = PacketHandler.class)
 public class BuildToWin {
     
     @Instance("BuildToWin")
@@ -29,73 +45,68 @@ public class BuildToWin {
     @SidedProxy(clientSide = "buildtowin.ClientProxy", serverSide = "buildtowin.CommonProxy")
     public static CommonProxy proxy;
     
-    private final static BlockBuildingController buildingController = new BlockBuildingController(244);
-    
-    private final static BlockBlueprint blueprint = new BlockBlueprint(243);
-    
-    private final static ItemBlueprinter blueprinter = new ItemBlueprinter(5000);
+    public static int connectionWireRenderId;
     
     public static int blueprintRenderId;
     
-    public static BlueprintList blueprintListServer;
+    public final static BlockGameHub gameHub = new BlockGameHub(248);
     
-    public static BlueprintList blueprintListClient;
+    public final static BlockTeamHub teamHub = new BlockTeamHub(247);
     
-    public static BuildingControllerList buildingControllerListServer;
+    public final static BlockConnectionWire connectionWire = new BlockConnectionWire(244);
     
-    public static BuildingControllerList buildingControllerListClient;
+    public final static BlockBlueprint blueprint = new BlockBlueprint(245);
+    
+    public final static BlockBuildingHub buildingHub = new BlockBuildingHub(246);
+    
+    public final static ItemBlueprinter blueprinter = new ItemBlueprinter(5000);
     
     @PreInit
     public void preInit(FMLPreInitializationEvent event) {
         TickRegistry.registerTickHandler(new ServerTickHandler(), Side.SERVER);
-        
-        BuildToWin.buildingControllerListServer = new BuildingControllerList();
-        BuildToWin.buildingControllerListClient = new BuildingControllerList();
+        TickRegistry.registerTickHandler(new ClientTickHandler(), Side.CLIENT);
     }
     
     @Init
     public void load(FMLInitializationEvent event) {
         proxy.init();
         
-        TileEntity.addMapping(TileEntityBuildingController.class, "BuildingController");
-        TileEntity.addMapping(TileEntityBlueprint.class, "BlockData");
+        TileEntity.addMapping(TileEntityGameHub.class, "gameHub");
+        TileEntity.addMapping(TileEntityTeamHub.class, "teamHub");
+        TileEntity.addMapping(TileEntityConnectionWire.class, "connectionWire");
+        TileEntity.addMapping(TileEntityBuildingHub.class, "buildingHub");
+        TileEntity.addMapping(TileEntityBlueprint.class, "blueprint");
         
-        GameRegistry.registerBlock(buildingController, "buildingController");
+        GameRegistry.registerBlock(gameHub, "gameHub");
+        GameRegistry.registerBlock(teamHub, "teamHub");
+        GameRegistry.registerBlock(connectionWire, "connectionWire");
+        GameRegistry.registerBlock(buildingHub, "buildingHub");
         GameRegistry.registerBlock(blueprint, "blueprint");
         
-        LanguageRegistry.addName(buildingController, "Building Controller");
+        LanguageRegistry.addName(gameHub, "Game Hub");
+        LanguageRegistry.addName(teamHub, "Team Hub");
+        LanguageRegistry.addName(connectionWire, "Connection Wire");
+        LanguageRegistry.addName(buildingHub, "Building Hub");
         LanguageRegistry.addName(blueprint, "Blueprint");
         LanguageRegistry.addName(blueprinter, "Blueprinter");
+        
+        MinecraftForge.EVENT_BUS.register(new EventHandler());
     }
     
     @PostInit
     public void postInit(FMLPostInitializationEvent event) {
     }
     
-    public static BuildingControllerList getBuildingControllerList(World world) {
-        if (world.isRemote) {
-            return buildingControllerListClient;
-        } else {
-            return buildingControllerListServer;
-        }
-    }
-    
-    public static void printChatMessage(World world, String string) {
-        if (world.isRemote) {
+    public static void printChatMessage(EntityPlayer entityPlayer, String string) {
+        if (entityPlayer.worldObj.isRemote) {
             Minecraft mc = FMLClientHandler.instance().getClient();
             mc.ingameGUI.getChatGUI().printChatMessage("<BuildToWin> " + string);
         }
     }
     
-    public static BlockBuildingController getBuildingController() {
-        return buildingController;
-    }
-    
-    public static BlockBlueprint getBlueprint() {
-        return blueprint;
-    }
-    
-    public static ItemBlueprinter getBlueprinter() {
-        return blueprinter;
+    public static void sendChatMessage(EntityPlayer entityPlayer, String string) {
+        if (!entityPlayer.worldObj.isRemote) {
+            PacketDispatcher.sendPacketToPlayer(new Packet3Chat("<BuildToWin> " + string), (Player) entityPlayer);
+        }
     }
 }

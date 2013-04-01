@@ -1,6 +1,5 @@
-package buildtowin;
+package buildtowin.blueprint;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -12,11 +11,15 @@ import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.packet.Packet250CustomPayload;
-import net.minecraft.network.packet.Packet3Chat;
-import cpw.mods.fml.common.network.PacketDispatcher;
-import cpw.mods.fml.common.network.Player;
+import buildtowin.BuildToWin;
+import buildtowin.network.PacketIds;
+import buildtowin.tileentity.TileEntityBuildingHub;
 
 public class BlueprintList {
+    
+    public static BlueprintList blueprintListServer;
+    
+    public static BlueprintList blueprintListClient = new BlueprintList();
     
     private File blueprintDir;
     
@@ -39,15 +42,15 @@ public class BlueprintList {
             
             for (File blueprintFile : blueprintFiles) {
                 if (blueprintFile.getAbsolutePath().endsWith("blueprint")) {
-                    Blueprint blueprint = new Blueprint();
+                    Blueprint blueprint = Blueprint.fromBlueprintFile(blueprintFile);
                     
-                    if (blueprint.read(blueprintFile)) {
+                    if (blueprint != null) {
                         this.blueprintList.add(blueprint);
                     }
                 } else if (blueprintFile.getAbsolutePath().endsWith("schematic")) {
-                    Blueprint blueprint = new Blueprint();
+                    Blueprint blueprint = Blueprint.fromSchematicFile(blueprintFile);
                     
-                    if (blueprint.readSchematic(blueprintFile)) {
+                    if (blueprint != null) {
                         this.blueprintList.add(blueprint);
                     }
                 }
@@ -62,19 +65,26 @@ public class BlueprintList {
         }
     }
     
-    public Packet250CustomPayload getDescriptionPacket() {
+    public Packet250CustomPayload getUpdatePacket() {
         ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
         DataOutputStream dataoutputstream = new DataOutputStream(bytearrayoutputstream);
         
         try {
+            dataoutputstream.writeInt(PacketIds.BLUEPRINTLIST_UPDATE);
+            
             dataoutputstream.writeInt(this.blueprintList.size());
             
             for (Blueprint blueprint : this.blueprintList) {
                 dataoutputstream.writeUTF(blueprint.getName());
-                dataoutputstream.writeUTF(blueprint.getAuthor());
+                
+                dataoutputstream.writeInt(blueprint.getAuthors().size());
+                
+                for (String author : blueprint.getAuthors()) {
+                    dataoutputstream.writeUTF(author);
+                }
             }
             
-            return new Packet250CustomPayload("btwbpupdt", bytearrayoutputstream.toByteArray());
+            return new Packet250CustomPayload("btw", bytearrayoutputstream.toByteArray());
         } catch (Exception exception) {
             exception.printStackTrace();
         }
@@ -82,44 +92,52 @@ public class BlueprintList {
         return null;
     }
     
-    public void onDataPacket(Packet250CustomPayload packet) {
-        DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(packet.data));
-        
+    public void onUpdatePacket(DataInputStream dataInputStream) throws IOException {
         this.blueprintList.clear();
         
-        try {
-            int blueprintCount = inputStream.readInt();
+        int blueprintCount = dataInputStream.readInt();
+        
+        for (int i = 0; i < blueprintCount; ++i) {
+            Blueprint blueprint = new Blueprint();
+            blueprint.setName(dataInputStream.readUTF());
             
-            for (int i = 0; i < blueprintCount; ++i) {
-                Blueprint blueprint = new Blueprint(inputStream.readUTF(), inputStream.readUTF(), null);
-                this.blueprintList.add(blueprint);
+            int authorCount = dataInputStream.readInt();
+            ArrayList<String> authors = new ArrayList<String>();
+            
+            for (int j = 0; j < authorCount; ++j) {
+                authors.add(dataInputStream.readUTF());
             }
             
-        } catch (IOException e) {
-            e.printStackTrace();
+            blueprint.setAuthors(authors);
+            
+            this.blueprintList.add(blueprint);
         }
     }
     
-    public boolean save(ArrayList<BlockData> blockDataList, EntityPlayer player, String name) {
+    public boolean saveBlueprint(TileEntityBuildingHub buildingHub, EntityPlayer player, String name) {
         if (name.isEmpty()) {
-            PacketDispatcher.sendPacketToPlayer(new Packet3Chat("<BuildToWin> The name must not be empty."), (Player) player);
+            BuildToWin.sendChatMessage(player, "The name must not be empty.");
             return false;
         }
         
         for (Blueprint blueprint : this.blueprintList) {
             if (name.equals(blueprint.getName())) {
-                PacketDispatcher.sendPacketToPlayer(new Packet3Chat("<BuildToWin> This name is already in use."), (Player) player);
+                BuildToWin.sendChatMessage(player, "This name is already in use.");
                 return false;
             }
         }
         
-        Blueprint blueprint = new Blueprint(name, player.username, blockDataList);
-        blueprint.write(new File(this.blueprintDir.getAbsolutePath() + "/" + name + ".blueprint"));
+        Blueprint blueprint = buildingHub.getBlueprint();
+        blueprint.setName(name);
+        blueprint.setAuthors(buildingHub.getPlayerList().getConnectedPlayers());
         
-        this.blueprintList.add(blueprint);
+        if (blueprint.writeBlueprintFile(new File(this.blueprintDir.getAbsolutePath() + "/" + name + ".blueprint"))) {
+            this.blueprintList.add(blueprint);
+            
+            BuildToWin.sendChatMessage(player, "Saved the blueprint successfully.");
+            return true;
+        }
         
-        PacketDispatcher.sendPacketToPlayer(new Packet3Chat("<BuildToWin> Saved the blueprint successfully."), (Player) player);
-        
-        return true;
+        return false;
     }
 }

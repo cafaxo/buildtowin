@@ -1,4 +1,4 @@
-package buildtowin;
+package buildtowin.client.gui;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -6,6 +6,7 @@ import net.minecraft.entity.player.EntityPlayer;
 
 import org.lwjgl.opengl.GL11;
 
+import buildtowin.tileentity.TileEntityTeamHub;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -18,24 +19,19 @@ public class GuiBuildingInfo extends Gui {
     
     private float yPosition;
     
-    private int progress;
-    
-    private String daysLeft;
-    
     public GuiBuildingInfo(Minecraft par1Minecraft) {
         this.theGame = par1Minecraft;
         this.yPosition = -32;
         this.ySpeed = 0;
-        this.progress = 0;
-        this.daysLeft = "";
     }
     
     public void tick() {
         EntityPlayer player = Minecraft.getMinecraft().thePlayer;
         
         if (player != null) {
-            TileEntityBuildingController buildingController = BuildToWin.buildingControllerListClient.getBuildingController(player);
-            if (buildingController != null && buildingController.getDeadline() != 0) {
+            TileEntityTeamHub teamHub = TileEntityTeamHub.getTeamHub(player);
+            
+            if (teamHub != null && teamHub.getGameHub() != null && teamHub.getGameHub().getDeadline() != 0) {
                 if (this.yPosition < 0) {
                     this.yPosition += this.ySpeed;
                     this.ySpeed += 0.1F;
@@ -54,14 +50,15 @@ public class GuiBuildingInfo extends Gui {
             }
             
             if (this.yPosition != -32) {
-                if (buildingController != null) {
-                    this.progress = buildingController.getProgress();
-                    float daysLeftFloat = (buildingController.getDeadline() - buildingController.getRealWorldTime()) / 24000.F;
+                int progress = 100;
+                String daysLeft = "0,00";
+                
+                if (teamHub != null && teamHub.getGameHub() != null) {
+                    progress = (int) (teamHub.getProgress() * 100.F);
+                    float daysLeftFloat = (teamHub.getGameHub().getDeadline() - teamHub.getGameHub().getRealWorldTime()) / 24000.F;
                     
                     if (daysLeftFloat > 0.F) {
-                        this.daysLeft = String.format("%.2f", daysLeftFloat);
-                    } else {
-                        this.daysLeft = "0,00";
+                        daysLeft = String.format("%.2f", daysLeftFloat);
                     }
                 }
                 
@@ -71,10 +68,9 @@ public class GuiBuildingInfo extends Gui {
                 
                 this.drawTexturedModalRect(0, Math.round(this.yPosition), 96, 202, 160, 32);
                 this.drawTexturedModalRect(45, Math.round(this.yPosition), 96 + 30, 202, 160 - 30, 32);
-                this.theGame.fontRenderer.drawStringWithShadow("Days left: " + this.daysLeft, 10, Math.round(this.yPosition) + 12, 0xffffff);
-                this.theGame.fontRenderer.drawStringWithShadow("Progress: " + this.progress + "%", 90, Math.round(this.yPosition) + 12, 0xffffff);
+                this.theGame.fontRenderer.drawStringWithShadow("Days left: " + daysLeft, 10, Math.round(this.yPosition) + 12, 0xffffff);
+                this.theGame.fontRenderer.drawStringWithShadow("Progress: " + progress + "%", 90, Math.round(this.yPosition) + 12, 0xffffff);
             }
         }
-        
     }
 }
