@@ -10,6 +10,10 @@ public class BlockCoordinates {
         this.coordinates = new int[] { x, y, z };
     }
     
+    public BlockCoordinates(BlockCoordinates blockCoordinates) {
+        this.coordinates = new int[] { blockCoordinates.coordinates[0], blockCoordinates.coordinates[1], blockCoordinates.coordinates[2] };
+    }
+    
     @Override
     public boolean equals(Object blockCoordinates) {
         if (blockCoordinates instanceof BlockCoordinates) {

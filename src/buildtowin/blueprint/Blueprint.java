@@ -51,6 +51,24 @@ public class Blueprint {
         this.color = (byte) 0;
     }
     
+    public Blueprint(Blueprint blueprint) {
+        this.blocks = new HashMap<BlockCoordinates, BlockData>();
+        this.offsetX = 0;
+        this.offsetY = 0;
+        this.offsetZ = 0;
+        this.color = (byte) 0;
+        
+        Iterator iter = this.blocks.entrySet().iterator();
+        
+        while (iter.hasNext()) {
+            Map.Entry pairs = (Map.Entry) iter.next();
+            BlockCoordinates blockCoordinates = (BlockCoordinates) pairs.getKey();
+            BlockData blockData = (BlockData) pairs.getValue();
+            
+            this.blocks.put(new BlockCoordinates(blockCoordinates), new BlockData(blockData));
+        }
+    }
+    
     public void setOffset(int x, int y, int z) {
         this.offsetX = x;
         this.offsetY = y;

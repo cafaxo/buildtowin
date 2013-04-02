@@ -127,9 +127,9 @@ public class BlueprintList {
             }
         }
         
-        Blueprint blueprint = buildingHub.getBlueprint();
-        blueprint.setName(name);
-        blueprint.setAuthors(buildingHub.getPlayerList().getConnectedPlayers());
+        Blueprint blueprint = new Blueprint(buildingHub.getBlueprint());
+        blueprint.setName(new String(name));
+        blueprint.setAuthors(new ArrayList<String>(buildingHub.getPlayerList().getConnectedPlayers()));
         
         if (blueprint.writeBlueprintFile(new File(this.blueprintDir.getAbsolutePath() + "/" + name + ".blueprint"))) {
             this.blueprintList.add(blueprint);

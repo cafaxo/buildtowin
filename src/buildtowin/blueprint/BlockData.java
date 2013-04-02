@@ -8,4 +8,9 @@ public class BlockData {
         this.id = id;
         this.metadata = metadata;
     }
+    
+    public BlockData(BlockData blockData) {
+        this.id = blockData.id;
+        this.metadata = blockData.metadata;
+    }
 }
