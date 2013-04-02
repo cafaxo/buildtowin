@@ -192,25 +192,39 @@ public class TileEntityTeamHub extends TileEntity implements IPlayerListProvider
     
     public void sendWinMessage() {
         if (this.playerList.getConnectedPlayers().size() > 1) {
-            this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Your team has won."));
+            this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Your Team Won!"));
         } else {
-            this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> You have won."));
+            this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> You Won!"));
+        }
+        
+        ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
+        DataOutputStream dataoutputstream = new DataOutputStream(bytearrayoutputstream);
+        
+        try {
+            dataoutputstream.writeInt(PacketIds.TEAMHUB_WIN);
+            
+            this.sendPacketToConnectedPlayers(new Packet250CustomPayload("btw", bytearrayoutputstream.toByteArray()));
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
     
     public void sendLoseMessage(int ranking) {
-        if (ranking != -1) {
-            if (this.playerList.getConnectedPlayers().size() > 1) {
-                this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Your team reached the " + ranking + ". place."));
-            } else {
-                this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> You have reached the " + ranking + ". place."));
-            }
+        if (this.playerList.getConnectedPlayers().size() > 1) {
+            this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Your Team Reached The " + ranking + ". Place."));
         } else {
-            if (this.playerList.getConnectedPlayers().size() > 1) {
-                this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Your team has lost."));
-            } else {
-                this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> You have lost."));
-            }
+            this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> You Reached The " + ranking + ". Place."));
+        }
+        
+        ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
+        DataOutputStream dataoutputstream = new DataOutputStream(bytearrayoutputstream);
+        
+        try {
+            dataoutputstream.writeInt(PacketIds.TEAMHUB_LOSE);
+            
+            this.sendPacketToConnectedPlayers(new Packet250CustomPayload("btw", bytearrayoutputstream.toByteArray()));
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
     

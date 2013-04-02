@@ -127,6 +127,7 @@ public class TileEntityGameHub extends TileEntity implements IBlueprintProvider 
         
         for (TileEntityTeamHub teamHub : this.connectedTeamHubs) {
             teamHub.loadBlueprint(blueprint);
+            teamHub.getBlueprint().reset();
         }
     }
     
@@ -168,11 +169,12 @@ public class TileEntityGameHub extends TileEntity implements IBlueprintProvider 
                         
                         for (TileEntityTeamHub losingTeamHub : this.connectedTeamHubs) {
                             if (losingTeamHub != teamHub) {
-                                losingTeamHub.sendLoseMessage(ranking.indexOf(losingTeamHub));
+                                losingTeamHub.sendLoseMessage(ranking.indexOf(losingTeamHub) + 1);
                             }
                         }
                         
                         this.stopGame(false);
+                        break;
                     }
                 }
             } else {

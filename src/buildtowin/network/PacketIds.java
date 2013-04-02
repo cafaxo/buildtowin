@@ -21,4 +21,8 @@ public class PacketIds {
     public static final int GAMEHUB_UPDATE = 8;
     
     public static final int TEAMHUB_UPDATE = 9;
+    
+    public static final int TEAMHUB_WIN = 10;
+    
+    public static final int TEAMHUB_LOSE = 11;
 }
