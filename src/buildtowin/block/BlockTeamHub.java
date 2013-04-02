@@ -4,12 +4,12 @@ import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.IconRegister;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Icon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import buildtowin.BuildToWin;
 import buildtowin.tileentity.TileEntityTeamHub;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -21,7 +21,7 @@ public class BlockTeamHub extends BlockContainer {
     public BlockTeamHub(int blockId) {
         super(blockId, Material.rock);
         
-        this.setCreativeTab(CreativeTabs.tabBlock);
+        this.setCreativeTab(BuildToWin.tabBuildToWin);
         this.setBlockUnbreakable();
         this.setResistance(6000000.0F);
         this.setUnlocalizedName("Team Hub");

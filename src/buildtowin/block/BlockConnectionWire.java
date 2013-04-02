@@ -5,7 +5,6 @@ import java.util.Random;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Icon;
 import net.minecraft.world.IBlockAccess;
@@ -22,7 +21,7 @@ public class BlockConnectionWire extends BlockContainer {
     public BlockConnectionWire(int blockId) {
         super(blockId, Material.circuits);
         
-        this.setCreativeTab(CreativeTabs.tabBlock);
+        this.setCreativeTab(BuildToWin.tabBuildToWin);
         this.setBlockUnbreakable();
         this.setResistance(6000000.0F);
         this.setUnlocalizedName("Connection Wire");

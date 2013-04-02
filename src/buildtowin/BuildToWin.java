@@ -35,7 +35,7 @@ import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 
-@Mod(modid = "BuildToWin", name = "Build To Win!", version = "0.3.0")
+@Mod(modid = "BuildToWin", name = "Build To Win!", version = "0.5.0")
 @NetworkMod(clientSideRequired = true, serverSideRequired = false, channels = { "btw" }, packetHandler = PacketHandler.class)
 public class BuildToWin {
     
@@ -48,6 +48,8 @@ public class BuildToWin {
     public static int connectionWireRenderId;
     
     public static int blueprintRenderId;
+    
+    public final static CreativeTabBuildToWin tabBuildToWin = new CreativeTabBuildToWin("customTab");
     
     public final static BlockGameHub gameHub = new BlockGameHub(248);
     
@@ -81,6 +83,7 @@ public class BuildToWin {
         GameRegistry.registerBlock(buildingHub, "buildingHub");
         GameRegistry.registerBlock(blueprint, "blueprint");
         
+        LanguageRegistry.instance().addStringLocalization("itemGroup.customTab", "en_US", "Build To Win");
         LanguageRegistry.addName(gameHub, "Game Hub");
         LanguageRegistry.addName(teamHub, "Team Hub");
         LanguageRegistry.addName(connectionWire, "Connection Wire");

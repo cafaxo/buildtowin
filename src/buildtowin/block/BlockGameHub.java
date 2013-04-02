@@ -4,10 +4,10 @@ import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.IconRegister;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import buildtowin.BuildToWin;
 import buildtowin.client.gui.GuiScreenGameHub;
 import buildtowin.tileentity.TileEntityGameHub;
 import cpw.mods.fml.client.FMLClientHandler;
@@ -19,7 +19,7 @@ public class BlockGameHub extends BlockContainer {
     public BlockGameHub(int blockId) {
         super(blockId, Material.rock);
         
-        this.setCreativeTab(CreativeTabs.tabBlock);
+        this.setCreativeTab(BuildToWin.tabBuildToWin);
         this.setBlockUnbreakable();
         this.setResistance(6000000.0F);
         this.setUnlocalizedName("Game Hub");
