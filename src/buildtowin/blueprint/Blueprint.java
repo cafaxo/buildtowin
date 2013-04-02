@@ -58,7 +58,7 @@ public class Blueprint {
         this.offsetZ = 0;
         this.color = (byte) 0;
         
-        Iterator iter = this.blocks.entrySet().iterator();
+        Iterator iter = blueprint.blocks.entrySet().iterator();
         
         while (iter.hasNext()) {
             Map.Entry pairs = (Map.Entry) iter.next();
