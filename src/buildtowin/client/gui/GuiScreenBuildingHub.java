@@ -32,20 +32,20 @@ public class GuiScreenBuildingHub extends GuiScreen {
         
         this.saveFileName = new GuiTextField(this.fontRenderer, this.width / 2 - 45, this.height / 2 - 30, 90, 15);
         
-        GuiButton save = new GuiButton(5, this.width / 2 - 45, this.height / 2 - 5, 90, 20, "Save");
+        GuiButton save = new GuiButton(1, this.width / 2 - 45, this.height / 2 - 5, 90, 20, "Save");
         this.buttonList.add(save);
         
-        GuiButton load = new GuiButton(5, this.width / 2 - 45, this.height / 2 + 20, 90, 20, "Load");
+        GuiButton load = new GuiButton(2, this.width / 2 - 45, this.height / 2 + 20, 90, 20, "Load");
         this.buttonList.add(load);
     }
     
     @Override
     protected void actionPerformed(GuiButton par1GuiButton) {
         if (par1GuiButton.id == 1) {
-            this.mc.displayGuiScreen(new GuiScreenBlueprintLoad(this.sender, this));
-        } else if (par1GuiButton.id == 2) {
             this.sendBlueprintSavePacket();
             this.mc.displayGuiScreen((GuiScreen) null);
+        } else if (par1GuiButton.id == 2) {
+            this.mc.displayGuiScreen(new GuiScreenBlueprintLoad(this.sender, this));
         }
     }
     
@@ -58,7 +58,6 @@ public class GuiScreenBuildingHub extends GuiScreen {
     protected void keyTyped(char par1, int par2) {
         super.keyTyped(par1, par2);
         this.saveFileName.textboxKeyTyped(par1, par2);
-        this.initGui();
     }
     
     @Override
@@ -103,5 +102,4 @@ public class GuiScreenBuildingHub extends GuiScreen {
         
         super.drawScreen(par1, par2, par3);
     }
-    
 }
