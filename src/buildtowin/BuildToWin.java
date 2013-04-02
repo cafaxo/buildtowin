@@ -63,8 +63,6 @@ public class BuildToWin {
     
     @PreInit
     public void preInit(FMLPreInitializationEvent event) {
-        TickRegistry.registerTickHandler(new ServerTickHandler(), Side.SERVER);
-        TickRegistry.registerTickHandler(new ClientTickHandler(), Side.CLIENT);
     }
     
     @Init
@@ -90,6 +88,7 @@ public class BuildToWin {
         LanguageRegistry.addName(blueprint, "Blueprint");
         LanguageRegistry.addName(blueprinter, "Blueprinter");
         
+        TickRegistry.registerTickHandler(new ServerTickHandler(), Side.SERVER);
         MinecraftForge.EVENT_BUS.register(new EventHandler());
     }
     
