@@ -61,14 +61,6 @@ public class TileEntityGameHub extends TileEntityConnectionHub implements IBluep
         this.shop.readTagList(par1NBTTagCompound.getTagList("shopcontents"));
     }
     
-    /*
-     * @Override public Packet getDescriptionPacket() { NBTTagCompound tag = new
-     * NBTTagCompound(); this.writeToNBT(tag);
-     * 
-     * return new Packet132TileEntityData(this.xCoord, this.yCoord, this.zCoord,
-     * 1, tag); }
-     */
-    
     @Override
     public void onDataPacket(INetworkManager net, Packet132TileEntityData pkt) {
         NBTTagCompound tag = pkt.customParam1;
