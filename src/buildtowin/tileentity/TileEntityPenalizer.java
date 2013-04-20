@@ -63,6 +63,12 @@ public class TileEntityPenalizer extends TileEntity {
         int type = dataInputStream.readInt();
         int strength = dataInputStream.readInt();
         
+        if (this.teamHub.getEnergy() < 20) {
+            return;
+        }
+        
+        this.teamHub.setEnergy(this.teamHub.getEnergy() - 20);
+        
         ArrayList<TileEntityTeamHub> teamHubs = this.teamHub.getGameHub().getConnectedTeamHubs();
         
         for (TileEntityTeamHub teamHub : teamHubs) {
@@ -90,10 +96,6 @@ public class TileEntityPenalizer extends TileEntity {
     }
     
     private void penalize() {
-        if (this.timer == 0) {
-            this.timer = this.strength * 1000;
-        }
-        
         switch (this.type) {
         case 0:
             this.penalizeWithLightning();
@@ -120,6 +122,10 @@ public class TileEntityPenalizer extends TileEntity {
     }
     
     private void penalizeWithLightning() {
+        if (this.timer == 0) {
+            this.timer = this.strength * 400;
+        }
+        
         Coordinates randCoords = this.teamHub.getBlueprint().getRandomBlueprint();
         
         this.worldObj.addWeatherEffect(new EntityLightningBolt(
