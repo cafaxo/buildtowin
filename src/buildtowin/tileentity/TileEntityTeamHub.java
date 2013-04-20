@@ -128,6 +128,25 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
     }
     
     @Override
+    public boolean isValid() {
+        return !this.isInvalid();
+    }
+
+    @Override
+    public void onPlayerConnected(EntityPlayer entityPlayer) {
+        this.worldObj.markBlockForRenderUpdate(this.xCoord, this.yCoord, this.zCoord);
+        
+        BuildToWin.printChatMessage(entityPlayer, "Connected to Team Hub.");
+    }
+
+    @Override
+    public void onPlayerDisconnect(EntityPlayer entityPlayer) {
+        this.worldObj.markBlockForRenderUpdate(this.xCoord, this.yCoord, this.zCoord);
+        
+        BuildToWin.printChatMessage(entityPlayer, "Disconnected from Team Hub.");
+    }
+
+    @Override
     protected void onSynchronization() {
         this.penalizer = null;
         this.protector = null;
@@ -150,20 +169,6 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
         }
     }
     
-    public void connectPlayer(EntityPlayer entityPlayer) {
-        this.playerList.connectPlayer(entityPlayer);
-        this.worldObj.markBlockForRenderUpdate(this.xCoord, this.yCoord, this.zCoord);
-        
-        BuildToWin.printChatMessage(entityPlayer, "Connected to Team Hub.");
-    }
-    
-    public void disconnectPlayer(EntityPlayer entityPlayer) {
-        this.playerList.disconnectPlayer(entityPlayer);
-        this.worldObj.markBlockForRenderUpdate(this.xCoord, this.yCoord, this.zCoord);
-        
-        BuildToWin.printChatMessage(entityPlayer, "Disconnected from Team Hub.");
-    }
-    
     public int getFinishedBlockCount() {
         return finishedBlockCount;
     }
@@ -182,16 +187,6 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
     
     public TileEntityProtector getProtector() {
         return protector;
-    }
-    
-    public static TileEntityTeamHub getTeamHub(EntityPlayer entityPlayer) {
-        TileEntity tileEntity = PlayerList.getTileEntity(entityPlayer);
-        
-        if (tileEntity instanceof TileEntityTeamHub) {
-            return (TileEntityTeamHub) tileEntity;
-        }
-        
-        return null;
     }
     
     @Override

@@ -7,6 +7,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import org.lwjgl.opengl.GL11;
 
 import buildtowin.tileentity.TileEntityTeamHub;
+import buildtowin.util.PlayerList;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -26,10 +27,10 @@ public class GuiBuildingInfo extends Gui {
     }
     
     public void tick() {
-        EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+        EntityPlayer entityPlayer = Minecraft.getMinecraft().thePlayer;
         
-        if (player != null) {
-            TileEntityTeamHub teamHub = TileEntityTeamHub.getTeamHub(player);
+        if (entityPlayer != null) {
+            TileEntityTeamHub teamHub = (TileEntityTeamHub) PlayerList.getPlayerListProvider(entityPlayer, TileEntityTeamHub.class);
             
             if (teamHub != null && teamHub.getGameHub() != null && teamHub.getGameHub().getDeadline() != 0) {
                 if (this.position < 0) {

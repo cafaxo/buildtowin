@@ -15,15 +15,15 @@ public class EventHandler {
     
     @ForgeSubscribe
     public void onWorldUnload(WorldEvent.Unload event) {
-        PlayerList.playerToTileEntityMapClient.clear();
-        PlayerList.playerToTileEntityMapServer.clear();
+        PlayerList.playerToPlayerListMapClient.clear();
+        PlayerList.playerToPlayerListMapServer.clear();
         TileEntityBlueprint.instancesClient.clear();
     }
     
     @ForgeSubscribe
     public void onPlayerInteraction(PlayerInteractEvent event) {
         if (event.action == PlayerInteractEvent.Action.LEFT_CLICK_BLOCK) {
-            TileEntityTeamHub teamHub = TileEntityTeamHub.getTeamHub(event.entityPlayer);
+            TileEntityTeamHub teamHub = (TileEntityTeamHub) PlayerList.getPlayerListProvider(event.entityPlayer, TileEntityTeamHub.class);
             
             if (teamHub != null && teamHub.getGameHub() != null) {
                 for (TileEntityTeamHub connectedTeamHub : teamHub.getGameHub().getConnectedTeamHubs()) {
@@ -80,7 +80,10 @@ public class EventHandler {
     
     @ForgeSubscribe
     public void onItemPickup(EntityXPOrbPickupEvent event) {
-        TileEntityTeamHub teamHub = TileEntityTeamHub.getTeamHub(event.entityPlayer);
-        teamHub.setEnergy(teamHub.getEnergy() + event.xpValue);
+        TileEntityTeamHub teamHub = (TileEntityTeamHub) PlayerList.getPlayerListProvider(event.entityPlayer, TileEntityTeamHub.class);
+        
+        if (teamHub != null) {
+            teamHub.setEnergy(teamHub.getEnergy() + event.xpValue);
+        }
     }
 }

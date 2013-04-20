@@ -9,38 +9,45 @@ import java.util.HashMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
-import net.minecraft.tileentity.TileEntity;
 
 public class PlayerList {
     
-    public static HashMap<String, TileEntity> playerToTileEntityMapServer = new HashMap<String, TileEntity>();
+    public static HashMap<String, PlayerList> playerToPlayerListMapServer = new HashMap<String, PlayerList>();
     
-    public static HashMap<String, TileEntity> playerToTileEntityMapClient = new HashMap<String, TileEntity>();
+    public static HashMap<String, PlayerList> playerToPlayerListMapClient = new HashMap<String, PlayerList>();
     
-    private TileEntity tileEntity;
+    private IPlayerListProvider playerListProvider;
     
     private ArrayList<String> connectedPlayers;
     
-    public PlayerList(TileEntity tileEntity) {
-        this.tileEntity = tileEntity;
+    public PlayerList(IPlayerListProvider playerListProvider) {
+        this.playerListProvider = playerListProvider;
         this.connectedPlayers = new ArrayList<String>();
     }
     
     public boolean isPlayerConnected(EntityPlayer entityPlayer) {
-        return this.getPlayerToTileEntityMap(entityPlayer).get(entityPlayer.username) == this.tileEntity;
+        return this.connectedPlayers.contains(entityPlayer.username);
     }
     
     public void connectPlayer(EntityPlayer entityPlayer) {
         if (!this.connectedPlayers.contains(entityPlayer.username)) {
+            PlayerList playerList = this.getPlayerToPlayerListMap(entityPlayer).get(entityPlayer.username);
+            
+            if (playerList != null) {
+                playerList.disconnectPlayer(entityPlayer);
+            }
+            
             this.connectedPlayers.add(entityPlayer.username);
-            this.getPlayerToTileEntityMap(entityPlayer).put(entityPlayer.username, this.tileEntity);
+            this.getPlayerToPlayerListMap(entityPlayer).put(entityPlayer.username, this);
+            this.playerListProvider.onPlayerConnected(entityPlayer);
         }
     }
     
     public void disconnectPlayer(EntityPlayer entityPlayer) {
         if (this.connectedPlayers.contains(entityPlayer.username)) {
             this.connectedPlayers.remove(entityPlayer.username);
-            this.getPlayerToTileEntityMap(entityPlayer).remove(entityPlayer.username);
+            this.getPlayerToPlayerListMap(entityPlayer).remove(entityPlayer.username);
+            this.playerListProvider.onPlayerDisconnect(entityPlayer);
         }
     }
     
@@ -57,7 +64,7 @@ public class PlayerList {
     public void readTagList(NBTTagList tagList) {
         for (int i = 0; i < tagList.tagCount(); ++i) {
             this.connectedPlayers.add(((NBTTagString) tagList.tagAt(i)).data);
-            this.playerToTileEntityMapServer.put(((NBTTagString) tagList.tagAt(i)).data, this.tileEntity);
+            this.playerToPlayerListMapServer.put(((NBTTagString) tagList.tagAt(i)).data, this);
         }
     }
     
@@ -72,21 +79,45 @@ public class PlayerList {
     public void readDescriptionPacket(DataInputStream dataInputStream) throws IOException {
         int size = dataInputStream.readInt();
         
+        for (String player : this.connectedPlayers) {
+            this.playerToPlayerListMapClient.remove(player);
+        }
+        
+        this.connectedPlayers.clear();
+        
         for (int i = 0; i < size; ++i) {
             String player = dataInputStream.readUTF();
-            this.playerToTileEntityMapClient.put(player, this.tileEntity);
+            this.playerToPlayerListMapClient.put(player, this);
             this.connectedPlayers.add(player);
         }
     }
     
-    public static TileEntity getTileEntity(EntityPlayer entityPlayer) {
-        TileEntity tileEntity = PlayerList.getPlayerToTileEntityMap(entityPlayer).get(entityPlayer.username);
+    public static IPlayerListProvider getPlayerListProvider(EntityPlayer entityPlayer) {
+        PlayerList playerList = PlayerList.getPlayerToPlayerListMap(entityPlayer).get(entityPlayer.username);
         
-        if (tileEntity != null) {
-            if (tileEntity == entityPlayer.worldObj.getBlockTileEntity(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord)) {
-                return tileEntity;
+        if (playerList != null) {
+            if (playerList.playerListProvider.isValid()) {
+                return playerList.playerListProvider;
             } else {
-                PlayerList.getPlayerToTileEntityMap(entityPlayer).remove(entityPlayer);
+                PlayerList.getPlayerToPlayerListMap(entityPlayer).remove(entityPlayer.username);
+            }
+        }
+        
+        return null;
+    }
+    
+    public static IPlayerListProvider getPlayerListProvider(EntityPlayer entityPlayer, Class clazz) {
+        PlayerList playerList = PlayerList.getPlayerToPlayerListMap(entityPlayer).get(entityPlayer.username);
+        
+        if (playerList != null) {
+            if (!IPlayerListProvider.class.isAssignableFrom(clazz)) {
+                return null;
+            }
+            
+            if (playerList.playerListProvider.isValid()) {
+                return playerList.playerListProvider;
+            } else {
+                PlayerList.getPlayerToPlayerListMap(entityPlayer).remove(entityPlayer.username);
             }
         }
         
@@ -97,11 +128,11 @@ public class PlayerList {
         return connectedPlayers;
     }
     
-    public static HashMap<String, TileEntity> getPlayerToTileEntityMap(EntityPlayer entityPlayer) {
+    public static HashMap<String, PlayerList> getPlayerToPlayerListMap(EntityPlayer entityPlayer) {
         if (entityPlayer.worldObj.isRemote) {
-            return PlayerList.playerToTileEntityMapClient;
+            return PlayerList.playerToPlayerListMapClient;
         } else {
-            return PlayerList.playerToTileEntityMapServer;
+            return PlayerList.playerToPlayerListMapServer;
         }
     }
 }

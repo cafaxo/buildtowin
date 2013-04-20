@@ -32,9 +32,9 @@ public class BlockTeamHub extends BlockContainer {
         TileEntityTeamHub teamHub = (TileEntityTeamHub) par5EntityPlayer.worldObj.getBlockTileEntity(par2, par3, par4);
         
         if (teamHub.getPlayerList().isPlayerConnected(par5EntityPlayer)) {
-            teamHub.disconnectPlayer(par5EntityPlayer);
+            teamHub.getPlayerList().disconnectPlayer(par5EntityPlayer);
         } else {
-            teamHub.connectPlayer(par5EntityPlayer);
+            teamHub.getPlayerList().connectPlayer(par5EntityPlayer);
         }
     }
     

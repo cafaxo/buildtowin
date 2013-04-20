@@ -14,6 +14,7 @@ import buildtowin.BuildToWin;
 import buildtowin.blueprint.BlockData;
 import buildtowin.tileentity.TileEntityBlueprint;
 import buildtowin.tileentity.TileEntityTeamHub;
+import buildtowin.util.PlayerList;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -27,7 +28,7 @@ public class BlockBlueprint extends BlockContainer {
     }
     
     public void onBlockRightClicked(int x, int y, int z, EntityPlayer entityPlayer) {
-        TileEntityTeamHub teamHub = TileEntityTeamHub.getTeamHub(entityPlayer);
+        TileEntityTeamHub teamHub = (TileEntityTeamHub) PlayerList.getPlayerListProvider(entityPlayer, TileEntityTeamHub.class);
         
         if (teamHub == null) {
             BuildToWin.sendChatMessage(entityPlayer, "Please connect to a Team Hub.");
@@ -49,6 +50,7 @@ public class BlockBlueprint extends BlockContainer {
         if (entityPlayer.inventory.getCurrentItem() != null) {
             if (entityPlayer.inventory.getCurrentItem().itemID == Block.blocksList[blockData.id].idDropped(0, new Random(), 0)) {
                 teamHub.getBlueprint().removeBlueprint(x, y, z, false);
+                
                 entityPlayer.inventory.consumeInventoryItem(blockData.id);
                 entityPlayer.inventoryContainer.detectAndSendChanges();
             }

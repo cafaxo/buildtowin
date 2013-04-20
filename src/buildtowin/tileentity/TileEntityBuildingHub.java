@@ -7,7 +7,6 @@ import java.io.IOException;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.tileentity.TileEntity;
 import buildtowin.BuildToWin;
 import buildtowin.blueprint.Blueprint;
 import buildtowin.blueprint.IBlueprintProvider;
@@ -64,30 +63,25 @@ public class TileEntityBuildingHub extends TileEntitySynchronized implements IPl
         super.updateEntity();
     }
     
-    public void connectPlayer(EntityPlayer entityPlayer) {
-        this.playerList.connectPlayer(entityPlayer);
+    @Override
+    public boolean isValid() {
+        return !this.isInvalid();
+    }
+
+    @Override
+    public void onPlayerConnected(EntityPlayer entityPlayer) {
         this.worldObj.markBlockForRenderUpdate(this.xCoord, this.yCoord, this.zCoord);
         
         BuildToWin.printChatMessage(entityPlayer, "Connected to Building Hub.");
     }
-    
-    public void disconnectPlayer(EntityPlayer entityPlayer) {
-        this.playerList.disconnectPlayer(entityPlayer);
+
+    @Override
+    public void onPlayerDisconnect(EntityPlayer entityPlayer) {
         this.worldObj.markBlockForRenderUpdate(this.xCoord, this.yCoord, this.zCoord);
         
         BuildToWin.printChatMessage(entityPlayer, "Disconnected from Building Hub.");
     }
-    
-    public static TileEntityBuildingHub getBuildingHub(EntityPlayer entityPlayer) {
-        TileEntity tileEntity = PlayerList.getTileEntity(entityPlayer);
-        
-        if (tileEntity instanceof TileEntityBuildingHub) {
-            return (TileEntityBuildingHub) tileEntity;
-        }
-        
-        return null;
-    }
-    
+
     @Override
     public PlayerList getPlayerList() {
         return this.playerList;

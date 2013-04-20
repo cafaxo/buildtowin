@@ -8,6 +8,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import buildtowin.BuildToWin;
 import buildtowin.tileentity.TileEntityBuildingHub;
+import buildtowin.util.PlayerList;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -31,12 +32,12 @@ public class ItemPencil extends Item {
             TileEntityBuildingHub buildingHub = (TileEntityBuildingHub) entityPlayer.worldObj.getBlockTileEntity(x, y, z);
             
             if (buildingHub.getPlayerList().isPlayerConnected(entityPlayer)) {
-                buildingHub.disconnectPlayer(entityPlayer);
+                buildingHub.getPlayerList().disconnectPlayer(entityPlayer);
             } else {
-                buildingHub.connectPlayer(entityPlayer);
+                buildingHub.getPlayerList().connectPlayer(entityPlayer);
             }
         } else {
-            TileEntityBuildingHub buildingHub = TileEntityBuildingHub.getBuildingHub(entityPlayer);
+            TileEntityBuildingHub buildingHub = (TileEntityBuildingHub) PlayerList.getPlayerListProvider(entityPlayer, TileEntityBuildingHub.class);
             
             if (buildingHub != null) {
                 if (itemStack.stackTagCompound == null) {

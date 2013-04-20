@@ -6,6 +6,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import buildtowin.blueprint.BlueprintList;
 import buildtowin.tileentity.TileEntityGameHub;
 import buildtowin.tileentity.TileEntityTeamHub;
+import buildtowin.util.PlayerList;
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.common.network.PacketDispatcher;
@@ -20,10 +21,14 @@ public class ServerTickHandler implements ITickHandler {
             EntityPlayer entityPlayer = (EntityPlayer) tickData[0];
             
             if (entityPlayer.isPlayerSleeping()) {
-                TileEntityGameHub gameHub = TileEntityTeamHub.getTeamHub(entityPlayer).getGameHub();
+                TileEntityTeamHub teamHub = (TileEntityTeamHub) PlayerList.getPlayerListProvider(entityPlayer, TileEntityTeamHub.class);
                 
-                if (gameHub != null) {
-                    gameHub.setSleptTime(gameHub.getSleptTime() + 100);
+                if (teamHub != null) {
+                    TileEntityGameHub gameHub = teamHub.getGameHub();
+                    
+                    if (gameHub != null) {
+                        gameHub.setSleptTime(gameHub.getSleptTime() + 100);
+                    }
                 }
             }
         } else {

@@ -5,6 +5,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntityChest;
 import buildtowin.BuildToWin;
+import buildtowin.util.PlayerList;
 
 public class TileEntityTeamChest extends TileEntityChest {
     
@@ -14,7 +15,7 @@ public class TileEntityTeamChest extends TileEntityChest {
     public boolean isUseableByPlayer(EntityPlayer entityPlayer) {
         if (this.worldObj.getBlockTileEntity(this.xCoord, this.yCoord, this.zCoord) == this
                 && entityPlayer.getDistanceSq((double) this.xCoord + 0.5D, (double) this.yCoord + 0.5D, (double) this.zCoord + 0.5D) <= 64.0D) {
-            TileEntityTeamHub teamHub = TileEntityTeamHub.getTeamHub(entityPlayer);
+            TileEntityTeamHub teamHub = (TileEntityTeamHub) PlayerList.getPlayerListProvider(entityPlayer, TileEntityTeamHub.class);
             
             if (teamHub != null) {
                 this.chestContents = teamHub.getTeamChestContents().getContents();

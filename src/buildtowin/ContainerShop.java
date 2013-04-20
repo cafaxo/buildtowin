@@ -7,6 +7,7 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import buildtowin.tileentity.TileEntityShop;
 import buildtowin.tileentity.TileEntityTeamHub;
+import buildtowin.util.PlayerList;
 import buildtowin.util.PriceList;
 
 public class ContainerShop extends Container {
@@ -31,8 +32,8 @@ public class ContainerShop extends Container {
         return null;
     }
     
-    public ItemStack slotClick(int par1, int par2, int par3, EntityPlayer par4EntityPlayer) {
-        TileEntityTeamHub teamHub = TileEntityTeamHub.getTeamHub(par4EntityPlayer);
+    public ItemStack slotClick(int par1, int par2, int par3, EntityPlayer entityPlayer) {
+        TileEntityTeamHub teamHub = (TileEntityTeamHub) PlayerList.getPlayerListProvider(entityPlayer, TileEntityTeamHub.class);
         
         if (teamHub == null) {
             return null;

@@ -7,6 +7,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import buildtowin.client.gui.GuiBuildingInfo;
 import buildtowin.tileentity.TileEntityGameHub;
 import buildtowin.tileentity.TileEntityTeamHub;
+import buildtowin.util.PlayerList;
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.relauncher.Side;
@@ -27,7 +28,7 @@ public class ClientTickHandler implements ITickHandler {
             EntityPlayer entityPlayer = (EntityPlayer) tickData[0];
             
             if (entityPlayer.isPlayerSleeping()) {
-                TileEntityTeamHub teamHub = TileEntityTeamHub.getTeamHub(entityPlayer);
+                TileEntityTeamHub teamHub = (TileEntityTeamHub) PlayerList.getPlayerListProvider(entityPlayer, TileEntityTeamHub.class);
                 
                 if (teamHub != null) {
                     TileEntityGameHub gameHub = teamHub.getGameHub();
