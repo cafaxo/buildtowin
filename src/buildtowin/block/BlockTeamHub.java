@@ -24,7 +24,7 @@ public class BlockTeamHub extends BlockContainer {
         this.setCreativeTab(BuildToWin.tabBuildToWin);
         this.setBlockUnbreakable();
         this.setResistance(6000000.0F);
-        this.setUnlocalizedName("Team Hub");
+        this.setUnlocalizedName("teamHub");
     }
     
     @Override

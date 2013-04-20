@@ -1,29 +1,62 @@
 package buildtowin.tileentity;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
 import buildtowin.BuildToWin;
 
-public class TileEntityConnectionWire extends TileEntity {
+public class TileEntityConnectionWire extends TileEntitySynchronized {
     
-    private ArrayList<TileEntityConnectionWire> surroundingConnectionWires;
+    private ArrayList<TileEntity> surroundingTileEntities;
     
-    private ArrayList<TileEntityTeamHub> surroundingTeamHubs;
+    private ArrayList<TileEntityConnectionWire> connectedWires;
     
-    public ArrayList<TileEntityTeamHub> getSurroundingTeamHubs() {
-        return surroundingTeamHubs;
-    }
+    private boolean activated;
+    
+    private short lastSignal;
     
     public TileEntityConnectionWire() {
-        this.surroundingConnectionWires = new ArrayList<TileEntityConnectionWire>();
-        this.surroundingTeamHubs = new ArrayList<TileEntityTeamHub>();
+        this.surroundingTileEntities = new ArrayList<TileEntity>();
+        this.activated = false;
+        this.lastSignal = 0;
+    }
+    
+    @Override
+    public boolean writeDescriptionPacket(DataOutputStream dataOutputStream) throws IOException {
+        dataOutputStream.writeBoolean(this.activated);
+        return true;
+    }
+    
+    @Override
+    public void readDescriptionPacket(DataInputStream inputStream) throws IOException {
+        boolean newState = inputStream.readBoolean();
+        
+        if (newState != this.activated) {
+            this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
+            this.activated = newState;
+        }
+    }
+    
+    @Override
+    public void updateEntity() {
+        if (!this.worldObj.isRemote) {
+            if (this.lastSignal == 0) {
+                this.activated = false;
+            } else {
+                this.activated = true;
+                --this.lastSignal;
+            }
+        }
+        
+        super.updateEntity();
     }
     
     public void refresh() {
-        this.surroundingConnectionWires.clear();
-        this.surroundingTeamHubs.clear();
+        this.surroundingTileEntities.clear();
         
         for (ForgeDirection direction : ForgeDirection.VALID_DIRECTIONS) {
             TileEntity tileEntity = this.worldObj.getBlockTileEntity(
@@ -31,14 +64,14 @@ public class TileEntityConnectionWire extends TileEntity {
                     this.yCoord + direction.offsetY,
                     this.zCoord + direction.offsetZ);
             
-            if (tileEntity != null) {
-                if (tileEntity instanceof TileEntityConnectionWire) {
-                    this.surroundingConnectionWires.add((TileEntityConnectionWire) tileEntity);
-                } else if (tileEntity instanceof TileEntityTeamHub) {
-                    this.surroundingTeamHubs.add((TileEntityTeamHub) tileEntity);
-                }
+            if (tileEntity instanceof TileEntity) {
+                this.surroundingTileEntities.add(tileEntity);
             }
         }
+    }
+    
+    public void refreshConnectedWires() {
+        this.connectedWires = this.getConnectedWires(null);
     }
     
     public ArrayList<TileEntityConnectionWire> getConnectedWires(ArrayList<TileEntityConnectionWire> connectedWires) {
@@ -50,7 +83,10 @@ public class TileEntityConnectionWire extends TileEntity {
             connectedWires.add(this);
         }
         
-        for (TileEntityConnectionWire connectionWire : this.surroundingConnectionWires) {
+        this.refresh();
+        ArrayList<TileEntityConnectionWire> surroundingConnectionWires = this.getSurroundingTileEntities(TileEntityConnectionWire.class);
+        
+        for (TileEntityConnectionWire connectionWire : surroundingConnectionWires) {
             if (!connectedWires.contains(connectionWire)) {
                 connectionWire.getConnectedWires(connectedWires);
             }
@@ -59,30 +95,51 @@ public class TileEntityConnectionWire extends TileEntity {
         return connectedWires;
     }
     
-    public static ArrayList<TileEntityTeamHub> getConnectedTeamHubs(ArrayList<TileEntityConnectionWire> connectedWires) {
-        ArrayList<TileEntityTeamHub> connectedTeamHubs = new ArrayList<TileEntityTeamHub>();
-        
-        for (TileEntityConnectionWire connectionWire : connectedWires) {
-            connectedTeamHubs.addAll(connectionWire.getSurroundingTeamHubs());
-        }
-        
-        return connectedTeamHubs;
+    public ArrayList getSurroundingTileEntities() {
+        return this.surroundingTileEntities;
     }
     
-    public static void activateWires(ArrayList<TileEntityConnectionWire> connectionWires) {
-        for (TileEntityConnectionWire connectionWire : connectionWires) {
-            connectionWire.worldObj.setBlock(connectionWire.xCoord, connectionWire.yCoord, connectionWire.zCoord, BuildToWin.connectionWire.blockID, 1, 3);
+    public ArrayList<TileEntity> getConnectedTileEntities() {
+        ArrayList<TileEntity> connectedTileEntities = new ArrayList<TileEntity>();
+        
+        for (TileEntityConnectionWire wire : this.connectedWires) {
+            connectedTileEntities.addAll(wire.getSurroundingTileEntities());
+        }
+        
+        return connectedTileEntities;
+    }
+    
+    public ArrayList getSurroundingTileEntities(Class validTileEntity) {
+        ArrayList desiredTileEntites = new ArrayList();
+        
+        for (TileEntity tileEntity : this.surroundingTileEntities) {
+            if (tileEntity.getClass() == validTileEntity) {
+                desiredTileEntites.add(tileEntity);
+            }
+        }
+        
+        return desiredTileEntites;
+    }
+    
+    public void sendSignal() {
+        for (TileEntityConnectionWire wire : this.connectedWires) {
+            wire.activated = true;
+            wire.lastSignal = 50;
         }
     }
     
-    public static void deactivateWires(ArrayList<TileEntityConnectionWire> connectionWires) {
-        for (TileEntityConnectionWire connectionWire : connectionWires) {
-            connectionWire.worldObj.setBlock(connectionWire.xCoord, connectionWire.yCoord, connectionWire.zCoord, BuildToWin.connectionWire.blockID, 0, 3);
-        }
+    public boolean isActivated() {
+        return activated;
     }
     
     public boolean isConnected(ForgeDirection direction) {
         int blockId = this.worldObj.getBlockId(this.xCoord + direction.offsetX, this.yCoord + direction.offsetY, this.zCoord + direction.offsetZ);
-        return blockId == BuildToWin.connectionWire.blockID || blockId == BuildToWin.teamHub.blockID || blockId == BuildToWin.gameHub.blockID;
+        
+        return blockId == BuildToWin.connectionWire.blockID
+                || blockId == BuildToWin.teamHub.blockID
+                || blockId == BuildToWin.gameHub.blockID
+                || blockId == BuildToWin.penalizer.blockID
+                || blockId == BuildToWin.protector.blockID
+                || blockId == BuildToWin.shop.blockID;
     }
 }

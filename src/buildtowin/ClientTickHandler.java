@@ -27,10 +27,14 @@ public class ClientTickHandler implements ITickHandler {
             EntityPlayer entityPlayer = (EntityPlayer) tickData[0];
             
             if (entityPlayer.isPlayerSleeping()) {
-                TileEntityGameHub gameHub = TileEntityTeamHub.getTeamHub(entityPlayer).getGameHub();
+                TileEntityTeamHub teamHub = TileEntityTeamHub.getTeamHub(entityPlayer);
                 
-                if (gameHub != null) {
-                    gameHub.setSleptTime(gameHub.getSleptTime() + 100);
+                if (teamHub != null) {
+                    TileEntityGameHub gameHub = teamHub.getGameHub();
+                    
+                    if (gameHub != null) {
+                        gameHub.setSleptTime(gameHub.getSleptTime() + 100);
+                    }
                 }
             }
         }

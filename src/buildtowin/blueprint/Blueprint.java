@@ -9,9 +9,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
@@ -20,6 +22,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import buildtowin.BuildToWin;
 import buildtowin.tileentity.TileEntityBlueprint;
+import buildtowin.util.Coordinates;
 
 public class Blueprint {
     
@@ -27,7 +30,7 @@ public class Blueprint {
     
     private ArrayList<String> authors;
     
-    private HashMap<BlockCoordinates, BlockData> blocks;
+    private HashMap<Coordinates, BlockData> blocks;
     
     private World worldObj;
     
@@ -44,7 +47,7 @@ public class Blueprint {
     }
     
     public Blueprint() {
-        this.blocks = new HashMap<BlockCoordinates, BlockData>();
+        this.blocks = new HashMap<Coordinates, BlockData>();
         this.offsetX = 0;
         this.offsetY = 0;
         this.offsetZ = 0;
@@ -52,7 +55,7 @@ public class Blueprint {
     }
     
     public Blueprint(Blueprint blueprint) {
-        this.blocks = new HashMap<BlockCoordinates, BlockData>();
+        this.blocks = new HashMap<Coordinates, BlockData>();
         this.offsetX = 0;
         this.offsetY = 0;
         this.offsetZ = 0;
@@ -62,10 +65,10 @@ public class Blueprint {
         
         while (iter.hasNext()) {
             Map.Entry pairs = (Map.Entry) iter.next();
-            BlockCoordinates blockCoordinates = (BlockCoordinates) pairs.getKey();
+            Coordinates blockCoordinates = (Coordinates) pairs.getKey();
             BlockData blockData = (BlockData) pairs.getValue();
             
-            this.blocks.put(new BlockCoordinates(blockCoordinates), new BlockData(blockData));
+            this.blocks.put(new Coordinates(blockCoordinates), new BlockData(blockData));
         }
     }
     
@@ -76,15 +79,15 @@ public class Blueprint {
     }
     
     public void setBlockData(int x, int y, int z, BlockData blockData) {
-        this.blocks.put(new BlockCoordinates(x - this.offsetX, y - this.offsetY, z - this.offsetZ), blockData);
+        this.blocks.put(new Coordinates(x - this.offsetX, y - this.offsetY, z - this.offsetZ), blockData);
     }
     
     public BlockData getBlockData(int x, int y, int z) {
-        return this.blocks.get(new BlockCoordinates(x - this.offsetX, y - this.offsetY, z - this.offsetZ));
+        return this.blocks.get(new Coordinates(x - this.offsetX, y - this.offsetY, z - this.offsetZ));
     }
     
     public void removeBlockData(int x, int y, int z) {
-        this.blocks.remove(new BlockCoordinates(x - this.offsetX, y - this.offsetY, z - this.offsetZ));
+        this.blocks.remove(new Coordinates(x - this.offsetX, y - this.offsetY, z - this.offsetZ));
     }
     
     public void refreshBlueprint(int x, int y, int z, BlockData blockData) {
@@ -114,13 +117,13 @@ public class Blueprint {
         }
     }
     
-    public void loadBlueprint(HashMap<BlockCoordinates, BlockData> blocks) {
+    public void loadBlueprint(HashMap<Coordinates, BlockData> blocks) {
         Iterator iter = blocks.entrySet().iterator();
         int finishedBlocks = 0;
         
         while (iter.hasNext()) {
             Map.Entry pairs = (Map.Entry) iter.next();
-            BlockCoordinates blockCoordinates = (BlockCoordinates) pairs.getKey();
+            Coordinates blockCoordinates = (Coordinates) pairs.getKey();
             BlockData blockData = (BlockData) pairs.getValue();
             
             this.blocks.put(blockCoordinates, blockData);
@@ -219,18 +222,47 @@ public class Blueprint {
         this.removeBlueprintStandard(x, y, z, firstPart, removeFromList);
     }
     
+    public void select(int x1, int y1, int z1, int x2, int y2, int z2, boolean mode) {
+        int minX = Math.min(x1, x2);
+        int maxX = Math.max(x1, x2);
+        int minY = Math.min(y1, y2);
+        int maxY = Math.max(y1, y2);
+        int minZ = Math.min(z1, z2);
+        int maxZ = Math.max(z1, z2);
+        
+        for (int x = minX; x <= maxX; ++x) {
+            for (int y = minY; y <= maxY; ++y) {
+                for (int z = minZ; z <= maxZ; ++z) {
+                    int blockId = this.worldObj.getBlockId(x, y, z);
+                    
+                    if (blockId != 0 && blockId != BuildToWin.buildingHub.blockID) {
+                        if (mode) {
+                            if (blockId != BuildToWin.blueprint.blockID) {
+                                this.placeBlueprint(x, y, z, new BlockData(blockId, this.worldObj.getBlockMetadata(x, y, z)));
+                            }
+                        } else {
+                            if (blockId == BuildToWin.blueprint.blockID) {
+                                this.removeBlueprint(x, y, z, true);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     public void clear() {
         Iterator iter = this.blocks.entrySet().iterator();
         
         while (iter.hasNext()) {
             Map.Entry pairs = (Map.Entry) iter.next();
-            BlockCoordinates blockCoordinates = (BlockCoordinates) pairs.getKey();
+            Coordinates blockCoordinates = (Coordinates) pairs.getKey();
             BlockData blockData = (BlockData) pairs.getValue();
             
             this.removeBlueprint(
-                    this.offsetX + blockCoordinates.coordinates[0],
-                    this.offsetY + blockCoordinates.coordinates[1],
-                    this.offsetZ + blockCoordinates.coordinates[2],
+                    this.offsetX + blockCoordinates.x,
+                    this.offsetY + blockCoordinates.y,
+                    this.offsetZ + blockCoordinates.z,
                     false);
         }
         
@@ -243,21 +275,21 @@ public class Blueprint {
         
         while (iter.hasNext()) {
             Map.Entry pairs = (Map.Entry) iter.next();
-            BlockCoordinates blockCoordinates = (BlockCoordinates) pairs.getKey();
+            Coordinates blockCoordinates = (Coordinates) pairs.getKey();
             BlockData blockData = (BlockData) pairs.getValue();
             
             int realBlockId = this.worldObj.getBlockId(
-                    this.offsetX + blockCoordinates.coordinates[0],
-                    this.offsetY + blockCoordinates.coordinates[1],
-                    this.offsetZ + blockCoordinates.coordinates[2]);
+                    this.offsetX + blockCoordinates.x,
+                    this.offsetY + blockCoordinates.y,
+                    this.offsetZ + blockCoordinates.z);
             
             if (realBlockId == blockData.id) {
                 ++finishedBlocks;
             } else if (realBlockId != BuildToWin.blueprint.blockID) {
                 this.refreshBlueprint(
-                        this.offsetX + blockCoordinates.coordinates[0],
-                        this.offsetY + blockCoordinates.coordinates[1],
-                        this.offsetZ + blockCoordinates.coordinates[2],
+                        this.offsetX + blockCoordinates.x,
+                        this.offsetY + blockCoordinates.y,
+                        this.offsetZ + blockCoordinates.z,
                         blockData);
             }
         }
@@ -270,13 +302,13 @@ public class Blueprint {
         
         while (iter.hasNext()) {
             Map.Entry pairs = (Map.Entry) iter.next();
-            BlockCoordinates blockCoordinates = (BlockCoordinates) pairs.getKey();
+            Coordinates blockCoordinates = (Coordinates) pairs.getKey();
             BlockData blockData = (BlockData) pairs.getValue();
             
             this.refreshBlueprint(
-                    this.offsetX + blockCoordinates.coordinates[0],
-                    this.offsetY + blockCoordinates.coordinates[1],
-                    this.offsetZ + blockCoordinates.coordinates[2],
+                    this.offsetX + blockCoordinates.x,
+                    this.offsetY + blockCoordinates.y,
+                    this.offsetZ + blockCoordinates.z,
                     blockData);
         }
     }
@@ -289,11 +321,11 @@ public class Blueprint {
         
         for (int i = 0; iter.hasNext(); ++i) {
             Map.Entry pairs = (Map.Entry) iter.next();
-            BlockCoordinates blockCoordinates = (BlockCoordinates) pairs.getKey();
+            Coordinates blockCoordinates = (Coordinates) pairs.getKey();
             
-            data[i * 5] = blockCoordinates.coordinates[0];
-            data[i * 5 + 1] = blockCoordinates.coordinates[1];
-            data[i * 5 + 2] = blockCoordinates.coordinates[2];
+            data[i * 5] = blockCoordinates.x;
+            data[i * 5 + 1] = blockCoordinates.y;
+            data[i * 5 + 2] = blockCoordinates.z;
             
             BlockData blockData = (BlockData) pairs.getValue();
             
@@ -306,7 +338,7 @@ public class Blueprint {
     
     public void decode(int data[]) {
         for (int i = 0; i < data.length / 5; ++i) {
-            BlockCoordinates blockCoordinates = new BlockCoordinates(data[i * 5], data[i * 5 + 1], data[i * 5 + 2]);
+            Coordinates blockCoordinates = new Coordinates(data[i * 5], data[i * 5 + 1], data[i * 5 + 2]);
             BlockData blockData = new BlockData(data[i * 5 + 3], data[i * 5 + 4]);
             
             this.blocks.put(blockCoordinates, blockData);
@@ -377,7 +409,7 @@ public class Blueprint {
                 for (int z = 0; z < length; z++) {
                     for (int x = 0; x < width; x++) {
                         if (blockIds[index] != 0) {
-                            BlockCoordinates blockCoordinates = new BlockCoordinates(x, y, z);
+                            Coordinates blockCoordinates = new Coordinates(x, y, z);
                             BlockData blockData = new BlockData(blockIds[index], blockMetadata[index]);
                             
                             blueprint.blocks.put(blockCoordinates, blockData);
@@ -453,7 +485,7 @@ public class Blueprint {
         this.authors = authors;
     }
     
-    public HashMap<BlockCoordinates, BlockData> getBlocks() {
+    public HashMap<Coordinates, BlockData> getBlocks() {
         return blocks;
     }
     
@@ -465,31 +497,6 @@ public class Blueprint {
         this.color = color;
     }
     
-    public void select(int x1, int y1, int z1, int x2, int y2, int z2) {
-        int minX = Math.min(x1, x2);
-        int maxX = Math.max(x1, x2);
-        int minY = Math.min(y1, y2);
-        int maxY = Math.max(y1, y2);
-        int minZ = Math.min(z1, z2);
-        int maxZ = Math.max(z1, z2);
-        
-        for (int x = minX; x <= maxX; ++x) {
-            for (int y = minY; y <= maxY; ++y) {
-                for (int z = minZ; z <= maxZ; ++z) {
-                    int blockId = this.worldObj.getBlockId(x, y, z);
-                    
-                    if (blockId != 0 && blockId != BuildToWin.buildingHub.blockID) {
-                        if (blockId == BuildToWin.blueprint.blockID) {
-                            this.removeBlueprint(x, y, z, true);
-                        } else {
-                            this.placeBlueprint(x, y, z, new BlockData(blockId, this.worldObj.getBlockMetadata(x, y, z)));
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
     public int getItemId(int blockId) {
         Integer itemId = this.blockToItemId.get(blockId);
         
@@ -498,5 +505,61 @@ public class Blueprint {
         }
         
         return blockId;
+    }
+    
+    public void getBondsMaxAndMin(Coordinates boundsMin, Coordinates boundsMax) {
+        ArrayList<Integer> xValues = new ArrayList<Integer>(this.blocks.keySet().size());
+        ArrayList<Integer> yValues = new ArrayList<Integer>(this.blocks.keySet().size());
+        ArrayList<Integer> zValues = new ArrayList<Integer>(this.blocks.keySet().size());
+        
+        for (Coordinates coords : this.blocks.keySet()) {
+            xValues.add(this.offsetX + coords.x);
+            yValues.add(this.offsetY + coords.y);
+            zValues.add(this.offsetZ + coords.z);
+        }
+        
+        boundsMin.x = Collections.min(xValues);
+        boundsMin.y = Collections.min(yValues);
+        boundsMin.z = Collections.min(zValues);
+        
+        boundsMax.x = Collections.max(xValues);
+        boundsMax.y = Collections.max(yValues);
+        boundsMax.z = Collections.max(zValues);
+    }
+    
+    public Coordinates getRandomBlueprint() {
+        Random rand = new Random();
+        int randomIndex = rand.nextInt(this.blocks.keySet().size());
+        int i = 0;
+        
+        for (Coordinates coords : this.blocks.keySet()) {
+            if (i == randomIndex) {
+                return new Coordinates(coords.x + this.offsetX, coords.y + this.offsetY, coords.z + this.offsetZ);
+            }
+            
+            ++i;
+        }
+        
+        return null;
+    }
+    
+    public Coordinates getRandomBlueprintOutside() {
+        Random rand = new Random();
+        int randomIndex = rand.nextInt(this.blocks.keySet().size());
+        int i = 0;
+        
+        for (Coordinates coords : this.blocks.keySet()) {
+            if (i > randomIndex) {
+                Coordinates absoluteCoords = new Coordinates(coords.x + this.offsetX, coords.y + this.offsetY, coords.z + this.offsetZ);
+                
+                if (this.worldObj.canBlockSeeTheSky(absoluteCoords.x, absoluteCoords.y, absoluteCoords.z)) {
+                    return absoluteCoords;
+                }
+            }
+            
+            ++i;
+        }
+        
+        return null;
     }
 }

@@ -35,7 +35,7 @@ public class GuiScreenBlueprintLoad extends GuiScreen {
         this.blueprintSlot.registerScrollButtons(this.buttonList, 7, 8);
         
         GuiButton load = new GuiButton(1, this.width / 2 - 45 - 50, this.height - 35, 90, 20, "Load");
-        load.enabled = BlueprintList.blueprintListClient.getBlueprintList().size() > 0;
+        load.enabled = BlueprintList.clientInstance.getBlueprintList().size() > 0;
         this.buttonList.add(load);
         
         this.buttonList.add(new GuiButton(2, this.width / 2 - 45 + 50, this.height - 35, 90, 20, "Cancel"));

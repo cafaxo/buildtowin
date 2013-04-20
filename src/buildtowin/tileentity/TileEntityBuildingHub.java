@@ -1,5 +1,9 @@
 package buildtowin.tileentity;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -7,22 +11,18 @@ import net.minecraft.tileentity.TileEntity;
 import buildtowin.BuildToWin;
 import buildtowin.blueprint.Blueprint;
 import buildtowin.blueprint.IBlueprintProvider;
-import buildtowin.network.IPlayerListProvider;
-import buildtowin.network.PlayerList;
-import cpw.mods.fml.common.network.PacketDispatcher;
+import buildtowin.util.IPlayerListProvider;
+import buildtowin.util.PlayerList;
 
-public class TileEntityBuildingHub extends TileEntity implements IPlayerListProvider, IBlueprintProvider {
+public class TileEntityBuildingHub extends TileEntitySynchronized implements IPlayerListProvider, IBlueprintProvider {
     
     private PlayerList playerList;
     
     private Blueprint blueprint;
     
-    private int syncTimer;
-    
     public TileEntityBuildingHub() {
-        this.blueprint = new Blueprint();
         this.playerList = new PlayerList(this);
-        this.syncTimer = 0;
+        this.blueprint = new Blueprint();
     }
     
     @Override
@@ -45,17 +45,23 @@ public class TileEntityBuildingHub extends TileEntity implements IPlayerListProv
     }
     
     @Override
+    public boolean writeDescriptionPacket(DataOutputStream dataOutputStream) throws IOException {
+        this.playerList.writeDescriptionPacket(dataOutputStream);
+        return true;
+    }
+    
+    @Override
+    public void readDescriptionPacket(DataInputStream dataInputStream) throws IOException {
+        this.playerList.readDescriptionPacket(dataInputStream);
+    }
+    
+    @Override
     public void updateEntity() {
         if (!this.worldObj.isRemote) {
             this.blueprint.refresh();
-            
-            if (this.syncTimer == 30) {
-                PacketDispatcher.sendPacketToAllPlayers(this.playerList.getUpdatePacket(this.xCoord, this.yCoord, this.zCoord));
-                this.syncTimer = 0;
-            }
-            
-            ++this.syncTimer;
         }
+        
+        super.updateEntity();
     }
     
     public void connectPlayer(EntityPlayer entityPlayer) {

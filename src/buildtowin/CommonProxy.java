@@ -1,13 +1,15 @@
 package buildtowin;
 
+import java.io.File;
+
 import buildtowin.blueprint.BlueprintList;
+import buildtowin.util.PriceList;
 
 public class CommonProxy {
     
     public void init() {
-        if (BlueprintList.blueprintListServer == null) {
-            BlueprintList.blueprintListServer = new BlueprintList(".");
-            BlueprintList.blueprintListServer.read();
-        }
+        BlueprintList.serverInstance.init(new File(".", "blueprints"));
+        
+        PriceList.serverInstance.readFile(new File("btw_pricelist.txt"));
     }
 }

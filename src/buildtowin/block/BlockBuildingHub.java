@@ -26,14 +26,14 @@ public class BlockBuildingHub extends BlockContainer {
         this.setCreativeTab(BuildToWin.tabBuildToWin);
         this.setBlockUnbreakable();
         this.setResistance(6000000.0F);
-        this.setUnlocalizedName("Building Hub");
+        this.setUnlocalizedName("buildingHub");
     }
     
     @Override
-    public boolean onBlockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9) {
+    public boolean onBlockActivated(World par1World, int x, int y, int z, EntityPlayer entityPlayer, int par6, float par7, float par8, float par9) {
         if (par1World.isRemote) {
-            TileEntityBuildingHub buildingHub = (TileEntityBuildingHub) par1World.getBlockTileEntity(par2, par3, par4);
-            this.displayBuildingHub(buildingHub, par5EntityPlayer);
+            TileEntityBuildingHub buildingHub = (TileEntityBuildingHub) par1World.getBlockTileEntity(x, y, z);
+            this.displayBuildingHub(buildingHub, entityPlayer);
         }
         
         return true;

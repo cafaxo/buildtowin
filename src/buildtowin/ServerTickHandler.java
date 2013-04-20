@@ -27,8 +27,8 @@ public class ServerTickHandler implements ITickHandler {
                 }
             }
         } else {
-            if (this.timer == 20) {
-                PacketDispatcher.sendPacketToAllPlayers(BlueprintList.blueprintListServer.getUpdatePacket());
+            if (this.timer == 30) {
+                PacketDispatcher.sendPacketToAllPlayers(BlueprintList.serverInstance.getDescriptionPacket());
                 this.timer = 0;
             }
             

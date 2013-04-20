@@ -1,6 +1,5 @@
 package buildtowin.tileentity;
 
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -10,20 +9,16 @@ import java.util.HashMap;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.INetworkManager;
-import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.Packet132TileEntityData;
-import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.network.packet.Packet3Chat;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.common.ForgeDirection;
 import buildtowin.blueprint.Blueprint;
 import buildtowin.blueprint.IBlueprintProvider;
-import buildtowin.network.PacketIds;
-import cpw.mods.fml.common.network.PacketDispatcher;
+import buildtowin.util.ItemStackList;
 
-public class TileEntityGameHub extends TileEntity implements IBlueprintProvider {
+public class TileEntityGameHub extends TileEntityConnectionHub implements IBlueprintProvider {
     
-    private ArrayList<TileEntityTeamHub> connectedTeamHubs = new ArrayList<TileEntityTeamHub>();
+    private ArrayList<TileEntityTeamHub> connectedTeamHubs;
     
     private long plannedTimespan = 0;
     
@@ -31,7 +26,14 @@ public class TileEntityGameHub extends TileEntity implements IBlueprintProvider 
     
     private long sleptTime = 0;
     
-    private int syncTimer = 0;
+    private ItemStackList shop;
+    
+    public TileEntityGameHub() {
+        super(new Class[] { TileEntityTeamHub.class });
+        
+        this.connectedTeamHubs = new ArrayList<TileEntityTeamHub>();
+        this.shop = new ItemStackList();
+    }
     
     @Override
     public void writeToNBT(NBTTagCompound par1NBTTagCompound) {
@@ -42,6 +44,8 @@ public class TileEntityGameHub extends TileEntity implements IBlueprintProvider 
         par1NBTTagCompound.setLong("deadline", this.deadline);
         
         par1NBTTagCompound.setLong("slepttime", this.sleptTime);
+        
+        par1NBTTagCompound.setTag("shopcontents", this.shop.getTagList());
     }
     
     @Override
@@ -53,15 +57,17 @@ public class TileEntityGameHub extends TileEntity implements IBlueprintProvider 
         this.deadline = par1NBTTagCompound.getLong("deadline");
         
         this.sleptTime = par1NBTTagCompound.getLong("slepttime");
+        
+        this.shop.readTagList(par1NBTTagCompound.getTagList("shopcontents"));
     }
     
-    @Override
-    public Packet getDescriptionPacket() {
-        NBTTagCompound tag = new NBTTagCompound();
-        this.writeToNBT(tag);
-        
-        return new Packet132TileEntityData(this.xCoord, this.yCoord, this.zCoord, 1, tag);
-    }
+    /*
+     * @Override public Packet getDescriptionPacket() { NBTTagCompound tag = new
+     * NBTTagCompound(); this.writeToNBT(tag);
+     * 
+     * return new Packet132TileEntityData(this.xCoord, this.yCoord, this.zCoord,
+     * 1, tag); }
+     */
     
     @Override
     public void onDataPacket(INetworkManager net, Packet132TileEntityData pkt) {
@@ -69,30 +75,17 @@ public class TileEntityGameHub extends TileEntity implements IBlueprintProvider 
         this.readFromNBT(tag);
     }
     
-    public Packet getUpdatePacket() {
-        ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
-        DataOutputStream dataoutputstream = new DataOutputStream(bytearrayoutputstream);
+    @Override
+    public boolean writeDescriptionPacket(DataOutputStream dataOutputStream) throws IOException {
+        dataOutputStream.writeLong(this.plannedTimespan);
+        dataOutputStream.writeLong(this.deadline);
+        dataOutputStream.writeLong(this.sleptTime);
         
-        try {
-            dataoutputstream.writeInt(PacketIds.GAMEHUB_UPDATE);
-            
-            dataoutputstream.writeInt(this.xCoord);
-            dataoutputstream.writeInt(this.yCoord);
-            dataoutputstream.writeInt(this.zCoord);
-            
-            dataoutputstream.writeLong(this.plannedTimespan);
-            dataoutputstream.writeLong(this.deadline);
-            dataoutputstream.writeLong(this.sleptTime);
-            
-            return new Packet250CustomPayload("btw", bytearrayoutputstream.toByteArray());
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-        
-        return null;
+        return true;
     }
     
-    public void onUpdatePacket(DataInputStream inputStream) throws IOException {
+    @Override
+    public void readDescriptionPacket(DataInputStream inputStream) throws IOException {
         this.plannedTimespan = inputStream.readLong();
         this.deadline = inputStream.readLong();
         this.sleptTime = inputStream.readLong();
@@ -102,15 +95,16 @@ public class TileEntityGameHub extends TileEntity implements IBlueprintProvider 
     public void updateEntity() {
         if (!this.worldObj.isRemote) {
             this.checkGameStatus();
-            
-            if (this.syncTimer == 30) {
-                this.refreshConnection();
-                PacketDispatcher.sendPacketToAllPlayers(this.getUpdatePacket());
-                this.syncTimer = 0;
-            }
-            
-            ++this.syncTimer;
         }
+        
+        super.updateEntity();
+    }
+    
+    @Override
+    protected void onSynchronization() {
+        this.updateConnectedTeamHubs();
+        
+        super.onSynchronization();
     }
     
     public void refreshTimespan(long newTimespan) {
@@ -123,7 +117,7 @@ public class TileEntityGameHub extends TileEntity implements IBlueprintProvider 
     
     @Override
     public void loadBlueprint(Blueprint blueprint) {
-        this.refreshConnection();
+        this.updateConnectedTeamHubs();
         
         for (TileEntityTeamHub teamHub : this.connectedTeamHubs) {
             teamHub.loadBlueprint(blueprint);
@@ -132,7 +126,7 @@ public class TileEntityGameHub extends TileEntity implements IBlueprintProvider 
     }
     
     public void startGame() {
-        this.refreshConnection();
+        this.updateConnectedTeamHubs();
         
         this.sleptTime = 0;
         this.deadline = this.worldObj.getTotalWorldTime() + this.plannedTimespan;
@@ -144,7 +138,7 @@ public class TileEntityGameHub extends TileEntity implements IBlueprintProvider 
     }
     
     public void stopGame(boolean notify) {
-        this.refreshConnection();
+        this.updateConnectedTeamHubs();
         
         this.sleptTime = 0;
         this.deadline = 0;
@@ -189,6 +183,45 @@ public class TileEntityGameHub extends TileEntity implements IBlueprintProvider 
         }
     }
     
+    public ArrayList<TileEntityTeamHub> getRanking() {
+        HashMap<Float, TileEntityTeamHub> unsortedTeamHubs = new HashMap<Float, TileEntityTeamHub>();
+        ArrayList<Float> progressValues = new ArrayList<Float>();
+        
+        for (TileEntityTeamHub teamHub : this.connectedTeamHubs) {
+            unsortedTeamHubs.put(teamHub.getProgress(), teamHub);
+            progressValues.add(teamHub.getProgress());
+        }
+        
+        Collections.sort(progressValues, Collections.reverseOrder());
+        
+        ArrayList<TileEntityTeamHub> sortedTeamHubs = new ArrayList<TileEntityTeamHub>();
+        
+        for (float progress : progressValues) {
+            sortedTeamHubs.add(unsortedTeamHubs.get(progress));
+        }
+        
+        return sortedTeamHubs;
+    }
+    
+    public void updateConnectedTeamHubs() {
+        this.connectedTeamHubs.clear();
+        this.updateConnections();
+    }
+    
+    @Override
+    public void onConnectionEstablished(TileEntity tileEntity) {
+        TileEntityTeamHub teamHub = (TileEntityTeamHub) tileEntity;
+        
+        teamHub.setGameHub(this);
+        teamHub.getBlueprint().setColor((byte) this.connectedTeamHubs.size());
+        
+        this.connectedTeamHubs.add(teamHub);
+    }
+    
+    public ArrayList<TileEntityTeamHub> getConnectedTeamHubs() {
+        return connectedTeamHubs;
+    }
+    
     public long getRealWorldTime() {
         return this.worldObj.getTotalWorldTime() + this.sleptTime;
     }
@@ -213,62 +246,11 @@ public class TileEntityGameHub extends TileEntity implements IBlueprintProvider 
         this.sleptTime = sleptTime;
     }
     
-    public ArrayList<TileEntityTeamHub> getRanking() {
-        HashMap<Float, TileEntityTeamHub> unsortedTeamHubs = new HashMap<Float, TileEntityTeamHub>();
-        ArrayList<Float> progressValues = new ArrayList<Float>();
-        
-        for (TileEntityTeamHub teamHub : this.connectedTeamHubs) {
-            unsortedTeamHubs.put(teamHub.getProgress(), teamHub);
-            progressValues.add(teamHub.getProgress());
-        }
-        
-        Collections.sort(progressValues, Collections.reverseOrder());
-        
-        ArrayList<TileEntityTeamHub> sortedTeamHubs = new ArrayList<TileEntityTeamHub>();
-        
-        for (float progress : progressValues) {
-            sortedTeamHubs.add(unsortedTeamHubs.get(progress));
-        }
-        
-        return sortedTeamHubs;
+    public ItemStackList getShop() {
+        return shop;
     }
     
-    public void refreshConnection() {
-        this.connectedTeamHubs.clear();
-        
-        byte color = (byte) 0;
-        
-        for (ForgeDirection direction : ForgeDirection.VALID_DIRECTIONS) {
-            TileEntity tileEntity = this.worldObj.getBlockTileEntity(
-                    this.xCoord + direction.offsetX,
-                    this.yCoord + direction.offsetY,
-                    this.zCoord + direction.offsetZ);
-            
-            if (tileEntity != null && tileEntity instanceof TileEntityConnectionWire) {
-                TileEntityConnectionWire connectionWire = (TileEntityConnectionWire) tileEntity;
-                
-                ArrayList<TileEntityConnectionWire> connectionWires = connectionWire.getConnectedWires(null);
-                ArrayList<TileEntityTeamHub> connectedTeamHubs = TileEntityConnectionWire.getConnectedTeamHubs(connectionWires);
-                
-                if (!connectedTeamHubs.isEmpty()) {
-                    TileEntityConnectionWire.activateWires(connectionWires);
-                    
-                    for (TileEntityTeamHub teamHub : connectedTeamHubs) {
-                        this.connectedTeamHubs.add(teamHub);
-                        teamHub.setGameHub(this);
-                        teamHub.getBlueprint().setColor(color);
-                        
-                        if (teamHub.getBlueprint().getBlocks().size() == 0) {
-                            teamHub.getBlueprint().reset();
-                        }
-                        
-                        ++color;
-                    }
-                    
-                } else {
-                    TileEntityConnectionWire.deactivateWires(connectionWires);
-                }
-            }
-        }
+    public void setShop(ItemStackList shop) {
+        this.shop = shop;
     }
 }

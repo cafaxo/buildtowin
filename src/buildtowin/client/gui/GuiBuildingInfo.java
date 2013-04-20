@@ -15,14 +15,14 @@ public class GuiBuildingInfo extends Gui {
     
     private Minecraft theGame;
     
-    private float ySpeed;
+    private float speed;
     
-    private float yPosition;
+    private float position;
     
     public GuiBuildingInfo(Minecraft par1Minecraft) {
         this.theGame = par1Minecraft;
-        this.yPosition = -32;
-        this.ySpeed = 0;
+        this.position = -32;
+        this.speed = 0;
     }
     
     public void tick() {
@@ -32,29 +32,31 @@ public class GuiBuildingInfo extends Gui {
             TileEntityTeamHub teamHub = TileEntityTeamHub.getTeamHub(player);
             
             if (teamHub != null && teamHub.getGameHub() != null && teamHub.getGameHub().getDeadline() != 0) {
-                if (this.yPosition < 0) {
-                    this.yPosition += this.ySpeed;
-                    this.ySpeed += 0.1F;
+                if (this.position < 0) {
+                    this.position += this.speed;
+                    this.speed += 0.1F;
                 } else {
-                    this.yPosition = 0;
-                    this.ySpeed = 0;
+                    this.position = 0;
+                    this.speed = 0;
                 }
             } else {
-                if (this.yPosition > -32) {
-                    this.yPosition -= this.ySpeed;
-                    this.ySpeed += 0.1F;
+                if (this.position > -32) {
+                    this.position -= this.speed;
+                    this.speed += 0.1F;
                 } else {
-                    this.yPosition = -32;
-                    this.ySpeed = 0;
+                    this.position = -32;
+                    this.speed = 0;
                 }
             }
             
-            if (this.yPosition != -32) {
+            if (this.position != -32) {
                 int progress = 100;
+                Integer energy = 0;
                 String daysLeft = "0,00";
                 
                 if (teamHub != null && teamHub.getGameHub() != null) {
                     progress = (int) (teamHub.getProgress() * 100.F);
+                    energy = teamHub.getEnergy();
                     float daysLeftFloat = (teamHub.getGameHub().getDeadline() - teamHub.getGameHub().getRealWorldTime()) / 24000.F;
                     
                     if (daysLeftFloat > 0.F) {
@@ -62,16 +64,22 @@ public class GuiBuildingInfo extends Gui {
                     }
                 }
                 
+                this.theGame.renderEngine.bindTexture("/mods/buildtowin/textures/gui/icons.png");
+                
                 GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
                 GL11.glEnable(GL11.GL_TEXTURE_2D);
+                GL11.glPushMatrix();
+                GL11.glScalef(0.5F, 0.5F, 1.0F);
                 
-                this.theGame.renderEngine.bindTexture("/achievement/bg.png");
+                this.drawTexturedModalRect((10 + Math.round(this.position)) * 2, 10 * 2, 0, 0, 16, 16);
+                this.drawTexturedModalRect((10 + Math.round(this.position)) * 2, 30 * 2, 17, 0, 16, 16);
+                this.drawTexturedModalRect((10 + Math.round(this.position)) * 2, 50 * 2, 33, 0, 16, 16);
                 
-                this.drawTexturedModalRect(0, Math.round(this.yPosition), 96, 202, 160, 32);
-                this.drawTexturedModalRect(45, Math.round(this.yPosition), 96 + 30, 202, 160 - 30, 32);
+                GL11.glPopMatrix();
                 
-                this.theGame.fontRenderer.drawStringWithShadow("Days left: " + daysLeft, 10, Math.round(this.yPosition) + 12, 0xffffff);
-                this.theGame.fontRenderer.drawStringWithShadow("Progress: " + progress + "%", 90, Math.round(this.yPosition) + 12, 0xffffff);
+                this.theGame.fontRenderer.drawStringWithShadow(daysLeft, 22 + Math.round(this.position), 10, 0xffffff);
+                this.theGame.fontRenderer.drawStringWithShadow(progress + "%", 22 + Math.round(this.position), 30, 0xffffff);
+                this.theGame.fontRenderer.drawStringWithShadow(energy.toString(), 22 + Math.round(this.position), 50, 0xffffff);
             }
         }
     }

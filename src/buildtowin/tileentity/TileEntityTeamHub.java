@@ -15,30 +15,40 @@ import net.minecraft.tileentity.TileEntity;
 import buildtowin.BuildToWin;
 import buildtowin.blueprint.Blueprint;
 import buildtowin.blueprint.IBlueprintProvider;
-import buildtowin.network.IPlayerListProvider;
 import buildtowin.network.PacketIds;
-import buildtowin.network.PlayerList;
+import buildtowin.util.IPlayerListProvider;
+import buildtowin.util.ItemStackList;
+import buildtowin.util.PlayerList;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 
-public class TileEntityTeamHub extends TileEntity implements IPlayerListProvider, IBlueprintProvider {
+public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlayerListProvider, IBlueprintProvider {
     
     private TileEntityGameHub gameHub;
+    
+    private TileEntityPenalizer penalizer;
+    
+    private TileEntityProtector protector;
+    
+    private ItemStackList teamChestContents;
     
     private PlayerList playerList;
     
     private Blueprint blueprint;
     
-    private int syncTimer;
+    private int energy;
     
     private int finishedBlockCount;
     
     private int totalBlockCount;
     
     public TileEntityTeamHub() {
-        this.blueprint = new Blueprint();
+        super(new Class[] { TileEntityGameHub.class, TileEntityPenalizer.class, TileEntityProtector.class, TileEntityShop.class });
+        
         this.playerList = new PlayerList(this);
-        this.syncTimer = 0;
+        this.blueprint = new Blueprint();
+        this.teamChestContents = new ItemStackList();
+        this.energy = 0;
         this.finishedBlockCount = 0;
         this.totalBlockCount = 0;
     }
@@ -50,6 +60,10 @@ public class TileEntityTeamHub extends TileEntity implements IPlayerListProvider
         par1NBTTagCompound.setTag("players", this.playerList.getTagList());
         
         par1NBTTagCompound.setIntArray("blueprint", this.blueprint.encode());
+        
+        par1NBTTagCompound.setInteger("energy", this.energy);
+        
+        par1NBTTagCompound.setTag("teamChestContents", this.teamChestContents.getTagList());
     }
     
     @Override
@@ -60,48 +74,47 @@ public class TileEntityTeamHub extends TileEntity implements IPlayerListProvider
         this.playerList.readTagList(connectedPlayersNbt);
         
         this.blueprint.decode(par1NBTTagCompound.getIntArray("blueprint"));
+        
+        this.energy = par1NBTTagCompound.getInteger("energy");
+        
+        this.teamChestContents.readTagList(par1NBTTagCompound.getTagList("teamChestContents"));
     }
     
-    public Packet getUpdatePacket() {
-        ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
-        DataOutputStream dataoutputstream = new DataOutputStream(bytearrayoutputstream);
-        
-        try {
-            dataoutputstream.writeInt(PacketIds.TEAMHUB_UPDATE);
+    @Override
+    public boolean writeDescriptionPacket(DataOutputStream dataOutputStream) throws IOException {
+        if (this.gameHub != null) {
+            dataOutputStream.writeInt(this.finishedBlockCount);
+            dataOutputStream.writeInt(this.totalBlockCount);
+            dataOutputStream.writeInt(this.energy);
             
-            dataoutputstream.writeInt(this.xCoord);
-            dataoutputstream.writeInt(this.yCoord);
-            dataoutputstream.writeInt(this.zCoord);
+            dataOutputStream.writeInt(this.gameHub.xCoord);
+            dataOutputStream.writeInt(this.gameHub.yCoord);
+            dataOutputStream.writeInt(this.gameHub.zCoord);
             
-            dataoutputstream.writeInt(this.finishedBlockCount);
-            dataoutputstream.writeInt(this.totalBlockCount);
+            this.playerList.writeDescriptionPacket(dataOutputStream);
             
-            dataoutputstream.writeBoolean(this.gameHub != null);
-            
-            if (this.gameHub != null) {
-                dataoutputstream.writeInt(this.gameHub.xCoord);
-                dataoutputstream.writeInt(this.gameHub.yCoord);
-                dataoutputstream.writeInt(this.gameHub.zCoord);
-            }
-            
-            return new Packet250CustomPayload("btw", bytearrayoutputstream.toByteArray());
-        } catch (Exception exception) {
-            exception.printStackTrace();
+            return true;
         }
         
-        return null;
+        return false;
     }
     
-    public void onUpdatePacket(DataInputStream dataInputStream) throws IOException {
+    @Override
+    public void readDescriptionPacket(DataInputStream dataInputStream) throws IOException {
         this.finishedBlockCount = dataInputStream.readInt();
         this.totalBlockCount = dataInputStream.readInt();
+        this.energy = dataInputStream.readInt();
         
-        if (dataInputStream.readBoolean()) {
-            this.gameHub = (TileEntityGameHub) this.worldObj.getBlockTileEntity(
-                    dataInputStream.readInt(),
-                    dataInputStream.readInt(),
-                    dataInputStream.readInt());
+        TileEntity tileEntity = this.worldObj.getBlockTileEntity(
+                dataInputStream.readInt(),
+                dataInputStream.readInt(),
+                dataInputStream.readInt());
+        
+        if (tileEntity instanceof TileEntityGameHub) {
+            this.gameHub = (TileEntityGameHub) tileEntity;
         }
+        
+        this.playerList.readDescriptionPacket(dataInputStream);
     }
     
     @Override
@@ -109,14 +122,31 @@ public class TileEntityTeamHub extends TileEntity implements IPlayerListProvider
         if (!this.worldObj.isRemote) {
             this.finishedBlockCount = this.blueprint.refresh();
             this.totalBlockCount = this.blueprint.getBlocks().size();
+        }
+        
+        super.updateEntity();
+    }
+    
+    @Override
+    protected void onSynchronization() {
+        this.penalizer = null;
+        this.protector = null;
+        this.updateConnections();
+        
+        super.onSynchronization();
+    }
+    
+    @Override
+    public void onConnectionEstablished(TileEntity tileEntity) {
+        if (tileEntity instanceof TileEntityPenalizer) {
+            TileEntityPenalizer penalizer = (TileEntityPenalizer) tileEntity;
             
-            if (this.syncTimer == 30) {
-                PacketDispatcher.sendPacketToAllPlayers(this.playerList.getUpdatePacket(this.xCoord, this.yCoord, this.zCoord));
-                PacketDispatcher.sendPacketToAllPlayers(this.getUpdatePacket());
-                this.syncTimer = 0;
-            }
-            
-            ++this.syncTimer;
+            penalizer.setTeamHub(this);
+            this.penalizer = penalizer;
+        } else if (tileEntity instanceof TileEntityProtector) {
+            this.protector = (TileEntityProtector) tileEntity;
+        } else if (tileEntity instanceof TileEntityShop) {
+            ((TileEntityShop) tileEntity).setTeamHub(this);
         }
     }
     
@@ -146,6 +176,14 @@ public class TileEntityTeamHub extends TileEntity implements IPlayerListProvider
         this.gameHub = gameHub;
     }
     
+    public TileEntityPenalizer getPenalizer() {
+        return penalizer;
+    }
+    
+    public TileEntityProtector getProtector() {
+        return protector;
+    }
+    
     public static TileEntityTeamHub getTeamHub(EntityPlayer entityPlayer) {
         TileEntity tileEntity = PlayerList.getTileEntity(entityPlayer);
         
@@ -167,6 +205,18 @@ public class TileEntityTeamHub extends TileEntity implements IPlayerListProvider
         }
         
         return null;
+    }
+    
+    public int getEnergy() {
+        return energy;
+    }
+    
+    public void setEnergy(int energy) {
+        this.energy = energy;
+    }
+    
+    public ItemStackList getTeamChestContents() {
+        return teamChestContents;
     }
     
     @Override
@@ -232,8 +282,9 @@ public class TileEntityTeamHub extends TileEntity implements IPlayerListProvider
         for (String player : this.playerList.getConnectedPlayers()) {
             EntityPlayer entityPlayer = null;
             
-            if ((entityPlayer = this.worldObj.getPlayerEntityByName(player)) != null)
+            if ((entityPlayer = this.worldObj.getPlayerEntityByName(player)) != null) {
                 PacketDispatcher.sendPacketToPlayer(packet, (Player) entityPlayer);
+            }
         }
     }
 }

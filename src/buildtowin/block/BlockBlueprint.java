@@ -2,6 +2,7 @@ package buildtowin.block;
 
 import java.util.Random;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
@@ -25,33 +26,31 @@ public class BlockBlueprint extends BlockContainer {
         this.setResistance(6000000.0F);
     }
     
-    @Override
-    public void onBlockClicked(World world, int x, int y, int z, EntityPlayer entityPlayer) {
-        if (!world.isRemote) {
-            TileEntityTeamHub teamHub = TileEntityTeamHub.getTeamHub(entityPlayer);
-            
-            if (teamHub == null) {
-                BuildToWin.sendChatMessage(entityPlayer, "Please connect to a Team Hub.");
-                return;
-            }
-            
-            if (teamHub.getGameHub().getDeadline() == 0) {
-                BuildToWin.sendChatMessage(entityPlayer, "The game has not started yet.");
-                return;
-            }
-            
-            BlockData blockData = teamHub.getBlueprint().getBlockData(x, y, z);
-            
-            if (blockData == null) {
-                BuildToWin.sendChatMessage(entityPlayer, "This blueprint does not belong to your Team Hub.");
-                return;
-            }
-            
-            if (entityPlayer.inventory.getCurrentItem() != null) {
-                if (entityPlayer.inventory.getCurrentItem().itemID == teamHub.getBlueprint().getItemId(blockData.id)) {
-                    teamHub.getBlueprint().removeBlueprint(x, y, z, false);
-                    entityPlayer.inventory.consumeInventoryItem(blockData.id);
-                }
+    public void onBlockRightClicked(int x, int y, int z, EntityPlayer entityPlayer) {
+        TileEntityTeamHub teamHub = TileEntityTeamHub.getTeamHub(entityPlayer);
+        
+        if (teamHub == null) {
+            BuildToWin.sendChatMessage(entityPlayer, "Please connect to a Team Hub.");
+            return;
+        }
+        
+        if (teamHub.getGameHub().getDeadline() == 0) {
+            BuildToWin.sendChatMessage(entityPlayer, "The game has not started yet.");
+            return;
+        }
+        
+        BlockData blockData = teamHub.getBlueprint().getBlockData(x, y, z);
+        
+        if (blockData == null) {
+            BuildToWin.sendChatMessage(entityPlayer, "This blueprint does not belong to your Team Hub.");
+            return;
+        }
+        
+        if (entityPlayer.inventory.getCurrentItem() != null) {
+            if (entityPlayer.inventory.getCurrentItem().itemID == Block.blocksList[blockData.id].idDropped(0, new Random(), 0)) {
+                teamHub.getBlueprint().removeBlueprint(x, y, z, false);
+                entityPlayer.inventory.consumeInventoryItem(blockData.id);
+                entityPlayer.inventoryContainer.detectAndSendChanges();
             }
         }
     }
@@ -59,6 +58,10 @@ public class BlockBlueprint extends BlockContainer {
     @Override
     public AxisAlignedBB getCollisionBoundingBoxFromPool(World par1World, int par2, int par3, int par4) {
         return null;
+    }
+    
+    public boolean isCollidable() {
+        return false;
     }
     
     @Override

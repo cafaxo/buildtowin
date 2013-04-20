@@ -20,7 +20,7 @@ public class GuiBlueprintSlot extends GuiSlot {
     
     @Override
     protected int getSize() {
-        return BlueprintList.blueprintListClient.getBlueprintList().size();
+        return BlueprintList.clientInstance.getBlueprintList().size();
     }
     
     @Override
@@ -41,7 +41,7 @@ public class GuiBlueprintSlot extends GuiSlot {
     
     @Override
     protected void drawSlot(int i, int j, int k, int l, Tessellator tessellator) {
-        this.blueprintLoadGui.drawString(Minecraft.getMinecraft().fontRenderer, BlueprintList.blueprintListClient.getBlueprintList().get(i).getName(), j + 2, k + 1, 16777215);
-        this.blueprintLoadGui.drawString(Minecraft.getMinecraft().fontRenderer, BlueprintList.blueprintListClient.getBlueprintList().get(i).getAuthors().toString(), j + 2, k + 1 + 14, 8421504);
+        this.blueprintLoadGui.drawString(Minecraft.getMinecraft().fontRenderer, BlueprintList.clientInstance.getBlueprintList().get(i).getName(), j + 2, k + 1, 16777215);
+        this.blueprintLoadGui.drawString(Minecraft.getMinecraft().fontRenderer, BlueprintList.clientInstance.getBlueprintList().get(i).getAuthors().toString(), j + 2, k + 1 + 14, 8421504);
     }
 }

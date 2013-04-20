@@ -17,28 +17,19 @@ import buildtowin.tileentity.TileEntityBuildingHub;
 
 public class BlueprintList {
     
-    public static BlueprintList blueprintListServer;
+    public static BlueprintList serverInstance = new BlueprintList();
     
-    public static BlueprintList blueprintListClient = new BlueprintList();
+    public static BlueprintList clientInstance = new BlueprintList();
     
     private File blueprintDir;
     
     private ArrayList<Blueprint> blueprintList = new ArrayList<Blueprint>();
     
-    public ArrayList<Blueprint> getBlueprintList() {
-        return this.blueprintList;
-    }
-    
-    public BlueprintList() {
-    }
-    
-    public BlueprintList(String baseDir) {
-        this.blueprintDir = new File(baseDir, "blueprints");
-    }
-    
-    public boolean read() {
-        if (this.blueprintDir.isDirectory()) {
-            List<File> blueprintFiles = Arrays.asList(this.blueprintDir.listFiles());
+    public boolean init(File blueprintDir) {
+        this.blueprintDir = blueprintDir;
+        
+        if (blueprintDir.isDirectory()) {
+            List<File> blueprintFiles = Arrays.asList(blueprintDir.listFiles());
             
             for (File blueprintFile : blueprintFiles) {
                 if (blueprintFile.getAbsolutePath().endsWith("blueprint")) {
@@ -65,7 +56,7 @@ public class BlueprintList {
         }
     }
     
-    public Packet250CustomPayload getUpdatePacket() {
+    public Packet250CustomPayload getDescriptionPacket() {
         ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
         DataOutputStream dataoutputstream = new DataOutputStream(bytearrayoutputstream);
         
@@ -92,7 +83,7 @@ public class BlueprintList {
         return null;
     }
     
-    public void onUpdatePacket(DataInputStream dataInputStream) throws IOException {
+    public void readDescriptionPacket(DataInputStream dataInputStream) throws IOException {
         this.blueprintList.clear();
         
         int blueprintCount = dataInputStream.readInt();
@@ -139,5 +130,9 @@ public class BlueprintList {
         }
         
         return false;
+    }
+    
+    public ArrayList<Blueprint> getBlueprintList() {
+        return this.blueprintList;
     }
 }

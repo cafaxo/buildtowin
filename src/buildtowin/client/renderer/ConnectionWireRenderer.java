@@ -16,7 +16,7 @@ public class ConnectionWireRenderer implements ISimpleBlockRenderingHandler {
     
     @Override
     public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z, Block block, int modelId, RenderBlocks renderer) {
-        TileEntityConnectionWire te = (TileEntityConnectionWire) world.getBlockTileEntity(x, y, z);
+        TileEntityConnectionWire wire = (TileEntityConnectionWire) world.getBlockTileEntity(x, y, z);
         
         float minSize = 0.375F;
         float maxSize = 0.625F;
@@ -25,38 +25,38 @@ public class ConnectionWireRenderer implements ISimpleBlockRenderingHandler {
         renderer.setRenderBoundsFromBlock(block);
         renderer.renderStandardBlock(block, x, y, z);
         
-        if (te.isConnected(ForgeDirection.WEST)) {
-            block.setBlockBounds(0.0F, minSize, minSize, minSize, maxSize, maxSize);
-            renderer.setRenderBoundsFromBlock(block);
-            renderer.renderStandardBlock(block, x, y, z);
-        }
-        
-        if (te.isConnected(ForgeDirection.EAST)) {
-            block.setBlockBounds(maxSize, minSize, minSize, 1.0F, maxSize, maxSize);
-            renderer.setRenderBoundsFromBlock(block);
-            renderer.renderStandardBlock(block, x, y, z);
-        }
-        
-        if (te.isConnected(ForgeDirection.DOWN)) {
+        if (wire.isConnected(ForgeDirection.DOWN)) {
             block.setBlockBounds(minSize, 0.0F, minSize, maxSize, minSize, maxSize);
             renderer.setRenderBoundsFromBlock(block);
             renderer.renderStandardBlock(block, x, y, z);
         }
         
-        if (te.isConnected(ForgeDirection.UP)) {
+        if (wire.isConnected(ForgeDirection.UP)) {
             block.setBlockBounds(minSize, maxSize, minSize, maxSize, 1.0F, maxSize);
             renderer.setRenderBoundsFromBlock(block);
             renderer.renderStandardBlock(block, x, y, z);
         }
         
-        if (te.isConnected(ForgeDirection.NORTH)) {
+        if (wire.isConnected(ForgeDirection.NORTH)) {
             block.setBlockBounds(minSize, minSize, 0.0F, maxSize, maxSize, minSize);
             renderer.setRenderBoundsFromBlock(block);
             renderer.renderStandardBlock(block, x, y, z);
         }
         
-        if (te.isConnected(ForgeDirection.SOUTH)) {
+        if (wire.isConnected(ForgeDirection.SOUTH)) {
             block.setBlockBounds(minSize, minSize, maxSize, maxSize, maxSize, 1.0F);
+            renderer.setRenderBoundsFromBlock(block);
+            renderer.renderStandardBlock(block, x, y, z);
+        }
+        
+        if (wire.isConnected(ForgeDirection.WEST)) {
+            block.setBlockBounds(0.0F, minSize, minSize, minSize, maxSize, maxSize);
+            renderer.setRenderBoundsFromBlock(block);
+            renderer.renderStandardBlock(block, x, y, z);
+        }
+        
+        if (wire.isConnected(ForgeDirection.EAST)) {
+            block.setBlockBounds(maxSize, minSize, minSize, 1.0F, maxSize, maxSize);
             renderer.setRenderBoundsFromBlock(block);
             renderer.renderStandardBlock(block, x, y, z);
         }

@@ -16,7 +16,10 @@ import buildtowin.client.gui.GuiScreenLose;
 import buildtowin.client.gui.GuiScreenWin;
 import buildtowin.tileentity.TileEntityBuildingHub;
 import buildtowin.tileentity.TileEntityGameHub;
-import buildtowin.tileentity.TileEntityTeamHub;
+import buildtowin.tileentity.TileEntityPenalizer;
+import buildtowin.tileentity.TileEntityProtector;
+import buildtowin.tileentity.TileEntitySynchronized;
+import buildtowin.util.PriceList;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.Player;
@@ -34,13 +37,16 @@ public class PacketHandler implements IPacketHandler {
             
             switch (packetId) {
             case PacketIds.BLUEPRINTLIST_UPDATE:
-                BlueprintList.blueprintListClient.onUpdatePacket(dataInputStream);
+                BlueprintList.clientInstance.readDescriptionPacket(dataInputStream);
                 return;
             case PacketIds.TEAMHUB_WIN:
                 this.displayWinMessage();
                 return;
             case PacketIds.TEAMHUB_LOSE:
                 this.displayLoseMessage();
+                return;
+            case PacketIds.PRICELIST_UPDATE:
+                PriceList.clientInstance.readDescriptionPacket(dataInputStream);
                 return;
             }
             
@@ -52,16 +58,16 @@ public class PacketHandler implements IPacketHandler {
             
             if (tileEntity != null) {
                 switch (packetId) {
-                case PacketIds.PLAYERLIST_UPDATE:
-                    ((IPlayerListProvider) tileEntity).getPlayerList().onUpdatePacket(dataInputStream);
+                case PacketIds.TILEENTITY_UPDATE:
+                    ((TileEntitySynchronized) tileEntity).readDescriptionPacket(dataInputStream);
                     return;
                 case PacketIds.BLUEPRINT_LOAD:
-                    Blueprint blueprint = BlueprintList.blueprintListServer.getBlueprintList().get(dataInputStream.readInt());
+                    Blueprint blueprint = BlueprintList.serverInstance.getBlueprintList().get(dataInputStream.readInt());
                     ((IBlueprintProvider) tileEntity).loadBlueprint(blueprint);
                     
                     return;
                 case PacketIds.BLUEPRINT_SAVE:
-                    BlueprintList.blueprintListServer.saveBlueprint(
+                    BlueprintList.serverInstance.saveBlueprint(
                             (TileEntityBuildingHub) tileEntity,
                             (EntityPlayer) player,
                             dataInputStream.readUTF());
@@ -76,11 +82,11 @@ public class PacketHandler implements IPacketHandler {
                 case PacketIds.GAMEHUB_STOP:
                     ((TileEntityGameHub) tileEntity).stopGame(true);
                     return;
-                case PacketIds.GAMEHUB_UPDATE:
-                    ((TileEntityGameHub) tileEntity).onUpdatePacket(dataInputStream);
+                case PacketIds.PENALIZER_PENALIZE:
+                    ((TileEntityPenalizer) tileEntity).onPenalizePacket(dataInputStream);
                     return;
-                case PacketIds.TEAMHUB_UPDATE:
-                    ((TileEntityTeamHub) tileEntity).onUpdatePacket(dataInputStream);
+                case PacketIds.PROTECTOR_RADIUS_UPDATE:
+                    ((TileEntityProtector) tileEntity).setRadius(dataInputStream.readInt());
                     return;
                 }
             }

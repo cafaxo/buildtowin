@@ -1,4 +1,4 @@
-package buildtowin.network;
+package buildtowin.util;
 
 public interface IPlayerListProvider {
     

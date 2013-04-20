@@ -1,6 +1,5 @@
-package buildtowin.network;
+package buildtowin.util;
 
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -10,8 +9,6 @@ import java.util.HashMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
 
 public class PlayerList {
@@ -20,9 +17,9 @@ public class PlayerList {
     
     public static HashMap<String, TileEntity> playerToTileEntityMapClient = new HashMap<String, TileEntity>();
     
-    private ArrayList<String> connectedPlayers;
-    
     private TileEntity tileEntity;
+    
+    private ArrayList<String> connectedPlayers;
     
     public PlayerList(TileEntity tileEntity) {
         this.tileEntity = tileEntity;
@@ -30,20 +27,20 @@ public class PlayerList {
     }
     
     public boolean isPlayerConnected(EntityPlayer entityPlayer) {
-        return this.getPlayerToTileEntityMap(!entityPlayer.worldObj.isRemote).get(entityPlayer.username) == this.tileEntity;
+        return this.getPlayerToTileEntityMap(entityPlayer).get(entityPlayer.username) == this.tileEntity;
     }
     
     public void connectPlayer(EntityPlayer entityPlayer) {
         if (!this.connectedPlayers.contains(entityPlayer.username)) {
             this.connectedPlayers.add(entityPlayer.username);
-            this.getPlayerToTileEntityMap(!entityPlayer.worldObj.isRemote).put(entityPlayer.username, this.tileEntity);
+            this.getPlayerToTileEntityMap(entityPlayer).put(entityPlayer.username, this.tileEntity);
         }
     }
     
     public void disconnectPlayer(EntityPlayer entityPlayer) {
         if (this.connectedPlayers.contains(entityPlayer.username)) {
             this.connectedPlayers.remove(entityPlayer.username);
-            this.getPlayerToTileEntityMap(!entityPlayer.worldObj.isRemote).remove(entityPlayer.username);
+            this.getPlayerToTileEntityMap(entityPlayer).remove(entityPlayer.username);
         }
     }
     
@@ -64,32 +61,15 @@ public class PlayerList {
         }
     }
     
-    public Packet getUpdatePacket(int tileEntityX, int tileEntityY, int tileEntityZ) {
-        ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
-        DataOutputStream dataoutputstream = new DataOutputStream(bytearrayoutputstream);
+    public void writeDescriptionPacket(DataOutputStream dataOutputStream) throws IOException {
+        dataOutputStream.writeInt(this.connectedPlayers.size());
         
-        try {
-            dataoutputstream.writeInt(PacketIds.PLAYERLIST_UPDATE);
-            
-            dataoutputstream.writeInt(tileEntityX);
-            dataoutputstream.writeInt(tileEntityY);
-            dataoutputstream.writeInt(tileEntityZ);
-            
-            dataoutputstream.writeInt(this.connectedPlayers.size());
-            
-            for (String player : this.connectedPlayers) {
-                dataoutputstream.writeUTF(player);
-            }
-            
-            return new Packet250CustomPayload("btw", bytearrayoutputstream.toByteArray());
-        } catch (Exception exception) {
-            exception.printStackTrace();
+        for (String player : this.connectedPlayers) {
+            dataOutputStream.writeUTF(player);
         }
-        
-        return null;
     }
     
-    public void onUpdatePacket(DataInputStream dataInputStream) throws IOException {
+    public void readDescriptionPacket(DataInputStream dataInputStream) throws IOException {
         int size = dataInputStream.readInt();
         
         for (int i = 0; i < size; ++i) {
@@ -100,13 +80,13 @@ public class PlayerList {
     }
     
     public static TileEntity getTileEntity(EntityPlayer entityPlayer) {
-        TileEntity tileEntity = PlayerList.getPlayerToTileEntityMap(!entityPlayer.worldObj.isRemote).get(entityPlayer.username);
+        TileEntity tileEntity = PlayerList.getPlayerToTileEntityMap(entityPlayer).get(entityPlayer.username);
         
         if (tileEntity != null) {
             if (tileEntity == entityPlayer.worldObj.getBlockTileEntity(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord)) {
                 return tileEntity;
             } else {
-                PlayerList.getPlayerToTileEntityMap(!entityPlayer.worldObj.isRemote).remove(entityPlayer);
+                PlayerList.getPlayerToTileEntityMap(entityPlayer).remove(entityPlayer);
             }
         }
         
@@ -117,8 +97,8 @@ public class PlayerList {
         return connectedPlayers;
     }
     
-    public static HashMap<String, TileEntity> getPlayerToTileEntityMap(boolean onServer) {
-        if (!onServer) {
+    public static HashMap<String, TileEntity> getPlayerToTileEntityMap(EntityPlayer entityPlayer) {
+        if (entityPlayer.worldObj.isRemote) {
             return PlayerList.playerToTileEntityMapClient;
         } else {
             return PlayerList.playerToTileEntityMapServer;

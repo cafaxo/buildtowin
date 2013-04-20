@@ -24,7 +24,7 @@ public class BlockConnectionWire extends BlockContainer {
         this.setCreativeTab(BuildToWin.tabBuildToWin);
         this.setBlockUnbreakable();
         this.setResistance(6000000.0F);
-        this.setUnlocalizedName("Connection Wire");
+        this.setUnlocalizedName("connectionWire");
     }
     
     public void onBlockAdded(World par1World, int x, int y, int z) {
@@ -54,7 +54,9 @@ public class BlockConnectionWire extends BlockContainer {
     @Override
     @SideOnly(Side.CLIENT)
     public Icon getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side) {
-        if (blockAccess.getBlockMetadata(x, y, z) == 1) {
+        TileEntityConnectionWire wire = (TileEntityConnectionWire) blockAccess.getBlockTileEntity(x, y, z);
+        
+        if (wire.isActivated()) {
             return this.blockIcon;
         } else {
             return this.iconDisconnected;
@@ -62,7 +64,9 @@ public class BlockConnectionWire extends BlockContainer {
     }
     
     public void randomDisplayTick(World par1World, int x, int y, int z, Random par5Random) {
-        if (par1World.getBlockMetadata(x, y, z) == 1) {
+        TileEntityConnectionWire wire = (TileEntityConnectionWire) par1World.getBlockTileEntity(x, y, z);
+        
+        if (wire.isActivated()) {
             double d0 = (double) x + 0.5D + ((double) par5Random.nextFloat() - 0.5D) * 0.2D;
             double d1 = (double) ((float) y + 0.6625F);
             double d2 = (double) z + 0.5D + ((double) par5Random.nextFloat() - 0.5D) * 0.2D;
