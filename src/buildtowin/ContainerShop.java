@@ -46,13 +46,13 @@ public class ContainerShop extends Container {
             ItemStack itemstack1 = slot.getStack();
             itemstack = itemstack1.copy();
             
-            int price = PriceList.getInstance(par4EntityPlayer.worldObj).getPrice(itemstack1.getItem()) * itemstack1.stackSize;
+            int price = PriceList.getInstance(entityPlayer.worldObj).getPrice(itemstack1.getItem()) * itemstack1.stackSize;
             
             if (par1 < 3 * 9) {
                 if (teamHub.getEnergy() >= price) {
                     teamHub.setEnergy(teamHub.getEnergy() - price);
                     
-                    BuildToWin.printChatMessage(par4EntityPlayer, String.format("Bought %s * %d for %d energy points",
+                    BuildToWin.printChatMessage(entityPlayer, String.format("Bought %s * %d for %d coins",
                             itemstack1.getItem().getItemDisplayName(itemstack1),
                             itemstack1.stackSize,
                             price));
@@ -61,12 +61,12 @@ public class ContainerShop extends Container {
                         return null;
                     }
                 } else {
-                    BuildToWin.printChatMessage(par4EntityPlayer, "You do not have enough energy points");
+                    BuildToWin.printChatMessage(entityPlayer, "You do not have enough coins");
                 }
             } else {
                 teamHub.setEnergy(teamHub.getEnergy() + price);
                 
-                BuildToWin.printChatMessage(par4EntityPlayer, String.format("Sold %s * %d for %d energy points",
+                BuildToWin.printChatMessage(entityPlayer, String.format("Sold %s * %d for %d coins",
                         itemstack1.getItem().getItemDisplayName(itemstack1),
                         itemstack1.stackSize,
                         price));
