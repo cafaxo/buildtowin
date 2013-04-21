@@ -13,15 +13,15 @@ import cpw.mods.fml.common.network.PacketDispatcher;
 
 public abstract class TileEntitySynchronized extends TileEntity {
     
-    private short synchronizationTimer;
+    private int synchronizationTimer;
     
     public TileEntitySynchronized() {
         this.synchronizationTimer = 0;
     }
     
-    public abstract void readDescriptionPacket(DataInputStream dataInputStream) throws IOException;
-    
     public abstract boolean writeDescriptionPacket(DataOutputStream dataOutputStream) throws IOException;
+    
+    public abstract void readDescriptionPacket(DataInputStream dataInputStream) throws IOException;
     
     public final Packet getDescriptionPacket() {
         ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();

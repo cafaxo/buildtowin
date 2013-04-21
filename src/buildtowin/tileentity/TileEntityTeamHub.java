@@ -131,21 +131,21 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
     public boolean isValid() {
         return !this.isInvalid();
     }
-
+    
     @Override
     public void onPlayerConnected(EntityPlayer entityPlayer) {
         this.worldObj.markBlockForRenderUpdate(this.xCoord, this.yCoord, this.zCoord);
         
         BuildToWin.printChatMessage(entityPlayer, "Connected to Team Hub.");
     }
-
+    
     @Override
     public void onPlayerDisconnect(EntityPlayer entityPlayer) {
         this.worldObj.markBlockForRenderUpdate(this.xCoord, this.yCoord, this.zCoord);
         
         BuildToWin.printChatMessage(entityPlayer, "Disconnected from Team Hub.");
     }
-
+    
     @Override
     protected void onSynchronization() {
         this.penalizer = null;
@@ -216,7 +216,7 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
     
     @Override
     public void loadBlueprint(Blueprint blueprint) {
-        this.getBlueprint().loadBlueprint(blueprint.getBlocks());
+        this.getBlueprint().loadBlueprint(blueprint);
     }
     
     @Override

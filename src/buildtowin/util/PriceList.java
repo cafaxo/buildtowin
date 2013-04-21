@@ -67,8 +67,8 @@ public class PriceList {
         int priceCount = dataInputStream.readInt();
         
         for (int i = 0; i < priceCount; ++i) {
-            short id = dataInputStream.readShort();
-            short price = dataInputStream.readShort();
+            Short id = dataInputStream.readShort();
+            Short price = dataInputStream.readShort();
             
             this.priceMap.put(id, price);
         }

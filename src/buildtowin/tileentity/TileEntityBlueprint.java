@@ -22,7 +22,7 @@ public class TileEntityBlueprint extends TileEntity {
     
     private BlockData blockData;
     
-    private byte color = 0;
+    private int color = 0;
     
     public TileEntityBlueprint() {
         this.blockData = new BlockData(0, 0);
@@ -67,11 +67,11 @@ public class TileEntityBlueprint extends TileEntity {
         this.blockData = blockData;
     }
     
-    public byte getColor() {
+    public int getColor() {
         return this.color;
     }
     
-    public void setColor(byte color) {
+    public void setColor(int color) {
         this.color = color;
     }
     

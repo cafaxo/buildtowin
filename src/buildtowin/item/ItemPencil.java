@@ -21,6 +21,7 @@ public class ItemPencil extends Item {
         this.setCreativeTab(BuildToWin.tabBuildToWin);
     }
     
+    @Override
     public boolean onItemUseFirst(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ) {
         return true;
     }

@@ -48,6 +48,10 @@ public class ContainerShop extends Container {
             
             int price = PriceList.getInstance(entityPlayer.worldObj).getPrice(itemstack1.getItem()) * itemstack1.stackSize;
             
+            if (price == 0) {
+                return null;
+            }
+            
             if (par1 < 3 * 9) {
                 if (teamHub.getEnergy() >= price) {
                     teamHub.setEnergy(teamHub.getEnergy() - price);

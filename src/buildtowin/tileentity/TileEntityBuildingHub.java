@@ -67,37 +67,33 @@ public class TileEntityBuildingHub extends TileEntitySynchronized implements IPl
     public boolean isValid() {
         return !this.isInvalid();
     }
-
+    
     @Override
     public void onPlayerConnected(EntityPlayer entityPlayer) {
         this.worldObj.markBlockForRenderUpdate(this.xCoord, this.yCoord, this.zCoord);
         
         BuildToWin.printChatMessage(entityPlayer, "Connected to Building Hub.");
     }
-
+    
     @Override
     public void onPlayerDisconnect(EntityPlayer entityPlayer) {
         this.worldObj.markBlockForRenderUpdate(this.xCoord, this.yCoord, this.zCoord);
         
         BuildToWin.printChatMessage(entityPlayer, "Disconnected from Building Hub.");
     }
-
+    
     @Override
     public PlayerList getPlayerList() {
         return this.playerList;
     }
     
     public Blueprint getBlueprint() {
-        if (!this.worldObj.isRemote) {
-            return this.blueprint;
-        }
-        
-        return null;
+        return this.blueprint;
     }
     
     @Override
     public void loadBlueprint(Blueprint blueprint) {
-        this.getBlueprint().loadBlueprint(blueprint.getBlocks());
+        this.getBlueprint().loadBlueprint(blueprint);
     }
     
     public void validate() {

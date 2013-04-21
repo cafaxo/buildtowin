@@ -17,7 +17,7 @@ public class TileEntityConnectionWire extends TileEntitySynchronized {
     
     private boolean activated;
     
-    private short lastSignal;
+    private int lastSignal;
     
     public TileEntityConnectionWire() {
         this.surroundingTileEntities = new ArrayList<TileEntity>();
