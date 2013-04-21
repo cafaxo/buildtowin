@@ -110,7 +110,7 @@ public class PlayerList {
         PlayerList playerList = PlayerList.getPlayerToPlayerListMap(entityPlayer).get(entityPlayer.username);
         
         if (playerList != null) {
-            if (!IPlayerListProvider.class.isAssignableFrom(clazz)) {
+            if (!playerList.playerListProvider.getClass().isAssignableFrom(clazz)) {
                 return null;
             }
             
