@@ -1,8 +1,10 @@
 package buildtowin;
 
+import net.minecraft.entity.item.EntityXPOrb;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.packet.Packet15Place;
 import net.minecraftforge.event.ForgeSubscribe;
-import net.minecraftforge.event.entity.player.EntityXPOrbPickupEvent;
+import net.minecraftforge.event.entity.PlaySoundAtEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import buildtowin.item.ItemPencil;
@@ -79,11 +81,17 @@ public class EventHandler {
     }
     
     @ForgeSubscribe
-    public void onItemPickup(EntityXPOrbPickupEvent event) {
-        TileEntityTeamHub teamHub = (TileEntityTeamHub) PlayerList.getPlayerListProvider(event.entityPlayer, TileEntityTeamHub.class);
-        
-        if (teamHub != null) {
-            teamHub.setEnergy(teamHub.getEnergy() + event.xpValue);
+    public void onItemPickup(PlaySoundAtEntityEvent event) {
+        if (event.entity instanceof EntityXPOrb && !event.entity.worldObj.isRemote) {
+            EntityPlayer entityPlayer = event.entity.worldObj.getClosestVulnerablePlayerToEntity(event.entity, 6.0D);
+            
+            if (entityPlayer != null) {
+                TileEntityTeamHub teamHub = (TileEntityTeamHub) PlayerList.getPlayerListProvider(entityPlayer, TileEntityTeamHub.class);
+                
+                if (teamHub != null) {
+                    teamHub.setEnergy(teamHub.getEnergy() + 10);
+                }
+            }
         }
     }
 }
