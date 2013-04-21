@@ -357,10 +357,11 @@ public class BlueprintRenderer extends RenderBlocks implements ISimpleBlockRende
         tessellator.addVertexWithUV(d13, d14, d15, d4, d6);
         tessellator.addVertexWithUV(d12, d14, d15, d5, d7);
         tessellator.addVertexWithUV(d12, d14, d16, d9, d11);
-        int k1 = Direction.headInvisibleFace[i1];
+        
+        int k1 = Direction.directionToFacing[i1];
         
         if (flag) {
-            k1 = Direction.headInvisibleFace[Direction.footInvisibleFaceRemap[i1]];
+            k1 = Direction.directionToFacing[Direction.rotateOpposite[i1]];
         }
         
         byte b0 = 4;

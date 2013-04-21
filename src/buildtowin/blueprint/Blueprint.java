@@ -90,7 +90,7 @@ public class Blueprint {
     
     public void placeBlueprint(int x, int y, int z, BlockData blockData) {
         if (blockData.savedId != BuildToWin.buildingHub.blockID && blockData.savedId != BuildToWin.blueprint.blockID) {
-            if (blockData.savedId == Block.doorWood.blockID || blockData.savedId == Block.doorSteel.blockID) {
+            if (blockData.savedId == Block.doorWood.blockID || blockData.savedId == Block.doorIron.blockID) {
                 this.placeBlueprintDoor(x, y, z, blockData);
             } else if (blockData.savedId == Block.bed.blockID) {
                 this.placeBlueprintBed(x, y, z, blockData);
@@ -161,7 +161,7 @@ public class Blueprint {
         BlockData blockData = this.getBlockData(x, y, z);
         
         if (blockData != null) {
-            if (blockData.savedId == Block.doorWood.blockID || blockData.savedId == Block.doorSteel.blockID) {
+            if (blockData.savedId == Block.doorWood.blockID || blockData.savedId == Block.doorIron.blockID) {
                 this.removeBlueprintDoor(x, y, z, blockData, removeFromList);
             } else if (blockData.savedId == Block.bed.blockID) {
                 this.removeBlueprintBed(x, y, z, blockData, removeFromList);

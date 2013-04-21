@@ -67,11 +67,11 @@ public class ItemPencil extends Item {
     
     @Override
     @SideOnly(Side.CLIENT)
-    public void updateIcons(IconRegister par1IconRegister) {
+    public void registerIcons(IconRegister par1IconRegister) {
         if (this == BuildToWin.pencil) {
-            this.iconIndex = par1IconRegister.registerIcon("buildtowin:blueprinter");
+            this.itemIcon = par1IconRegister.registerIcon("buildtowin:blueprinter");
         } else {
-            this.iconIndex = par1IconRegister.registerIcon("buildtowin:blueprinter");
+            this.itemIcon = par1IconRegister.registerIcon("buildtowin:blueprinter");
         }
     }
 }
