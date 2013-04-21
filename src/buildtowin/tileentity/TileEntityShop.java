@@ -48,10 +48,14 @@ public class TileEntityShop extends TileEntitySynchronized implements IInventory
     @Override
     public ItemStack getStackInSlot(int slot) {
         if (this.teamHub != null) {
-            return this.teamHub.getGameHub().getShop().getContents()[slot];
-        } else {
-            return null;
+            if (this.teamHub.getGameHub() != null) {
+                if (this.teamHub.getGameHub().getShop() != null) {
+                    return this.teamHub.getGameHub().getShop().getContents()[slot];
+                }
+            }
         }
+        
+        return null;
     }
     
     @Override
@@ -67,13 +71,17 @@ public class TileEntityShop extends TileEntitySynchronized implements IInventory
     @Override
     public void setInventorySlotContents(int slot, ItemStack itemStack) {
         if (this.teamHub != null) {
-            this.teamHub.getGameHub().getShop().getContents()[slot] = itemStack;
-            
-            if (itemStack != null && itemStack.stackSize > this.getInventoryStackLimit()) {
-                itemStack.stackSize = this.getInventoryStackLimit();
+            if (this.teamHub.getGameHub() != null) {
+                if (this.teamHub.getGameHub().getShop() != null) {
+                    this.teamHub.getGameHub().getShop().getContents()[slot] = itemStack;
+                    
+                    if (itemStack != null && itemStack.stackSize > this.getInventoryStackLimit()) {
+                        itemStack.stackSize = this.getInventoryStackLimit();
+                    }
+                    
+                    this.onInventoryChanged();
+                }
             }
-            
-            this.onInventoryChanged();
         }
     }
     

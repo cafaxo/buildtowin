@@ -7,15 +7,18 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import buildtowin.tileentity.TileEntityShop;
 import buildtowin.tileentity.TileEntityTeamHub;
-import buildtowin.util.PlayerList;
 import buildtowin.util.PriceList;
 
 public class ContainerShop extends Container {
     
-    public ContainerShop(InventoryPlayer inventoryPlayer, TileEntityShop tileEntityShop) {
+    private TileEntityShop shop;
+    
+    public ContainerShop(InventoryPlayer inventoryPlayer, TileEntityShop shop) {
+        this.shop = shop;
+        
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 9; j++) {
-                this.addSlotToContainer(new Slot(tileEntityShop, j + i * 9, 8 + j * 18, 18 + i * 18));
+                this.addSlotToContainer(new Slot(shop, j + i * 9, 8 + j * 18, 18 + i * 18));
             }
         }
         
@@ -33,13 +36,18 @@ public class ContainerShop extends Container {
     }
     
     public ItemStack slotClick(int par1, int par2, int par3, EntityPlayer entityPlayer) {
-        TileEntityTeamHub teamHub = (TileEntityTeamHub) PlayerList.getPlayerListProvider(entityPlayer, TileEntityTeamHub.class);
+        if (par1 >= this.inventorySlots.size() || par1 < 0) {
+            return null;
+        }
+        
+        TileEntityTeamHub teamHub = this.shop.getTeamHub();
         
         if (teamHub == null) {
             return null;
         }
         
         ItemStack itemstack = null;
+        
         Slot slot = (Slot) this.inventorySlots.get(par1);
         
         if (slot != null && slot.getHasStack()) {
