@@ -9,14 +9,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 
 import net.minecraft.block.Block;
-import net.minecraft.item.Item;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
@@ -91,10 +89,10 @@ public class Blueprint {
     }
     
     public void placeBlueprint(int x, int y, int z, BlockData blockData) {
-        if (blockData.id != BuildToWin.buildingHub.blockID && blockData.id != BuildToWin.blueprint.blockID) {
-            if (blockData.id == Block.doorWood.blockID || blockData.id == Block.doorSteel.blockID) {
+        if (blockData.savedId != BuildToWin.buildingHub.blockID && blockData.savedId != BuildToWin.blueprint.blockID) {
+            if (blockData.savedId == Block.doorWood.blockID || blockData.savedId == Block.doorSteel.blockID) {
                 this.placeBlueprintDoor(x, y, z, blockData);
-            } else if (blockData.id == Block.bed.blockID) {
+            } else if (blockData.savedId == Block.bed.blockID) {
                 this.placeBlueprintBed(x, y, z, blockData);
             } else {
                 this.setBlockData(x, y, z, blockData);
@@ -118,14 +116,14 @@ public class Blueprint {
     }
     
     private void placeBlueprintDoor(int x, int y, int z, BlockData blockData) {
-        if (this.worldObj.getBlockId(x, y + 1, z) == blockData.id) {
+        if (this.worldObj.getBlockId(x, y + 1, z) == blockData.savedId) {
             int metadata = this.worldObj.getBlockMetadata(x, y + 1, z);
-            BlockData overCurrentData = new BlockData(blockData.id, metadata);
+            BlockData overCurrentData = new BlockData(blockData.savedId, metadata);
             
-            this.refreshBlueprint(x, y + 1, z, overCurrentData);
-        } else if (this.worldObj.getBlockId(x, y - 1, z) == blockData.id) {
+            this.setBlockData(x, y + 1, z, overCurrentData);
+        } else if (this.worldObj.getBlockId(x, y - 1, z) == blockData.savedId) {
             int metadata = this.worldObj.getBlockMetadata(x, y - 1, z);
-            BlockData underCurrentData = new BlockData(blockData.id, metadata);
+            BlockData underCurrentData = new BlockData(blockData.savedId, metadata);
             
             this.setBlockData(x, y - 1, z, underCurrentData);
         }
@@ -134,24 +132,24 @@ public class Blueprint {
     }
     
     private void placeBlueprintBed(int x, int y, int z, BlockData blockData) {
-        if (this.worldObj.getBlockId(x + 1, y, z) == blockData.id) {
+        if (this.worldObj.getBlockId(x + 1, y, z) == blockData.savedId) {
             int metadata = this.worldObj.getBlockMetadata(x + 1, y, z);
-            BlockData blockDataSecondPart = new BlockData(blockData.id, metadata);
+            BlockData blockDataSecondPart = new BlockData(blockData.savedId, metadata);
             
-        } else if (this.worldObj.getBlockId(x, y, z + 1) == blockData.id) {
             this.setBlockData(x + 1, y, z, blockDataSecondPart);
+        } else if (this.worldObj.getBlockId(x, y, z + 1) == blockData.savedId) {
             int metadata = this.worldObj.getBlockMetadata(x, y, z + 1);
-            BlockData blockDataSecondPart = new BlockData(blockData.id, metadata);
+            BlockData blockDataSecondPart = new BlockData(blockData.savedId, metadata);
             
-        } else if (this.worldObj.getBlockId(x - 1, y, z) == blockData.id) {
             this.setBlockData(x, y, z + 1, blockDataSecondPart);
+        } else if (this.worldObj.getBlockId(x - 1, y, z) == blockData.savedId) {
             int metadata = this.worldObj.getBlockMetadata(x - 1, y, z);
-            BlockData blockDataSecondPart = new BlockData(blockData.id, metadata);
+            BlockData blockDataSecondPart = new BlockData(blockData.savedId, metadata);
             
-        } else if (this.worldObj.getBlockId(x, y, z - 1) == blockData.id) {
             this.setBlockData(x - 1, y, z, blockDataSecondPart);
+        } else if (this.worldObj.getBlockId(x, y, z - 1) == blockData.savedId) {
             int metadata = this.worldObj.getBlockMetadata(x, y, z - 1);
-            BlockData blockDataSecondPart = new BlockData(blockData.id, metadata);
+            BlockData blockDataSecondPart = new BlockData(blockData.savedId, metadata);
             
             this.setBlockData(x, y, z - 1, blockDataSecondPart);
         }
@@ -163,9 +161,9 @@ public class Blueprint {
         BlockData blockData = this.getBlockData(x, y, z);
         
         if (blockData != null) {
-            if (blockData.id == Block.doorWood.blockID || blockData.id == Block.doorSteel.blockID) {
+            if (blockData.savedId == Block.doorWood.blockID || blockData.savedId == Block.doorSteel.blockID) {
                 this.removeBlueprintDoor(x, y, z, blockData, removeFromList);
-            } else if (blockData.id == Block.bed.blockID) {
+            } else if (blockData.savedId == Block.bed.blockID) {
                 this.removeBlueprintBed(x, y, z, blockData, removeFromList);
             } else {
                 this.removeBlueprintStandard(x, y, z, blockData, removeFromList);
@@ -174,7 +172,7 @@ public class Blueprint {
     }
     
     public void removeBlueprintStandard(int x, int y, int z, BlockData blockData, boolean removeFromList) {
-        this.worldObj.setBlock(x, y, z, blockData.id, blockData.metadata, 3);
+        this.worldObj.setBlock(x, y, z, blockData.savedId, blockData.savedMetadata, 3);
         
         if (removeFromList) {
             this.removeBlockData(x, y, z);
@@ -184,9 +182,9 @@ public class Blueprint {
     public void removeBlueprintDoor(int x, int y, int z, BlockData firstPart, boolean removeFromList) {
         BlockData secondPart = null;
         
-        if ((secondPart = this.getBlockData(x, y + 1, z)) != null && secondPart.id == firstPart.id) {
+        if ((secondPart = this.getBlockData(x, y + 1, z)) != null && secondPart.savedId == firstPart.savedId) {
             this.removeBlueprintStandard(x, y + 1, z, secondPart, removeFromList);
-        } else if ((secondPart = this.getBlockData(x, y - 1, z)) != null && secondPart.id == firstPart.id) {
+        } else if ((secondPart = this.getBlockData(x, y - 1, z)) != null && secondPart.savedId == firstPart.savedId) {
             this.removeBlueprintStandard(x, y - 1, z, secondPart, removeFromList);
         }
         
@@ -196,13 +194,13 @@ public class Blueprint {
     private void removeBlueprintBed(int x, int y, int z, BlockData firstPart, boolean removeFromList) {
         BlockData secondPart = null;
         
-        if ((secondPart = this.getBlockData(x + 1, y, z)) != null && secondPart.id == firstPart.id) {
+        if ((secondPart = this.getBlockData(x + 1, y, z)) != null && secondPart.savedId == firstPart.savedId) {
             this.removeBlueprintStandard(x + 1, y, z, secondPart, removeFromList);
-        } else if ((secondPart = this.getBlockData(x, y, z + 1)) != null && secondPart.id == firstPart.id) {
+        } else if ((secondPart = this.getBlockData(x, y, z + 1)) != null && secondPart.savedId == firstPart.savedId) {
             this.removeBlueprintStandard(x, y, z + 1, secondPart, removeFromList);
-        } else if ((secondPart = this.getBlockData(x - 1, y, z)) != null && secondPart.id == firstPart.id) {
+        } else if ((secondPart = this.getBlockData(x - 1, y, z)) != null && secondPart.savedId == firstPart.savedId) {
             this.removeBlueprintStandard(x - 1, y, z, secondPart, removeFromList);
-        } else if ((secondPart = this.getBlockData(x, y, z - 1)) != null && secondPart.id == firstPart.id) {
+        } else if ((secondPart = this.getBlockData(x, y, z - 1)) != null && secondPart.savedId == firstPart.savedId) {
             this.removeBlueprintStandard(x, y, z - 1, secondPart, removeFromList);
         }
         
@@ -270,7 +268,7 @@ public class Blueprint {
                     this.offsetY + blockCoordinates.y,
                     this.offsetZ + blockCoordinates.z);
             
-            if (realBlockId == blockData.id) {
+            if (realBlockId == blockData.savedId) {
                 ++finishedBlocks;
             } else if (realBlockId != BuildToWin.blueprint.blockID) {
                 this.setBlockData(
@@ -291,6 +289,7 @@ public class Blueprint {
             Map.Entry pairs = (Map.Entry) iter.next();
             Coordinates blockCoordinates = (Coordinates) pairs.getKey();
             BlockData blockData = (BlockData) pairs.getValue();
+            blockData.metadata = 0;
             
             this.setBlockData(
                     this.offsetX + blockCoordinates.x,
@@ -301,7 +300,7 @@ public class Blueprint {
     }
     
     public int[] encode() {
-        int data[] = new int[this.blocks.size() * 5];
+        int data[] = new int[this.blocks.size() * 6];
         
         Iterator iter = this.blocks.entrySet().iterator();
         int finishedBlocks = 0;
@@ -316,17 +315,18 @@ public class Blueprint {
             
             BlockData blockData = (BlockData) pairs.getValue();
             
-            data[i * 5 + 3] = blockData.id;
-            data[i * 5 + 4] = blockData.metadata;
+            data[i * 5 + 3] = blockData.metadata;
+            data[i * 5 + 4] = blockData.savedId;
+            data[i * 5 + 5] = blockData.savedMetadata;
         }
         
         return data;
     }
     
     public void decode(int data[]) {
-        for (int i = 0; i < data.length / 5; ++i) {
+        for (int i = 0; i < data.length / 6; ++i) {
             Coordinates blockCoordinates = new Coordinates(data[i * 5], data[i * 5 + 1], data[i * 5 + 2]);
-            BlockData blockData = new BlockData(data[i * 5 + 3], data[i * 5 + 4]);
+            BlockData blockData = new BlockData(data[i * 5 + 3], data[i * 5 + 4], data[i * 5 + 5]);
             
             this.blocks.put(blockCoordinates, blockData);
         }

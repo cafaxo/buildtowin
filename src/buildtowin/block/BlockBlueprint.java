@@ -6,6 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
@@ -48,10 +49,15 @@ public class BlockBlueprint extends BlockContainer {
         }
         
         if (entityPlayer.inventory.getCurrentItem() != null) {
-            if (entityPlayer.inventory.getCurrentItem().itemID == Block.blocksList[blockData.id].idDropped(0, new Random(), 0)) {
+            if (entityPlayer.inventory.getCurrentItem().itemID == Block.blocksList[blockData.savedId].idDropped(0, new Random(), 0)) {
+                if (blockData.metadata == 0) {
+                    entityPlayer.worldObj.spawnEntityInWorld(new EntityXPOrb(entityPlayer.worldObj, (double) x, (double) y, (double) z, 10));
+                    blockData.metadata = 1;
+                }
+                
                 teamHub.getBlueprint().removeBlueprint(x, y, z, false);
                 
-                entityPlayer.inventory.consumeInventoryItem(blockData.id);
+                entityPlayer.inventory.consumeInventoryItem(entityPlayer.inventory.getCurrentItem().itemID);
                 entityPlayer.inventoryContainer.detectAndSendChanges();
             }
         }

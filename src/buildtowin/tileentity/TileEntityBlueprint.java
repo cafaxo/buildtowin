@@ -32,17 +32,17 @@ public class TileEntityBlueprint extends TileEntity {
     public void writeToNBT(NBTTagCompound par1NBTTagCompound) {
         super.writeToNBT(par1NBTTagCompound);
         
-        par1NBTTagCompound.setInteger("blockid", this.blockData.id);
-        par1NBTTagCompound.setInteger("metadata", this.blockData.metadata);
-        par1NBTTagCompound.setByte("color", this.color);
+        par1NBTTagCompound.setInteger("blockid", this.blockData.savedId);
+        par1NBTTagCompound.setInteger("metadata", this.blockData.savedMetadata);
+        par1NBTTagCompound.setByte("color", (byte) this.color);
     }
     
     @Override
     public void readFromNBT(NBTTagCompound par1NBTTagCompound) {
         super.readFromNBT(par1NBTTagCompound);
         
-        this.blockData.id = par1NBTTagCompound.getInteger("blockid");
-        this.blockData.metadata = par1NBTTagCompound.getInteger("metadata");
+        this.blockData.savedId = par1NBTTagCompound.getInteger("blockid");
+        this.blockData.savedMetadata = par1NBTTagCompound.getInteger("metadata");
         this.color = par1NBTTagCompound.getByte("color");
     }
     

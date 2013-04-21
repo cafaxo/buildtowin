@@ -43,7 +43,7 @@ public class BlueprintRenderer extends RenderBlocks implements ISimpleBlockRende
         this.blue = TileEntityBlueprint.colors[existingColor * 4 + 2];
         this.alpha = TileEntityBlueprint.colors[existingColor * 4 + 3];
         
-        Block fakeBlock = Block.blocksList[blueprint.getBlockData().id];
+        Block fakeBlock = Block.blocksList[blueprint.getBlockData().savedId];
         
         if (fakeBlock != null) {
             if (fakeBlock.getRenderType() == 0) {

@@ -2,15 +2,23 @@ package buildtowin.blueprint;
 
 public class BlockData {
     
-    public int id, metadata;
+    public int metadata, savedId, savedMetadata;
     
-    public BlockData(int id, int metadata) {
-        this.id = id;
+    public BlockData(int savedId, int savedMetadata) {
+        this.metadata = 0;
+        this.savedId = savedId;
+        this.savedMetadata = savedMetadata;
+    }
+    
+    public BlockData(int metadata, int savedId, int savedMetadata) {
         this.metadata = metadata;
+        this.savedId = savedId;
+        this.savedMetadata = savedMetadata;
     }
     
     public BlockData(BlockData blockData) {
-        this.id = blockData.id;
         this.metadata = blockData.metadata;
+        this.savedId = blockData.savedId;
+        this.savedMetadata = blockData.savedMetadata;
     }
 }

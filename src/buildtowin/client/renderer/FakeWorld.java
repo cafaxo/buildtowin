@@ -21,7 +21,7 @@ public class FakeWorld implements IBlockAccess {
         BlockData blockData = TileEntityBlueprint.getBlockData(x, y, z);
         
         if (blockData != null) {
-            return blockData.id;
+            return blockData.savedId;
         }
         
         return this.world.getBlockId(x, y, z);
@@ -42,7 +42,7 @@ public class FakeWorld implements IBlockAccess {
         BlockData blockData = TileEntityBlueprint.getBlockData(x, y, z);
         
         if (blockData != null) {
-            return blockData.metadata;
+            return blockData.savedMetadata;
         }
         
         return this.world.getBlockMetadata(x, y, z);
