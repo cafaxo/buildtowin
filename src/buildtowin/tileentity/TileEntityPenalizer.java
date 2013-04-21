@@ -7,36 +7,64 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
-import net.minecraft.entity.EnumCreatureType;
-import net.minecraft.entity.effect.EntityLightningBolt;
-import net.minecraft.entity.monster.EntityCreeper;
-import net.minecraft.entity.monster.EntityMob;
-import net.minecraft.entity.monster.EntitySkeleton;
-import net.minecraft.entity.monster.EntityZombie;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.packet.Packet250CustomPayload;
-import net.minecraft.potion.Potion;
-import net.minecraft.potion.PotionEffect;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.SpawnerAnimals;
 import buildtowin.network.PacketIds;
-import buildtowin.util.Coordinates;
+import buildtowin.penalization.Penalization;
 import cpw.mods.fml.common.network.PacketDispatcher;
 
-public class TileEntityPenalizer extends TileEntity {
+public class TileEntityPenalizer extends TileEntitySynchronized {
     
     private TileEntityTeamHub teamHub;
     
-    private int type;
+    private Penalization activePenalization;
     
     private int strength;
     
-    private int timer;
+    private int repetitionsLeft;
+    
+    private int clientPrices[];
+    
+    private Random random;
     
     public TileEntityPenalizer() {
-        this.type = 0;
         this.strength = 0;
-        this.timer = 0;
+        this.repetitionsLeft = 0;
+        this.clientPrices = new int[Penalization.penalizationList.length];
+        this.random = new Random();
+    }
+    
+    @Override
+    public boolean writeDescriptionPacket(DataOutputStream dataOutputStream) throws IOException {
+        if (this.teamHub != null) {
+            dataOutputStream.writeInt(this.teamHub.xCoord);
+            dataOutputStream.writeInt(this.teamHub.yCoord);
+            dataOutputStream.writeInt(this.teamHub.zCoord);
+            
+            for (Penalization penalization : Penalization.penalizationList) {
+                dataOutputStream.writeInt(this.getPrice(penalization, 1));
+            }
+            
+            return true;
+        }
+        
+        return false;
+    }
+    
+    @Override
+    public void readDescriptionPacket(DataInputStream dataInputStream) throws IOException {
+        TileEntity tileEntity = this.worldObj.getBlockTileEntity(
+                dataInputStream.readInt(),
+                dataInputStream.readInt(),
+                dataInputStream.readInt());
+        
+        if (tileEntity instanceof TileEntityTeamHub) {
+            this.teamHub = (TileEntityTeamHub) tileEntity;
+        }
+        
+        for (int i = 0; i < Penalization.penalizationList.length; ++i) {
+            this.clientPrices[i] = dataInputStream.readInt();
+        }
     }
     
     public void sendPenalizePacket(int type, int strength) {
@@ -60,14 +88,47 @@ public class TileEntityPenalizer extends TileEntity {
     }
     
     public void onPenalizePacket(DataInputStream dataInputStream) throws IOException {
-        int type = dataInputStream.readInt();
-        int strength = dataInputStream.readInt();
-        
-        if (this.teamHub.getEnergy() < 20) {
+        if (this.teamHub == null) {
             return;
         }
         
-        this.teamHub.setEnergy(this.teamHub.getEnergy() - 20);
+        int type = dataInputStream.readInt();
+        int strength = dataInputStream.readInt();
+        
+        this.penalizeOtherTeams(type, strength);
+    }
+    
+    @Override
+    public void updateEntity() {
+        if (!this.worldObj.isRemote) {
+            if (this.activePenalization != null && this.repetitionsLeft > 0) {
+                if (this.random.nextInt(this.activePenalization.getChance(this.teamHub, this.strength)) == 0) {
+                    this.activePenalization.penalize(this.teamHub, this.strength);
+                    --this.repetitionsLeft;
+                }
+            }
+        }
+        
+        super.updateEntity();
+    }
+    
+    private void penalizeOtherTeams(int type, int strength) {
+        Penalization penalization = null;
+        
+        try {
+            penalization = Penalization.penalizationList[type];
+        } catch (ArrayIndexOutOfBoundsException exception) {
+            exception.printStackTrace();
+            return;
+        }
+        
+        int price = this.getPrice(penalization, strength);
+        
+        if (this.teamHub.getEnergy() < price) {
+            return;
+        }
+        
+        this.teamHub.setEnergy(this.teamHub.getEnergy() - price);
         
         ArrayList<TileEntityTeamHub> teamHubs = this.teamHub.getGameHub().getConnectedTeamHubs();
         
@@ -75,121 +136,37 @@ public class TileEntityPenalizer extends TileEntity {
             if (teamHub != this.teamHub) {
                 TileEntityPenalizer penalizer = teamHub.getPenalizer();
                 
-                penalizer.type = type;
-                penalizer.strength = strength;
-                penalizer.penalize();
-            }
-        }
-    }
-    
-    @Override
-    public void updateEntity() {
-        if (!this.worldObj.isRemote) {
-            if (this.timer > 0) {
-                if (this.timer % (50 - this.strength * 10) == 0) {
-                    this.penalize();
-                }
-                
-                --this.timer;
-            }
-        }
-    }
-    
-    private void penalize() {
-        switch (this.type) {
-        case 0:
-            this.penalizeWithLightning();
-            break;
-        case 1:
-            this.penalizeWithMonsters();
-            break;
-        case 2:
-            this.penalizeWithPoison();
-            break;
-        }
-    }
-    
-    private void penalizeWithPoison() {
-        Random rand = new Random();
-        
-        for (String player : this.teamHub.getPlayerList().getConnectedPlayers()) {
-            EntityPlayer entityPlayer = null;
-            
-            if ((entityPlayer = this.worldObj.getPlayerEntityByName(player)) != null) {
-                entityPlayer.addPotionEffect(new PotionEffect(Potion.poison.getId(), 100, 0));
-            }
-        }
-    }
-    
-    private void penalizeWithLightning() {
-        if (this.timer == 0) {
-            this.timer = this.strength * 400;
-        }
-        
-        Coordinates randCoords = this.teamHub.getBlueprint().getRandomBlueprint();
-        
-        this.worldObj.addWeatherEffect(new EntityLightningBolt(
-                this.worldObj,
-                (double) randCoords.x,
-                (double) randCoords.y,
-                (double) randCoords.z));
-        
-        for (int x = 0; x < 4; ++x) {
-            for (int y = 0; y < 4; ++y) {
-                for (int z = 0; z < 4; ++z) {
-                    if (this.teamHub.getBlueprint().getBlockData(randCoords.x + x - 2, randCoords.y + y - 2, randCoords.z + z - 2) != null) {
-                        this.worldObj.destroyBlock(randCoords.x + x - 2, randCoords.y + y - 2, randCoords.z + z - 2, false);
-                    }
+                if (penalizer != null) {
+                    penalizer.penalize(penalization, strength);
                 }
             }
         }
     }
     
-    private void penalizeWithMonsters() {
-        Random rand = new Random();
+    private void penalize(Penalization penalization, int strength) {
+        this.activePenalization = penalization;
+        this.strength = strength;
+        this.repetitionsLeft = penalization.getRepetitions(this.teamHub, strength);
+    }
+    
+    public int getPrice(Penalization penalization, int strength) {
+        int price = 0;
         
-        for (String player : this.teamHub.getPlayerList().getConnectedPlayers()) {
-            EntityPlayer entityPlayer = null;
-            
-            if ((entityPlayer = this.worldObj.getPlayerEntityByName(player)) != null) {
-                
-                int spawnX = (int) (entityPlayer.posX + rand.nextInt(12) - 6);
-                int spawnY = (int) Math.round(entityPlayer.posY);
-                int spawnZ = (int) (entityPlayer.posZ + rand.nextInt(12) - 6);
-                
-                if (SpawnerAnimals.canCreatureTypeSpawnAtLocation(
-                        EnumCreatureType.monster,
-                        this.worldObj,
-                        spawnX,
-                        spawnY,
-                        spawnZ)) {
-                    
-                    EntityMob randomMob = null;
-                    
-                    switch (rand.nextInt(3)) {
-                    case 0:
-                        EntityZombie zombie = new EntityZombie(this.worldObj);
-                        zombie.initCreature();
-                        zombie.setVillager(false);
-                        randomMob = zombie;
-                        break;
-                    case 1:
-                        EntityCreeper creeper = new EntityCreeper(this.worldObj);
-                        creeper.initCreature();
-                        randomMob = creeper;
-                        break;
-                    case 2:
-                        EntitySkeleton skeleton = new EntitySkeleton(this.worldObj);
-                        skeleton.initCreature();
-                        randomMob = skeleton;
-                        break;
-                    }
-                    
-                    randomMob.setLocationAndAngles(spawnX, spawnY, spawnZ, this.worldObj.rand.nextFloat() * 360.0F, 0.0F);
-                    this.worldObj.spawnEntityInWorld(randomMob);
-                }
+        if (this.teamHub == null || this.teamHub.getGameHub() == null) {
+            return 0;
+        }
+        
+        for (TileEntityTeamHub teamHub : this.teamHub.getGameHub().getConnectedTeamHubs()) {
+            if (teamHub != this.teamHub) {
+                price += penalization.getPrice(teamHub, strength);
             }
         }
+        
+        return price;
+    }
+    
+    public int getPriceClient(Penalization penalization, int strength) {
+        return this.clientPrices[penalization.penalizationId];
     }
     
     public TileEntityTeamHub getTeamHub() {

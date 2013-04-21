@@ -11,6 +11,7 @@ import net.minecraft.util.EnumChatFormatting;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
+import buildtowin.penalization.Penalization;
 import buildtowin.tileentity.TileEntityPenalizer;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -35,15 +36,15 @@ public class GuiScreenPenalizer extends GuiScreen {
         this.buttonList.clear();
         
         this.lightning = new GuiButton(1, this.width / 2 - 45, this.height / 2 - 30, 90, 20, "Lightning");
-        this.lightning.enabled = penalizer.getTeamHub() != null && penalizer.getTeamHub().getEnergy() >= 20;
+        this.lightning.enabled = this.penalizer.getTeamHub() != null && this.penalizer.getTeamHub().getEnergy() >= this.penalizer.getPriceClient(Penalization.lightning, 1);
         this.buttonList.add(lightning);
         
         this.monsters = new GuiButton(2, this.width / 2 - 45, this.height / 2, 90, 20, "Monsters");
-        this.monsters.enabled = penalizer.getTeamHub() != null && penalizer.getTeamHub().getEnergy() >= 20;
+        this.monsters.enabled = this.penalizer.getTeamHub() != null && this.penalizer.getTeamHub().getEnergy() >= this.penalizer.getPriceClient(Penalization.monsters, 1);
         this.buttonList.add(monsters);
         
         this.poison = new GuiButton(3, this.width / 2 - 45, this.height / 2 + 30, 90, 20, "Poison");
-        this.poison.enabled = penalizer.getTeamHub() != null && penalizer.getTeamHub().getEnergy() >= 20;
+        this.poison.enabled = this.penalizer.getTeamHub() != null && this.penalizer.getTeamHub().getEnergy() >= this.penalizer.getPriceClient(Penalization.poison, 1);
         this.buttonList.add(poison);
     }
     
@@ -78,19 +79,19 @@ public class GuiScreenPenalizer extends GuiScreen {
         
         if (this.lightning.func_82252_a()) {
             ArrayList<String> list = new ArrayList<String>();
-            list.add(EnumChatFormatting.AQUA + "20 coins");
+            list.add(EnumChatFormatting.AQUA + ((Integer) this.penalizer.getPriceClient(Penalization.lightning, 1)).toString() + " coins");
             this.renderTooltip(list, par1, par2);
         }
         
         if (this.monsters.func_82252_a()) {
             ArrayList<String> list = new ArrayList<String>();
-            list.add(EnumChatFormatting.AQUA + "20 coins");
+            list.add(EnumChatFormatting.AQUA + ((Integer) this.penalizer.getPriceClient(Penalization.monsters, 1)).toString() + " coins");
             this.renderTooltip(list, par1, par2);
         }
         
         if (this.poison.func_82252_a()) {
             ArrayList<String> list = new ArrayList<String>();
-            list.add(EnumChatFormatting.AQUA + "20 coins");
+            list.add(EnumChatFormatting.AQUA + ((Integer) this.penalizer.getPriceClient(Penalization.poison, 1)).toString() + " coins");
             this.renderTooltip(list, par1, par2);
         }
     }
