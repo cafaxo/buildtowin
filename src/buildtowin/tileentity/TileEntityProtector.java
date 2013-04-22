@@ -8,8 +8,6 @@ import net.minecraft.nbt.NBTTagCompound;
 
 public class TileEntityProtector extends TileEntitySynchronized {
     
-    private TileEntityTeamHub teamHub;
-    
     private int radius;
     
     public TileEntityProtector() {
