@@ -94,6 +94,7 @@ public class TileEntityBuildingHub extends TileEntitySynchronized implements IPl
     @Override
     public void loadBlueprint(Blueprint blueprint) {
         this.getBlueprint().loadBlueprint(blueprint);
+        this.getBlueprint().reset();
     }
     
     public void validate() {
