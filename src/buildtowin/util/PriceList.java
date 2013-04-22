@@ -115,10 +115,16 @@ public class PriceList {
             while (line != null) {
                 String splitLine[] = line.split(":");
                 
-                Short id = Short.parseShort(splitLine[0]);
-                Short price = Short.parseShort(splitLine[2]);
-                
-                this.priceMap.put(id, price);
+                if (splitLine.length == 3) {
+                    try {
+                        Short id = Short.parseShort(splitLine[0]);
+                        Short price = Short.parseShort(splitLine[2]);
+                        
+                        this.priceMap.put(id, price);
+                    } catch (NumberFormatException e) {
+                        e.printStackTrace();
+                    }
+                }
                 
                 line = bufferedReader.readLine();
             }
