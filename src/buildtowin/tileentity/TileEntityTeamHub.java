@@ -255,10 +255,18 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
     }
     
     public void sendLoseMessage(int ranking) {
-        if (this.playerList.getConnectedPlayers().size() > 1) {
-            this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Your Team Reached The " + ranking + ". Place."));
+        if (this.gameHub.getConnectedTeamHubs().size() > 2){
+            if (this.playerList.getConnectedPlayers().size() > 1) {
+                this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Your team reached the " + ranking + ". place."));
+            } else {
+                this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> You reached the " + ranking + ". place."));
+            }
         } else {
-            this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> You Reached The " + ranking + ". Place."));
+            if (this.playerList.getConnectedPlayers().size() > 1) {
+                this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Your team lost!"));
+            } else {
+                this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> You lost!"));
+            }
         }
         
         ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
