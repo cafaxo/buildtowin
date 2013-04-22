@@ -26,6 +26,7 @@ import buildtowin.tileentity.TileEntityProtector;
 import buildtowin.tileentity.TileEntityShop;
 import buildtowin.tileentity.TileEntityTeamChest;
 import buildtowin.tileentity.TileEntityTeamHub;
+import buildtowin.util.PriceList;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Init;
@@ -85,6 +86,7 @@ public class BuildToWin {
     
     @PreInit
     public void preInit(FMLPreInitializationEvent event) {
+        PriceList.serverInstance.init(event.getModConfigurationDirectory());
     }
     
     @Init

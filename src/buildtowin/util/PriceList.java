@@ -6,8 +6,10 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +37,41 @@ public class PriceList {
     
     public PriceList() {
         this.priceMap = new HashMap<Short, Short>();
+    }
+    
+    public void init(File modConfigurationDirectory) {
+        File file = new File(modConfigurationDirectory, "buildtowin_pricelist.conf");
+        
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            
+            InputStream inputStream = PriceList.class.getResourceAsStream("/mods/buildtowin/pricelist.conf");
+            FileOutputStream fileOutputStream;
+            
+            try {
+                fileOutputStream = new FileOutputStream(file);
+                
+                int numRead;
+                byte buf[] = new byte[1024];
+                
+                while ((numRead = inputStream.read(buf)) >= 0) {
+                    fileOutputStream.write(buf, 0, numRead);
+                }
+                
+                inputStream.close();
+                fileOutputStream.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        
+        this.read(file);
     }
     
     public Packet250CustomPayload getDescriptionPacket() {
@@ -94,22 +131,9 @@ public class PriceList {
         }
     }
     
-    public void readFile(File file) {
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-                this.writeFile(file);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            
-            return;
-        }
-        
-        BufferedReader bufferedReader = null;
-        
+    public void read(File file) {
         try {
-            bufferedReader = new BufferedReader(new FileReader(file));
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
             String line = bufferedReader.readLine();
             
             while (line != null) {
@@ -130,6 +154,8 @@ public class PriceList {
             }
             
             bufferedReader.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
