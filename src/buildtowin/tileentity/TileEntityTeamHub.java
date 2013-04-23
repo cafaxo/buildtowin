@@ -253,7 +253,7 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
     }
     
     public void sendLoseMessage(int ranking) {
-        if (this.gameHub.getConnectedTeamHubs().size() > 2){
+        if (this.gameHub.getConnectedTeamHubs().size() > 2) {
             if (this.playerList.getConnectedPlayers().size() > 1) {
                 this.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> Your team reached the " + ranking + ". place."));
             } else {
