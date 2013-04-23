@@ -43,7 +43,7 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
     private int totalBlockCount;
     
     public TileEntityTeamHub() {
-        super(new Class[] { TileEntityGameHub.class, TileEntityPenalizer.class, TileEntityProtector.class, TileEntityShop.class });
+        super(new Class[] { TileEntityGameHub.class, TileEntityPenalizer.class, TileEntityProtector.class });
         
         this.playerList = new PlayerList(this);
         this.blueprint = new Blueprint();
@@ -164,8 +164,6 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
             this.penalizer = penalizer;
         } else if (tileEntity instanceof TileEntityProtector) {
             this.protector = (TileEntityProtector) tileEntity;
-        } else if (tileEntity instanceof TileEntityShop) {
-            ((TileEntityShop) tileEntity).setTeamHub(this);
         }
     }
     

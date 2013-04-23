@@ -5,27 +5,35 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import buildtowin.ContainerShop;
 import buildtowin.tileentity.TileEntityShop;
+import buildtowin.tileentity.TileEntityTeamHub;
+import buildtowin.util.PlayerList;
 import cpw.mods.fml.common.network.IGuiHandler;
 
 public class GuiHandlerShop implements IGuiHandler {
     
     @Override
-    public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
+    public Object getServerGuiElement(int ID, EntityPlayer entityPlayer, World world, int x, int y, int z) {
         TileEntity tileEntity = world.getBlockTileEntity(x, y, z);
         
         if (tileEntity instanceof TileEntityShop) {
-            return new ContainerShop(player.inventory, (TileEntityShop) tileEntity);
+            TileEntityShop shop = (TileEntityShop) tileEntity;
+            shop.setTeamHub((TileEntityTeamHub) PlayerList.getPlayerListProvider(entityPlayer, TileEntityTeamHub.class));
+            
+            return new ContainerShop(entityPlayer.inventory, shop);
         }
         
         return null;
     }
     
     @Override
-    public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
+    public Object getClientGuiElement(int ID, EntityPlayer entityPlayer, World world, int x, int y, int z) {
         TileEntity tileEntity = world.getBlockTileEntity(x, y, z);
         
         if (tileEntity instanceof TileEntityShop) {
-            return new GuiContainerShop(player.inventory, (TileEntityShop) tileEntity);
+            TileEntityShop shop = (TileEntityShop) tileEntity;
+            shop.setTeamHub((TileEntityTeamHub) PlayerList.getPlayerListProvider(entityPlayer, TileEntityTeamHub.class));
+            
+            return new GuiContainerShop(entityPlayer.inventory, shop);
         }
         
         return null;

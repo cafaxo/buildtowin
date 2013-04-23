@@ -139,7 +139,6 @@ public class TileEntityConnectionWire extends TileEntitySynchronized {
                 || blockId == BuildToWin.teamHub.blockID
                 || blockId == BuildToWin.gameHub.blockID
                 || blockId == BuildToWin.penalizer.blockID
-                || blockId == BuildToWin.protector.blockID
-                || blockId == BuildToWin.shop.blockID;
+                || blockId == BuildToWin.protector.blockID;
     }
 }
