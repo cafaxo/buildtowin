@@ -35,15 +35,15 @@ public class GuiScreenPenalizer extends GuiScreen {
     public void initGui() {
         this.buttonList.clear();
         
-        this.lightning = new GuiButton(1, this.width / 2 - 45, this.height / 2 - 30, 90, 20, "Lightning");
+        this.lightning = new GuiButton(1, this.width / 2 - 45, this.height / 2 - 30 - 5, 90, 20, "Lightning");
         this.lightning.enabled = this.penalizer.getTeamHub() != null && this.penalizer.getTeamHub().getEnergy() >= this.penalizer.getPriceClient(Penalization.lightning, 1);
         this.buttonList.add(lightning);
         
-        this.monsters = new GuiButton(2, this.width / 2 - 45, this.height / 2, 90, 20, "Monsters");
+        this.monsters = new GuiButton(2, this.width / 2 - 45, this.height / 2 - 5, 90, 20, "Monsters");
         this.monsters.enabled = this.penalizer.getTeamHub() != null && this.penalizer.getTeamHub().getEnergy() >= this.penalizer.getPriceClient(Penalization.monsters, 1);
         this.buttonList.add(monsters);
         
-        this.poison = new GuiButton(3, this.width / 2 - 45, this.height / 2 + 30, 90, 20, "Poison");
+        this.poison = new GuiButton(3, this.width / 2 - 45, this.height / 2 + 30 - 5, 90, 20, "Poison");
         this.poison.enabled = this.penalizer.getTeamHub() != null && this.penalizer.getTeamHub().getEnergy() >= this.penalizer.getPriceClient(Penalization.poison, 1);
         this.buttonList.add(poison);
     }
@@ -67,7 +67,7 @@ public class GuiScreenPenalizer extends GuiScreen {
         this.drawGradientRect(0, 0, this.width, this.height, -1072689136, -804253680);
         
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        this.mc.renderEngine.bindTexture("/mods/buildtowin/textures/gui/gamehub.png");
+        this.mc.renderEngine.bindTexture("/mods/buildtowin/textures/gui/penalizer.png");
         
         int x = (this.width - 170) / 2;
         int y = (this.height - 150) / 2 - 32;

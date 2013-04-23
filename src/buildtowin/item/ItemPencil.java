@@ -69,9 +69,9 @@ public class ItemPencil extends Item {
     @SideOnly(Side.CLIENT)
     public void registerIcons(IconRegister par1IconRegister) {
         if (this == BuildToWin.pencil) {
-            this.itemIcon = par1IconRegister.registerIcon("buildtowin:blueprinter");
+            this.itemIcon = par1IconRegister.registerIcon("buildtowin:pencil");
         } else {
-            this.itemIcon = par1IconRegister.registerIcon("buildtowin:blueprinter");
+            this.itemIcon = par1IconRegister.registerIcon("buildtowin:rubber");
         }
     }
 }

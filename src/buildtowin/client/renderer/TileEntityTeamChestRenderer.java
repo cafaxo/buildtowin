@@ -45,7 +45,7 @@ public class TileEntityTeamChestRenderer extends TileEntitySpecialRenderer {
         if (par1TileEntityChest.adjacentChestZNeg == null && par1TileEntityChest.adjacentChestXNeg == null) {
             ModelChest modelchest = this.chestModel;
             
-            this.bindTextureByName("/mods/buildtowin/textures/blocks/chest.png");
+            this.bindTextureByName("/mods/buildtowin/textures/blocks/team_chest.png");
             
             GL11.glPushMatrix();
             GL11.glEnable(GL12.GL_RESCALE_NORMAL);

@@ -42,15 +42,9 @@ public class GuiContainerShop extends GuiContainer {
     }
     
     @Override
-    protected void drawGuiContainerForegroundLayer(int param1, int param2) {
-        this.fontRenderer.drawString("Shop", 8, 6, 4210752);
-        this.fontRenderer.drawString("Inventory", 8, this.ySize - 96 + 2, 4210752);
-    }
-    
-    @Override
     protected void drawGuiContainerBackgroundLayer(float par1, int par2, int par3) {
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        this.mc.renderEngine.bindTexture("/gui/container.png");
+        this.mc.renderEngine.bindTexture("/mods/buildtowin/textures/gui/shop.png");
         
         int x = (width - xSize) / 2;
         int y = (height - ySize) / 2;

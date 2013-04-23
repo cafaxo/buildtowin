@@ -48,6 +48,6 @@ public class BlockPenalizer extends BlockContainer {
     @Override
     @SideOnly(Side.CLIENT)
     public void registerIcons(IconRegister par1IconRegister) {
-        this.blockIcon = par1IconRegister.registerIcon("buildtowin:buildinghub_connected");
+        this.blockIcon = par1IconRegister.registerIcon("buildtowin:penalizer");
     }
 }
