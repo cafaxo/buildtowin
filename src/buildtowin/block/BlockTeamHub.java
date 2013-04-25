@@ -10,13 +10,17 @@ import net.minecraft.util.Icon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import buildtowin.BuildToWin;
+import buildtowin.client.renderer.IColoredBlock;
 import buildtowin.tileentity.TileEntityTeamHub;
+import buildtowin.util.Color;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class BlockTeamHub extends BlockContainer {
+public class BlockTeamHub extends BlockContainer implements IColoredBlock {
     
-    private Icon iconDisconnected;
+    private Icon blockIconStandard;
+    
+    private Icon blockIconOverlay;
     
     public BlockTeamHub(int blockId) {
         super(blockId, Material.rock);
@@ -45,18 +49,6 @@ public class BlockTeamHub extends BlockContainer {
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public Icon getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side) {
-        TileEntityTeamHub teamHub = (TileEntityTeamHub) blockAccess.getBlockTileEntity(x, y, z);
-        
-        if (teamHub.getPlayerList().isPlayerConnected(Minecraft.getMinecraft().thePlayer)) {
-            return this.blockIcon;
-        } else {
-            return this.iconDisconnected;
-        }
-    }
-    
-    @Override
     public TileEntity createNewTileEntity(World world) {
         return new TileEntityTeamHub();
     }
@@ -64,7 +56,35 @@ public class BlockTeamHub extends BlockContainer {
     @Override
     @SideOnly(Side.CLIENT)
     public void registerIcons(IconRegister par1IconRegister) {
-        this.blockIcon = par1IconRegister.registerIcon("buildtowin:teamhub_connected");
-        this.iconDisconnected = par1IconRegister.registerIcon("buildtowin:teamhub_disconnected");
+        this.blockIcon = par1IconRegister.registerIcon("buildtowin:teamhub");
+        this.blockIconStandard = par1IconRegister.registerIcon("buildtowin:teamhub");
+        this.blockIconOverlay = par1IconRegister.registerIcon("buildtowin:teamhub_overlay");
+    }
+    
+    @Override
+    public int getRenderType() {
+        return BuildToWin.coloredBlockRenderId;
+    }
+    
+    @Override
+    public void switchIconToOverlay() {
+        this.blockIcon = this.blockIconOverlay;
+    }
+    
+    @Override
+    public void switchIconToStandard() {
+        this.blockIcon = this.blockIconStandard;
+        
+    }
+    
+    @Override
+    public Color getColor(IBlockAccess world, int x, int y, int z) {
+        TileEntityTeamHub teamHub = (TileEntityTeamHub) world.getBlockTileEntity(x, y, z);
+        
+        if (teamHub.getPlayerList().isPlayerConnected(Minecraft.getMinecraft().thePlayer)) {
+            return teamHub.getColor();
+        } else {
+            return new Color(teamHub.getColor().r * 0.5F, teamHub.getColor().g * 0.5F, teamHub.getColor().b * 0.5F);
+        }
     }
 }

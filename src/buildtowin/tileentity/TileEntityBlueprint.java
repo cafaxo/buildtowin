@@ -6,22 +6,18 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.Packet132TileEntityData;
 import net.minecraft.tileentity.TileEntity;
 import buildtowin.blueprint.BlockData;
+import buildtowin.util.Color;
 
 public class TileEntityBlueprint extends TileEntity {
     
-    
-    public static final float colors[] = new float[] {
-            0.3F, 0.3F, 1.0F, 0.7F,
-            1.0F, 0.3F, 0.3F, 0.7F,
-            0.3F, 1.0F, 0.3F, 0.7F,
-    };
-    
     private BlockData blockData;
     
-    private int color = 0;
+    private Color color;
     
     public TileEntityBlueprint() {
         this.blockData = new BlockData(0, 0);
+        this.color = new Color(0.F, 0.F, 0.F);
+        this.color.setFromId(0);
     }
     
     @Override
@@ -30,7 +26,7 @@ public class TileEntityBlueprint extends TileEntity {
         
         par1NBTTagCompound.setInteger("blockid", this.blockData.savedId);
         par1NBTTagCompound.setInteger("metadata", this.blockData.savedMetadata);
-        par1NBTTagCompound.setByte("color", (byte) this.color);
+        par1NBTTagCompound.setInteger("color", this.color.id);
     }
     
     @Override
@@ -39,7 +35,7 @@ public class TileEntityBlueprint extends TileEntity {
         
         this.blockData.savedId = par1NBTTagCompound.getInteger("blockid");
         this.blockData.savedMetadata = par1NBTTagCompound.getInteger("metadata");
-        this.color = par1NBTTagCompound.getByte("color");
+        this.color.setFromId(par1NBTTagCompound.getInteger("color"));
     }
     
     @Override
@@ -63,11 +59,11 @@ public class TileEntityBlueprint extends TileEntity {
         this.blockData = blockData;
     }
     
-    public int getColor() {
+    public Color getColor() {
         return this.color;
     }
     
-    public void setColor(int color) {
+    public void setColor(Color color) {
         this.color = color;
     }
 }

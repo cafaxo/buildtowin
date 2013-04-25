@@ -8,14 +8,11 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import net.minecraft.network.packet.Packet250CustomPayload;
-import net.minecraft.tileentity.TileEntity;
 import buildtowin.network.PacketIds;
 import buildtowin.penalization.Penalization;
 import cpw.mods.fml.common.network.PacketDispatcher;
 
-public class TileEntityPenalizer extends TileEntitySynchronized {
-    
-    private TileEntityTeamHub teamHub;
+public class TileEntityPenalizer extends TileEntityTeamHubExtension {
     
     private Penalization activePenalization;
     
@@ -36,11 +33,7 @@ public class TileEntityPenalizer extends TileEntitySynchronized {
     
     @Override
     public boolean writeDescriptionPacket(DataOutputStream dataOutputStream) throws IOException {
-        if (this.teamHub != null) {
-            dataOutputStream.writeInt(this.teamHub.xCoord);
-            dataOutputStream.writeInt(this.teamHub.yCoord);
-            dataOutputStream.writeInt(this.teamHub.zCoord);
-            
+        if (super.writeDescriptionPacket(dataOutputStream)) {
             for (Penalization penalization : Penalization.penalizationList) {
                 dataOutputStream.writeInt(this.getPrice(penalization, 1));
             }
@@ -53,14 +46,7 @@ public class TileEntityPenalizer extends TileEntitySynchronized {
     
     @Override
     public void readDescriptionPacket(DataInputStream dataInputStream) throws IOException {
-        TileEntity tileEntity = this.worldObj.getBlockTileEntity(
-                dataInputStream.readInt(),
-                dataInputStream.readInt(),
-                dataInputStream.readInt());
-        
-        if (tileEntity instanceof TileEntityTeamHub) {
-            this.teamHub = (TileEntityTeamHub) tileEntity;
-        }
+        super.readDescriptionPacket(dataInputStream);
         
         for (int i = 0; i < Penalization.penalizationList.length; ++i) {
             this.clientPrices[i] = dataInputStream.readInt();
@@ -88,7 +74,7 @@ public class TileEntityPenalizer extends TileEntitySynchronized {
     }
     
     public void onPenalizePacket(DataInputStream dataInputStream) throws IOException {
-        if (this.teamHub == null) {
+        if (this.getTeamHub() == null) {
             return;
         }
         
@@ -102,8 +88,8 @@ public class TileEntityPenalizer extends TileEntitySynchronized {
     public void updateEntity() {
         if (!this.worldObj.isRemote) {
             if (this.activePenalization != null && this.repetitionsLeft > 0) {
-                if (this.random.nextInt(this.activePenalization.getChance(this.teamHub, this.strength)) == 0) {
-                    this.activePenalization.penalize(this.teamHub, this.strength);
+                if (this.random.nextInt(this.activePenalization.getChance(this.getTeamHub(), this.strength)) == 0) {
+                    this.activePenalization.penalize(this.getTeamHub(), this.strength);
                     --this.repetitionsLeft;
                 }
             }
@@ -124,20 +110,20 @@ public class TileEntityPenalizer extends TileEntitySynchronized {
         
         int price = this.getPrice(penalization, strength);
         
-        if (this.teamHub.getEnergy() < price) {
+        if (this.getTeamHub().getEnergy() < price) {
             return;
         }
         
-        this.teamHub.setEnergy(this.teamHub.getEnergy() - price);
+        this.getTeamHub().setEnergy(this.getTeamHub().getEnergy() - price);
         
-        ArrayList<TileEntityTeamHub> teamHubs = this.teamHub.getGameHub().getConnectedTeamHubs();
+        ArrayList<TileEntityTeamHub> teamHubs = this.getTeamHub().getGameHub().getConnectedTeamHubs();
         
         for (TileEntityTeamHub teamHub : teamHubs) {
-            if (teamHub != this.teamHub) {
-                TileEntityPenalizer penalizer = teamHub.getPenalizer();
-                
-                if (penalizer != null) {
-                    penalizer.penalize(penalization, strength);
+            if (teamHub != this.getTeamHub()) {
+                for (TileEntityTeamHubExtension teamHubExtension : teamHub.getExtensionList()) {
+                    if (teamHubExtension instanceof TileEntityPenalizer) {
+                        ((TileEntityPenalizer) teamHubExtension).penalize(penalization, strength);
+                    }
                 }
             }
         }
@@ -146,18 +132,18 @@ public class TileEntityPenalizer extends TileEntitySynchronized {
     private void penalize(Penalization penalization, int strength) {
         this.activePenalization = penalization;
         this.strength = strength;
-        this.repetitionsLeft = penalization.getRepetitions(this.teamHub, strength);
+        this.repetitionsLeft = penalization.getRepetitions(this.getTeamHub(), strength);
     }
     
     public int getPrice(Penalization penalization, int strength) {
         int price = 0;
         
-        if (this.teamHub == null || this.teamHub.getGameHub() == null) {
+        if (this.getTeamHub() == null || this.getTeamHub().getGameHub() == null) {
             return 0;
         }
         
-        for (TileEntityTeamHub teamHub : this.teamHub.getGameHub().getConnectedTeamHubs()) {
-            if (teamHub != this.teamHub) {
+        for (TileEntityTeamHub teamHub : this.getTeamHub().getGameHub().getConnectedTeamHubs()) {
+            if (teamHub != this.getTeamHub()) {
                 price += penalization.getPrice(teamHub, strength);
             }
         }
@@ -167,13 +153,5 @@ public class TileEntityPenalizer extends TileEntitySynchronized {
     
     public int getPriceClient(Penalization penalization, int strength) {
         return this.clientPrices[penalization.penalizationId];
-    }
-    
-    public TileEntityTeamHub getTeamHub() {
-        return teamHub;
-    }
-    
-    public void setTeamHub(TileEntityTeamHub teamHub) {
-        this.teamHub = teamHub;
     }
 }

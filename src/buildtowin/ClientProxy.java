@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ChestItemRenderHelper;
 import buildtowin.blueprint.BlueprintList;
 import buildtowin.client.renderer.BlueprintRenderer;
+import buildtowin.client.renderer.ColorBlockRenderer;
 import buildtowin.client.renderer.ConnectionWireRenderer;
 import buildtowin.client.renderer.TeamChestItemRenderHelper;
 import buildtowin.client.renderer.TileEntityTeamChestRenderer;
@@ -28,6 +29,9 @@ public class ClientProxy extends CommonProxy {
         
         BuildToWin.blueprintRenderId = RenderingRegistry.getNextAvailableRenderId();
         RenderingRegistry.registerBlockHandler(new BlueprintRenderer());
+        
+        BuildToWin.coloredBlockRenderId = RenderingRegistry.getNextAvailableRenderId();
+        RenderingRegistry.registerBlockHandler(new ColorBlockRenderer());
         
         ChestItemRenderHelper.instance = new TeamChestItemRenderHelper();
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityTeamChest.class, new TileEntityTeamChestRenderer());

@@ -20,6 +20,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import buildtowin.BuildToWin;
 import buildtowin.tileentity.TileEntityBlueprint;
+import buildtowin.util.Color;
 import buildtowin.util.Coordinates;
 
 public class Blueprint {
@@ -34,14 +35,15 @@ public class Blueprint {
     
     private int offsetX, offsetY, offsetZ;
     
-    private int color;
+    private Color color;
     
     public Blueprint() {
         this.blocks = new HashMap<Coordinates, BlockData>();
         this.offsetX = 0;
         this.offsetY = 0;
         this.offsetZ = 0;
-        this.color = 0;
+        this.color = new Color(0.F, 0.F, 0.F);
+        this.color.setFromId(0);
     }
     
     public Blueprint(Blueprint blueprint) {
@@ -49,7 +51,8 @@ public class Blueprint {
         this.offsetX = 0;
         this.offsetY = 0;
         this.offsetZ = 0;
-        this.color = (byte) 0;
+        this.color = new Color(0.F, 0.F, 0.F);
+        this.color.setFromId(0);
         
         Iterator iter = blueprint.blocks.entrySet().iterator();
         
@@ -395,7 +398,7 @@ public class Blueprint {
             for (int y = 0; y < height; y++) {
                 for (int z = 0; z < length; z++) {
                     for (int x = 0; x < width; x++) {
-                        if (blockIds[index] != 0) {
+                        if (blockIds[index] > 0) {
                             Coordinates blockCoordinates = new Coordinates(x, y, z);
                             BlockData blockData = new BlockData(blockIds[index], blockMetadata[index]);
                             
@@ -476,11 +479,11 @@ public class Blueprint {
         return blocks;
     }
     
-    public int getColor() {
+    public Color getColor() {
         return color;
     }
     
-    public void setColor(int color) {
+    public void setColor(Color color) {
         this.color = color;
     }
     

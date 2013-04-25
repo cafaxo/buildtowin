@@ -60,6 +60,8 @@ public class BuildToWin {
     
     public static int blueprintRenderId;
     
+    public static int coloredBlockRenderId;
+    
     public final static CreativeTabBuildToWin tabBuildToWin = new CreativeTabBuildToWin("customTab");
     
     public final static BlockGameHub gameHub = new BlockGameHub(248);

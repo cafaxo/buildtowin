@@ -204,8 +204,7 @@ public class TileEntityGameHub extends TileEntityConnectionHub implements IBluep
     public void onConnectionEstablished(TileEntity tileEntity) {
         TileEntityTeamHub teamHub = (TileEntityTeamHub) tileEntity;
         
-        teamHub.setGameHub(this);
-        teamHub.getBlueprint().setColor((byte) this.connectedTeamHubs.size());
+        teamHub.getColor().setFromId(this.connectedTeamHubs.size() + 1);
         
         this.connectedTeamHubs.add(teamHub);
     }

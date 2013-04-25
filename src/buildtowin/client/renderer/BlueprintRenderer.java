@@ -36,26 +36,20 @@ public class BlueprintRenderer extends RenderBlocks implements ISimpleBlockRende
         
         TileEntityBlueprint blueprint = (TileEntityBlueprint) world.getBlockTileEntity(par2, par3, par4);
         
-        int existingColor = blueprint.getColor() % (TileEntityBlueprint.colors.length / 4);
+        this.red = blueprint.getColor().r;
+        this.green = blueprint.getColor().g;
+        this.blue = blueprint.getColor().b;
+        this.alpha = 0.7F;
         
-        this.red = TileEntityBlueprint.colors[existingColor * 4];
-        this.green = TileEntityBlueprint.colors[existingColor * 4 + 1];
-        this.blue = TileEntityBlueprint.colors[existingColor * 4 + 2];
-        this.alpha = TileEntityBlueprint.colors[existingColor * 4 + 3];
-        
-        Block fakeBlock = Block.blocksList[blueprint.getBlockData().savedId];
+        Block fakeBlock = blueprint.getBlockData().getSavedBlock();
         
         if (fakeBlock != null) {
-            if (fakeBlock.getRenderType() == 0) {
-                fakeBlock.setBlockBoundsBasedOnState(this.blockAccess, par2, par3, par4);
-                this.setRenderBoundsFromBlock(fakeBlock);
-                return this.renderStandardBlock(fakeBlock, par2, par3, par4);
-            }
-            
             fakeBlock.setBlockBoundsBasedOnState(this.blockAccess, par2, par3, par4);
             this.setRenderBoundsFromBlock(fakeBlock);
             
             switch (fakeBlock.getRenderType()) {
+            case 0:
+                return this.renderStandardBlock(fakeBlock, par2, par3, par4);
             case 31:
                 return this.renderBlockLog(fakeBlock, par2, par3, par4);
             case 1:
@@ -79,9 +73,9 @@ public class BlueprintRenderer extends RenderBlocks implements ISimpleBlockRende
             default:
                 return this.renderStandardBlock(fakeBlock, par2, par3, par4);
             }
-        } else {
-            return false;
         }
+        
+        return false;
     }
     
     @Override

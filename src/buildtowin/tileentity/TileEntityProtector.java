@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import net.minecraft.nbt.NBTTagCompound;
 
-public class TileEntityProtector extends TileEntitySynchronized {
+public class TileEntityProtector extends TileEntityTeamHubExtension {
     
     private int radius;
     
@@ -30,13 +30,20 @@ public class TileEntityProtector extends TileEntitySynchronized {
     
     @Override
     public boolean writeDescriptionPacket(DataOutputStream dataOutputStream) throws IOException {
-        dataOutputStream.writeInt(this.radius);
-        return true;
+        if (super.writeDescriptionPacket(dataOutputStream)) {
+            
+            dataOutputStream.writeInt(this.radius);
+            return true;
+        }
+        
+        return false;
     }
     
     @Override
-    public void readDescriptionPacket(DataInputStream inputStream) throws IOException {
-        this.radius = inputStream.readInt();
+    public void readDescriptionPacket(DataInputStream dataInputStream) throws IOException {
+        super.readDescriptionPacket(dataInputStream);
+        
+        this.radius = dataInputStream.readInt();
     }
     
     public boolean isBlockProtected(int x, int y, int z) {
