@@ -25,6 +25,10 @@ public class EventHandler {
     @ForgeSubscribe
     public void onPlayerInteraction(PlayerInteractEvent event) {
         if (event.action == PlayerInteractEvent.Action.LEFT_CLICK_BLOCK) {
+            if (event.entityPlayer.capabilities.isCreativeMode) {
+                return;
+            }
+            
             TileEntityTeamHub teamHub = (TileEntityTeamHub) PlayerList.getPlayerListProvider(event.entityPlayer, TileEntityTeamHub.class);
             
             if (teamHub != null && teamHub.getGameHub() != null) {
