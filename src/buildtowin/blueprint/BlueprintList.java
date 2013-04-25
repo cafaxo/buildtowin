@@ -68,10 +68,14 @@ public class BlueprintList {
             for (Blueprint blueprint : this.blueprintList) {
                 dataoutputstream.writeUTF(blueprint.getName());
                 
-                dataoutputstream.writeInt(blueprint.getAuthors().size());
-                
-                for (String author : blueprint.getAuthors()) {
-                    dataoutputstream.writeUTF(author);
+                if (blueprint.getAuthors() != null) {
+                    dataoutputstream.writeInt(blueprint.getAuthors().size());
+                    
+                    for (String author : blueprint.getAuthors()) {
+                        dataoutputstream.writeUTF(author);
+                    }
+                } else {
+                    dataoutputstream.writeInt(0);
                 }
             }
             
