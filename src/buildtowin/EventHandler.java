@@ -8,7 +8,6 @@ import net.minecraftforge.event.entity.PlaySoundAtEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import buildtowin.item.ItemPencil;
-import buildtowin.tileentity.TileEntityBlueprint;
 import buildtowin.tileentity.TileEntityTeamHub;
 import buildtowin.util.PlayerList;
 import cpw.mods.fml.common.network.PacketDispatcher;
@@ -19,7 +18,6 @@ public class EventHandler {
     public void onWorldUnload(WorldEvent.Unload event) {
         PlayerList.playerToPlayerListMapClient.clear();
         PlayerList.playerToPlayerListMapServer.clear();
-        TileEntityBlueprint.instancesClient.clear();
     }
     
     @ForgeSubscribe

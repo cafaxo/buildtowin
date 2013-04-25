@@ -18,10 +18,14 @@ public class FakeWorld implements IBlockAccess {
     
     @Override
     public int getBlockId(int x, int y, int z) {
-        BlockData blockData = TileEntityBlueprint.getBlockData(x, y, z);
+        TileEntity tileEntity = this.getBlockTileEntity(x, y, z);
         
-        if (blockData != null) {
-            return blockData.savedId;
+        if (tileEntity instanceof TileEntityBlueprint) {
+            BlockData blockData = ((TileEntityBlueprint) tileEntity).getBlockData();
+            
+            if (blockData != null) {
+                return blockData.savedId;
+            }
         }
         
         return this.world.getBlockId(x, y, z);
@@ -39,10 +43,14 @@ public class FakeWorld implements IBlockAccess {
     
     @Override
     public int getBlockMetadata(int x, int y, int z) {
-        BlockData blockData = TileEntityBlueprint.getBlockData(x, y, z);
+        TileEntity tileEntity = this.getBlockTileEntity(x, y, z);
         
-        if (blockData != null) {
-            return blockData.savedMetadata;
+        if (tileEntity instanceof TileEntityBlueprint) {
+            BlockData blockData = ((TileEntityBlueprint) tileEntity).getBlockData();
+            
+            if (blockData != null) {
+                return blockData.savedMetadata;
+            }
         }
         
         return this.world.getBlockMetadata(x, y, z);
