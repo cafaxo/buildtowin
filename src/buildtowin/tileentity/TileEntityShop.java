@@ -1,43 +1,16 @@
 package buildtowin.tileentity;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 
-public class TileEntityShop extends TileEntitySynchronized implements IInventory {
+public class TileEntityShop extends TileEntity implements IInventory {
     
     private TileEntityTeamHub teamHub;
     
     public TileEntityShop() {
         
-    }
-    
-    @Override
-    public boolean writeDescriptionPacket(DataOutputStream dataOutputStream) throws IOException {
-        if (this.teamHub != null) {
-            dataOutputStream.writeInt(this.teamHub.xCoord);
-            dataOutputStream.writeInt(this.teamHub.yCoord);
-            dataOutputStream.writeInt(this.teamHub.zCoord);
-            return true;
-        }
-        
-        return false;
-    }
-    
-    public void readDescriptionPacket(DataInputStream dataInputStream) throws IOException {
-        TileEntity tileEntity = this.worldObj.getBlockTileEntity(
-                dataInputStream.readInt(),
-                dataInputStream.readInt(),
-                dataInputStream.readInt());
-        
-        if (tileEntity instanceof TileEntityTeamHub) {
-            this.teamHub = (TileEntityTeamHub) tileEntity;
-        }
     }
     
     @Override
