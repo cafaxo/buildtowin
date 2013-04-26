@@ -22,6 +22,7 @@ public class TileEntityBuildingHub extends TileEntitySynchronized implements IPl
     public TileEntityBuildingHub() {
         this.playerList = new PlayerList(this);
         this.blueprint = new Blueprint();
+        this.blueprint.getColor().setFromId(1);
     }
     
     @Override
