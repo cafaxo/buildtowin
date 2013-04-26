@@ -10,6 +10,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 import buildtowin.tileentity.TileEntityTeamChest;
+import buildtowin.util.Color;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -19,7 +20,7 @@ public class TileEntityTeamChestRenderer extends TileEntitySpecialRenderer {
     
     private ModelChest chestModel = new ModelChest();
     
-    public void renderTileEntityChestAt(TileEntityTeamChest par1TileEntityChest, double par2, double par4, double par6, float par8) {
+    public void renderTileEntityChestAt(TileEntityTeamChest par1TileEntityChest, double x, double y, double z, float par8, String texture, Color color) {
         int i;
         
         if (!par1TileEntityChest.func_70309_m()) {
@@ -45,12 +46,12 @@ public class TileEntityTeamChestRenderer extends TileEntitySpecialRenderer {
         if (par1TileEntityChest.adjacentChestZNeg == null && par1TileEntityChest.adjacentChestXNeg == null) {
             ModelChest modelchest = this.chestModel;
             
-            this.bindTextureByName("/mods/buildtowin/textures/blocks/team_chest.png");
+            this.bindTextureByName(texture);
             
             GL11.glPushMatrix();
             GL11.glEnable(GL12.GL_RESCALE_NORMAL);
-            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-            GL11.glTranslatef((float) par2, (float) par4 + 1.0F, (float) par6 + 1.0F);
+            GL11.glColor4f(color.r, color.g, color.b, 1.0F);
+            GL11.glTranslatef((float) x, (float) y + 1.0F, (float) z + 1.0F);
             GL11.glScalef(1.0F, -1.0F, -1.0F);
             GL11.glTranslatef(0.5F, 0.5F, 0.5F);
             short short1 = 0;
@@ -111,7 +112,21 @@ public class TileEntityTeamChestRenderer extends TileEntitySpecialRenderer {
     }
     
     @Override
-    public void renderTileEntityAt(TileEntity par1TileEntity, double par2, double par4, double par6, float par8) {
-        this.renderTileEntityChestAt((TileEntityTeamChest) par1TileEntity, par2, par4, par6, par8);
+    public void renderTileEntityAt(TileEntity tileEntity, double x, double y, double z, float par8) {
+        this.renderTileEntityChestAt((TileEntityTeamChest) tileEntity, x, y, z, par8, "/mods/buildtowin/textures/blocks/team_chest.png", new Color(1.0F, 1.0F, 1.0F));
+        
+        if (x != 0 && y != 0 && z != 0) {
+            TileEntityTeamChest teamChest = (TileEntityTeamChest) tileEntity;
+            
+            Color overlayColor;
+            
+            if (teamChest.getTeamHub() != null) {
+                overlayColor = teamChest.getTeamHub().getColor();
+            } else {
+                overlayColor = new Color(1.0F, 1.0F, 1.0F);
+            }
+            
+            this.renderTileEntityChestAt((TileEntityTeamChest) tileEntity, x, y, z, par8, "/mods/buildtowin/textures/blocks/team_chest_overlay.png", overlayColor);
+        }
     }
 }
