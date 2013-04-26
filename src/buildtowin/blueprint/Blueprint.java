@@ -500,6 +500,6 @@ public class Blueprint {
             ++i;
         }
         
-        return null;
+        return this.getRandomCoordinatesOutside();
     }
 }
