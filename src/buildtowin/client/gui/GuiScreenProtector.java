@@ -3,6 +3,7 @@ package buildtowin.client.gui;
 import java.util.ArrayList;
 
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.util.EnumChatFormatting;
 
 import org.lwjgl.opengl.GL11;
 

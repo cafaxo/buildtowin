@@ -35,7 +35,7 @@ public class GuiContainerShop extends GuiContainer {
         Integer price = PriceList.clientInstance.getPrice(par1ItemStack.getItem()) * par1ItemStack.stackSize;
         
         if (price != 0) {
-            list.add(EnumChatFormatting.AQUA + price.toString() + " coins");
+            list.add((par3 < 126 ? EnumChatFormatting.RED : EnumChatFormatting.GREEN) + price.toString() + " coins");
         }
         
         this.func_102021_a(list, par2, par3);

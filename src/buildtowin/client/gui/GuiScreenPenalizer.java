@@ -1,15 +1,12 @@
 package buildtowin.client.gui;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.EnumChatFormatting;
 
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
 
 import buildtowin.penalization.Penalization;
 import buildtowin.tileentity.TileEntityPenalizer;
@@ -79,19 +76,19 @@ public class GuiScreenPenalizer extends GuiScreenAdvanced {
         
         if (this.lightning.func_82252_a()) {
             ArrayList<String> list = new ArrayList<String>();
-            list.add(EnumChatFormatting.AQUA + ((Integer) this.penalizer.getPriceClient(Penalization.lightning, 1)).toString() + " coins");
+            list.add(EnumChatFormatting.RED + ((Integer) this.penalizer.getPriceClient(Penalization.lightning, 1)).toString() + " coins");
             this.renderTooltip(list, par1, par2);
         }
         
         if (this.monsters.func_82252_a()) {
             ArrayList<String> list = new ArrayList<String>();
-            list.add(EnumChatFormatting.AQUA + ((Integer) this.penalizer.getPriceClient(Penalization.monsters, 1)).toString() + " coins");
+            list.add(EnumChatFormatting.RED + ((Integer) this.penalizer.getPriceClient(Penalization.monsters, 1)).toString() + " coins");
             this.renderTooltip(list, par1, par2);
         }
         
         if (this.poison.func_82252_a()) {
             ArrayList<String> list = new ArrayList<String>();
-            list.add(EnumChatFormatting.AQUA + ((Integer) this.penalizer.getPriceClient(Penalization.poison, 1)).toString() + " coins");
+            list.add(EnumChatFormatting.RED + ((Integer) this.penalizer.getPriceClient(Penalization.poison, 1)).toString() + " coins");
             this.renderTooltip(list, par1, par2);
         }
     }
