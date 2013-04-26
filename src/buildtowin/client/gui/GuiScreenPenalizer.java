@@ -29,6 +29,11 @@ public class GuiScreenPenalizer extends GuiScreenAdvanced {
     }
     
     @Override
+    public boolean doesGuiPauseGame() {
+        return false;
+    }
+    
+    @Override
     public void initGui() {
         this.buttonList.clear();
         

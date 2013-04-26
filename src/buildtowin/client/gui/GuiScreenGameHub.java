@@ -36,6 +36,11 @@ public class GuiScreenGameHub extends GuiScreen {
     }
     
     @Override
+    public boolean doesGuiPauseGame() {
+        return false;
+    }
+    
+    @Override
     public void initGui() {
         this.buttonList.clear();
         

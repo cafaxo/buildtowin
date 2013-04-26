@@ -8,6 +8,11 @@ import org.lwjgl.opengl.GL11;
 public class GuiScreenLose extends GuiScreen {
     
     @Override
+    public boolean doesGuiPauseGame() {
+        return false;
+    }
+    
+    @Override
     public void initGui() {
         this.buttonList.clear();
         
