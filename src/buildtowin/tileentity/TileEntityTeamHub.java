@@ -5,6 +5,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -21,6 +22,7 @@ import buildtowin.util.Color;
 import buildtowin.util.IPlayerListProvider;
 import buildtowin.util.ItemStackList;
 import buildtowin.util.PlayerList;
+import buildtowin.util.TileEntityList;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 
@@ -30,7 +32,7 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
     
     private Color color;
     
-    private ArrayList<TileEntityTeamHubExtension> extensionList = new ArrayList<TileEntityTeamHubExtension>();
+    private TileEntityList extensionList = new TileEntityList();
     
     private ItemStackList teamChestContents;
     
@@ -71,6 +73,8 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
         par1NBTTagCompound.setInteger("energy", this.energy);
         
         par1NBTTagCompound.setTag("teamChestContents", this.teamChestContents.getTagList());
+        
+        par1NBTTagCompound.setIntArray("extensions", this.extensionList.encode());
     }
     
     @Override
@@ -85,6 +89,8 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
         this.energy = par1NBTTagCompound.getInteger("energy");
         
         this.teamChestContents.readTagList(par1NBTTagCompound.getTagList("teamChestContents"));
+        
+        this.extensionList.decode(par1NBTTagCompound.getIntArray("extensions"));
     }
     
     @Override
@@ -106,6 +112,7 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
         }
         
         this.playerList.writeDescriptionPacket(dataOutputStream);
+        this.extensionList.writeDescriptionPacket(dataOutputStream);
         
         return true;
     }
@@ -129,12 +136,25 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
         }
         
         this.playerList.readDescriptionPacket(dataInputStream);
+        this.extensionList.readDescriptionPacket(dataInputStream);
     }
     
     @Override
     public void updateEntity() {
         if (this.gameHub == null) {
             this.color.setFromId(0);
+        }
+        
+        Iterator<TileEntity> iter = this.getExtensionList().iterator();
+        
+        while (iter.hasNext()) {
+            TileEntity tileEntity = iter.next();
+            
+            if (tileEntity == null || tileEntity.isInvalid()) {
+                iter.remove();
+            } else {
+                ((ITeamHubExtension) tileEntity).setTeamHub(this);
+            }
         }
         
         if (!this.worldObj.isRemote) {
@@ -262,8 +282,8 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
         return gameHub;
     }
     
-    public ArrayList<TileEntityTeamHubExtension> getExtensionList() {
-        return extensionList;
+    public ArrayList<TileEntity> getExtensionList() {
+        return this.extensionList.getTileEntityList(this.worldObj);
     }
     
     @Override

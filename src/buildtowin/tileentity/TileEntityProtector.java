@@ -6,7 +6,9 @@ import java.io.IOException;
 
 import net.minecraft.nbt.NBTTagCompound;
 
-public class TileEntityProtector extends TileEntityTeamHubExtension {
+public class TileEntityProtector extends TileEntitySynchronized implements ITeamHubExtension {
+    
+    private TileEntityTeamHub teamHub;
     
     private int radius;
     
@@ -30,19 +32,12 @@ public class TileEntityProtector extends TileEntityTeamHubExtension {
     
     @Override
     public boolean writeDescriptionPacket(DataOutputStream dataOutputStream) throws IOException {
-        if (super.writeDescriptionPacket(dataOutputStream)) {
-            
-            dataOutputStream.writeInt(this.radius);
-            return true;
-        }
-        
-        return false;
+        dataOutputStream.writeInt(this.radius);
+        return true;
     }
     
     @Override
     public void readDescriptionPacket(DataInputStream dataInputStream) throws IOException {
-        super.readDescriptionPacket(dataInputStream);
-        
         this.radius = dataInputStream.readInt();
     }
     
@@ -58,5 +53,18 @@ public class TileEntityProtector extends TileEntityTeamHubExtension {
     
     public void setRadius(int radius) {
         this.radius = radius;
+    }
+    
+    @Override
+    public void setTeamHub(TileEntityTeamHub teamHub) {
+        this.teamHub = teamHub;
+    }
+    
+    public TileEntityTeamHub getTeamHub() {
+        if (this.teamHub != null && this.teamHub.isInvalid()) {
+            this.teamHub = null;
+        }
+        
+        return teamHub;
     }
 }

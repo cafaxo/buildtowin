@@ -3,6 +3,7 @@ package buildtowin;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.packet.Packet15Place;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.PlaySoundAtEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -10,7 +11,6 @@ import net.minecraftforge.event.world.WorldEvent;
 import buildtowin.item.ItemPencil;
 import buildtowin.tileentity.TileEntityProtector;
 import buildtowin.tileentity.TileEntityTeamHub;
-import buildtowin.tileentity.TileEntityTeamHubExtension;
 import buildtowin.util.PlayerList;
 import cpw.mods.fml.common.network.PacketDispatcher;
 
@@ -34,7 +34,7 @@ public class EventHandler {
             if (teamHub != null && teamHub.getGameHub() != null) {
                 for (TileEntityTeamHub connectedTeamHub : teamHub.getGameHub().getConnectedTeamHubs()) {
                     if (teamHub != connectedTeamHub) {
-                        for (TileEntityTeamHubExtension teamHubExtension : connectedTeamHub.getExtensionList()) {
+                        for (TileEntity teamHubExtension : connectedTeamHub.getExtensionList()) {
                             if (teamHubExtension instanceof TileEntityProtector) {
                                 if (((TileEntityProtector) teamHubExtension).isBlockProtected(event.x, event.y, event.z)) {
                                     BuildToWin.sendChatMessage(event.entityPlayer, "This Block is protected.");
