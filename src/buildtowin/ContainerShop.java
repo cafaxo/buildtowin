@@ -12,11 +12,7 @@ import buildtowin.util.PriceList;
 
 public class ContainerShop extends Container {
     
-    private TileEntityShop shop;
-    
     public ContainerShop(InventoryPlayer inventoryPlayer, TileEntityShop shop) {
-        this.shop = shop;
-        
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 9; j++) {
                 this.addSlotToContainer(new Slot(shop, j + i * 9, 8 + j * 18, 18 + i * 18));
@@ -36,6 +32,7 @@ public class ContainerShop extends Container {
         return null;
     }
     
+    @Override
     public ItemStack slotClick(int par1, int par2, int par3, EntityPlayer entityPlayer) {
         if (par1 >= this.inventorySlots.size() || par1 < 0) {
             return null;

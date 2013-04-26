@@ -33,10 +33,12 @@ public class BlockTeamChest extends BlockChest {
         }
     }
     
+    @Override
     public TileEntity createNewTileEntity(World par1World) {
         return new TileEntityTeamChest();
     }
     
+    @Override
     @SideOnly(Side.CLIENT)
     public void registerIcons(IconRegister par1IconRegister) {
         this.blockIcon = par1IconRegister.registerIcon("wood");

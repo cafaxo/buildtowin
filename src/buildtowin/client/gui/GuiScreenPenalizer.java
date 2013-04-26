@@ -37,15 +37,15 @@ public class GuiScreenPenalizer extends GuiScreen {
         
         this.lightning = new GuiButton(1, this.width / 2 - 45, this.height / 2 - 30 - 5, 90, 20, "Lightning");
         this.lightning.enabled = this.penalizer.getTeamHub() != null && this.penalizer.getTeamHub().getEnergy() >= this.penalizer.getPriceClient(Penalization.lightning, 1);
-        this.buttonList.add(lightning);
+        this.buttonList.add(this.lightning);
         
         this.monsters = new GuiButton(2, this.width / 2 - 45, this.height / 2 - 5, 90, 20, "Monsters");
         this.monsters.enabled = this.penalizer.getTeamHub() != null && this.penalizer.getTeamHub().getEnergy() >= this.penalizer.getPriceClient(Penalization.monsters, 1);
-        this.buttonList.add(monsters);
+        this.buttonList.add(this.monsters);
         
         this.poison = new GuiButton(3, this.width / 2 - 45, this.height / 2 + 30 - 5, 90, 20, "Poison");
         this.poison.enabled = this.penalizer.getTeamHub() != null && this.penalizer.getTeamHub().getEnergy() >= this.penalizer.getPriceClient(Penalization.poison, 1);
-        this.buttonList.add(poison);
+        this.buttonList.add(this.poison);
     }
     
     @Override

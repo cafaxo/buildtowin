@@ -37,6 +37,7 @@ public class BlockPenalizer extends BlockContainer implements IColoredBlock {
         this.setUnlocalizedName("penalizer");
     }
     
+    @Override
     public void onBlockPlacedBy(World par1World, int x, int y, int z, EntityLiving par5EntityLiving, ItemStack par6ItemStack) {
         TileEntityTeamHub teamHub = (TileEntityTeamHub) PlayerList.getPlayerListProvider((EntityPlayer) par5EntityLiving, TileEntityTeamHub.class);
         
@@ -46,6 +47,7 @@ public class BlockPenalizer extends BlockContainer implements IColoredBlock {
         }
     }
     
+    @Override
     public boolean onBlockActivated(World par1World, int x, int y, int z, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9) {
         if (par1World.isRemote) {
             TileEntityPenalizer penalizer = (TileEntityPenalizer) par1World.getBlockTileEntity(x, y, z);

@@ -107,8 +107,6 @@ public class Blueprint {
         HashMap<Coordinates, BlockData> blocks = blueprint.getBlocks();
         
         Iterator iter = blocks.entrySet().iterator();
-        int finishedBlocks = 0;
-        
         while (iter.hasNext()) {
             Map.Entry pairs = (Map.Entry) iter.next();
             Coordinates blockCoordinates = (Coordinates) pairs.getKey();
@@ -245,7 +243,7 @@ public class Blueprint {
         while (iter.hasNext()) {
             Map.Entry pairs = (Map.Entry) iter.next();
             Coordinates blockCoordinates = (Coordinates) pairs.getKey();
-            BlockData blockData = (BlockData) pairs.getValue();
+            pairs.getValue();
             
             this.removeBlueprint(
                     this.offsetX + blockCoordinates.x,
@@ -306,8 +304,6 @@ public class Blueprint {
         int data[] = new int[this.blocks.size() * 6];
         
         Iterator iter = this.blocks.entrySet().iterator();
-        int finishedBlocks = 0;
-        
         for (int i = 0; iter.hasNext(); ++i) {
             Map.Entry pairs = (Map.Entry) iter.next();
             Coordinates blockCoordinates = (Coordinates) pairs.getKey();
@@ -439,8 +435,8 @@ public class Blueprint {
             
             dataOutputStream.writeInt(data.length);
             
-            for (int i = 0; i < data.length; ++i) {
-                dataOutputStream.writeInt(data[i]);
+            for (int element : data) {
+                dataOutputStream.writeInt(element);
             }
             
             dataOutputStream.close();
@@ -460,7 +456,7 @@ public class Blueprint {
     }
     
     public String getName() {
-        return name;
+        return this.name;
     }
     
     public void setName(String name) {
@@ -468,7 +464,7 @@ public class Blueprint {
     }
     
     public ArrayList<String> getAuthors() {
-        return authors;
+        return this.authors;
     }
     
     public void setAuthors(ArrayList<String> authors) {
@@ -476,11 +472,11 @@ public class Blueprint {
     }
     
     public HashMap<Coordinates, BlockData> getBlocks() {
-        return blocks;
+        return this.blocks;
     }
     
     public Color getColor() {
-        return color;
+        return this.color;
     }
     
     public void setColor(Color color) {

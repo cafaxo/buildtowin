@@ -51,7 +51,7 @@ public class BlockBlueprint extends BlockContainer {
         if (entityPlayer.inventory.getCurrentItem() != null) {
             if (entityPlayer.inventory.getCurrentItem().itemID == Block.blocksList[blockData.savedId].idDropped(0, new Random(), 0)) {
                 if (blockData.metadata == 0) {
-                    entityPlayer.worldObj.spawnEntityInWorld(new EntityXPOrb(entityPlayer.worldObj, (double) x, (double) y, (double) z, 10));
+                    entityPlayer.worldObj.spawnEntityInWorld(new EntityXPOrb(entityPlayer.worldObj, x, y, z, 10));
                     blockData.metadata = 1;
                 }
                 
@@ -68,6 +68,7 @@ public class BlockBlueprint extends BlockContainer {
         return null;
     }
     
+    @Override
     public boolean isCollidable() {
         return false;
     }

@@ -275,11 +275,11 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
     }
     
     public int getFinishedBlockCount() {
-        return finishedBlockCount;
+        return this.finishedBlockCount;
     }
     
     public TileEntityGameHub getGameHub() {
-        return gameHub;
+        return this.gameHub;
     }
     
     public ArrayList<TileEntity> getExtensionList() {
@@ -300,7 +300,7 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
     }
     
     public int getEnergy() {
-        return energy;
+        return this.energy;
     }
     
     public void setEnergy(int energy) {
@@ -308,11 +308,11 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
     }
     
     public ItemStackList getTeamChestContents() {
-        return teamChestContents;
+        return this.teamChestContents;
     }
     
     public Color getColor() {
-        return color;
+        return this.color;
     }
     
     public void setColor(Color color) {

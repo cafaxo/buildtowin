@@ -42,13 +42,13 @@ public class TileEntityProtector extends TileEntitySynchronized implements ITeam
     }
     
     public boolean isBlockProtected(int x, int y, int z) {
-        return x > this.xCoord - radius && x < this.xCoord + radius
-                && y > this.yCoord - radius && y < this.yCoord + radius
-                && z > this.zCoord - radius && z < this.zCoord + radius;
+        return x > this.xCoord - this.radius && x < this.xCoord + this.radius
+                && y > this.yCoord - this.radius && y < this.yCoord + this.radius
+                && z > this.zCoord - this.radius && z < this.zCoord + this.radius;
     }
     
     public int getRadius() {
-        return radius;
+        return this.radius;
     }
     
     public void setRadius(int radius) {
@@ -65,6 +65,6 @@ public class TileEntityProtector extends TileEntitySynchronized implements ITeam
             this.teamHub = null;
         }
         
-        return teamHub;
+        return this.teamHub;
     }
 }

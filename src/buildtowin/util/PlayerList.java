@@ -31,14 +31,14 @@ public class PlayerList {
     
     public void connectPlayer(EntityPlayer entityPlayer) {
         if (!this.connectedPlayers.contains(entityPlayer.username)) {
-            PlayerList playerList = this.getPlayerToPlayerListMap(entityPlayer).get(entityPlayer.username);
+            PlayerList playerList = PlayerList.getPlayerToPlayerListMap(entityPlayer).get(entityPlayer.username);
             
             if (playerList != null) {
                 playerList.disconnectPlayer(entityPlayer);
             }
             
             this.connectedPlayers.add(entityPlayer.username);
-            this.getPlayerToPlayerListMap(entityPlayer).put(entityPlayer.username, this);
+            PlayerList.getPlayerToPlayerListMap(entityPlayer).put(entityPlayer.username, this);
             this.playerListProvider.onPlayerConnected(entityPlayer);
         }
     }
@@ -46,7 +46,7 @@ public class PlayerList {
     public void disconnectPlayer(EntityPlayer entityPlayer) {
         if (this.connectedPlayers.contains(entityPlayer.username)) {
             this.connectedPlayers.remove(entityPlayer.username);
-            this.getPlayerToPlayerListMap(entityPlayer).remove(entityPlayer.username);
+            PlayerList.getPlayerToPlayerListMap(entityPlayer).remove(entityPlayer.username);
             this.playerListProvider.onPlayerDisconnect(entityPlayer);
         }
     }
@@ -64,7 +64,7 @@ public class PlayerList {
     public void readTagList(NBTTagList tagList) {
         for (int i = 0; i < tagList.tagCount(); ++i) {
             this.connectedPlayers.add(((NBTTagString) tagList.tagAt(i)).data);
-            this.playerToPlayerListMapServer.put(((NBTTagString) tagList.tagAt(i)).data, this);
+            PlayerList.playerToPlayerListMapServer.put(((NBTTagString) tagList.tagAt(i)).data, this);
         }
     }
     
@@ -80,14 +80,14 @@ public class PlayerList {
         int size = dataInputStream.readInt();
         
         for (String player : this.connectedPlayers) {
-            this.playerToPlayerListMapClient.remove(player);
+            PlayerList.playerToPlayerListMapClient.remove(player);
         }
         
         this.connectedPlayers.clear();
         
         for (int i = 0; i < size; ++i) {
             String player = dataInputStream.readUTF();
-            this.playerToPlayerListMapClient.put(player, this);
+            PlayerList.playerToPlayerListMapClient.put(player, this);
             this.connectedPlayers.add(player);
         }
     }
@@ -125,7 +125,7 @@ public class PlayerList {
     }
     
     public ArrayList<String> getConnectedPlayers() {
-        return connectedPlayers;
+        return this.connectedPlayers;
     }
     
     public static HashMap<String, PlayerList> getPlayerToPlayerListMap(EntityPlayer entityPlayer) {

@@ -99,6 +99,6 @@ public class TileEntityTeamChest extends TileEntityChest implements ITeamHubExte
             this.teamHub = null;
         }
         
-        return teamHub;
+        return this.teamHub;
     }
 }

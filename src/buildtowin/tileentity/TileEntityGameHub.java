@@ -210,7 +210,7 @@ public class TileEntityGameHub extends TileEntityConnectionHub implements IBluep
     }
     
     public ArrayList<TileEntityTeamHub> getConnectedTeamHubs() {
-        return connectedTeamHubs;
+        return this.connectedTeamHubs;
     }
     
     public long getRealWorldTime() {
@@ -218,7 +218,7 @@ public class TileEntityGameHub extends TileEntityConnectionHub implements IBluep
     }
     
     public long getPlannedTimespan() {
-        return plannedTimespan;
+        return this.plannedTimespan;
     }
     
     public void setPlannedTimespan(long plannedTimespan) {
@@ -226,11 +226,11 @@ public class TileEntityGameHub extends TileEntityConnectionHub implements IBluep
     }
     
     public long getDeadline() {
-        return deadline;
+        return this.deadline;
     }
     
     public long getSleptTime() {
-        return sleptTime;
+        return this.sleptTime;
     }
     
     public void setSleptTime(long sleptTime) {
@@ -238,7 +238,7 @@ public class TileEntityGameHub extends TileEntityConnectionHub implements IBluep
     }
     
     public ItemStackList getShop() {
-        return shop;
+        return this.shop;
     }
     
     public void setShop(ItemStackList shop) {

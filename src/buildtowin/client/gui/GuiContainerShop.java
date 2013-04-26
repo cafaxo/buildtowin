@@ -46,8 +46,8 @@ public class GuiContainerShop extends GuiContainer {
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.mc.renderEngine.bindTexture("/mods/buildtowin/textures/gui/shop.png");
         
-        int x = (width - xSize) / 2;
-        int y = (height - ySize) / 2;
+        int x = (this.width - this.xSize) / 2;
+        int y = (this.height - this.ySize) / 2;
         
         this.drawTexturedModalRect(x, y, 0, 0, this.xSize, 3 * 18 + 17);
         this.drawTexturedModalRect(x, y + 3 * 18 + 17, 0, 126, this.xSize, 96);

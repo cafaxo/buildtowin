@@ -26,9 +26,9 @@ public class Coordinates {
     public static Coordinates getRandomCoordinatesInBounds(Coordinates boundMin, Coordinates boundMax) {
         Random rand = new Random();
         
-        int randX = boundMin.x + (int) (rand.nextFloat() * (float) (boundMax.x - boundMin.x));
-        int randY = boundMin.y + (int) (rand.nextFloat() * (float) (boundMax.y - boundMin.y));
-        int randZ = boundMin.z + (int) (rand.nextFloat() * (float) (boundMax.z - boundMin.z));
+        int randX = boundMin.x + (int) (rand.nextFloat() * (boundMax.x - boundMin.x));
+        int randY = boundMin.y + (int) (rand.nextFloat() * (boundMax.y - boundMin.y));
+        int randZ = boundMin.z + (int) (rand.nextFloat() * (boundMax.z - boundMin.z));
         
         return new Coordinates(randX, randY, randZ);
     }

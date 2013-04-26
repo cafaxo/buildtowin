@@ -23,6 +23,7 @@ public abstract class TileEntitySynchronized extends TileEntity {
     
     public abstract void readDescriptionPacket(DataInputStream dataInputStream) throws IOException;
     
+    @Override
     public final Packet getDescriptionPacket() {
         ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
         DataOutputStream dataoutputstream = new DataOutputStream(bytearrayoutputstream);

@@ -32,7 +32,7 @@ public class Color {
     }
     
     public void setFromId(int id) {
-        if (id < this.niceColors.length) {
+        if (id < Color.niceColors.length) {
             Color niceColor = Color.niceColors[id];
             
             this.r = niceColor.r;

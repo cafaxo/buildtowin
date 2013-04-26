@@ -42,6 +42,6 @@ public class ItemStackList {
     }
     
     public ItemStack[] getContents() {
-        return contents;
+        return this.contents;
     }
 }

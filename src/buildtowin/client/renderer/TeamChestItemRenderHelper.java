@@ -19,6 +19,7 @@ public class TeamChestItemRenderHelper extends ChestItemRenderHelper {
     
     private TileEntityTeamChest teamChest = new TileEntityTeamChest();
     
+    @Override
     public void renderChest(Block par1Block, int par2, float par3) {
         if (par1Block.blockID == Block.enderChest.blockID) {
             TileEntityRenderer.instance.renderTileEntityAt(this.theEnderChest, 0.0D, 0.0D, 0.0D, 0.0F);

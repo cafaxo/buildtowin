@@ -92,7 +92,7 @@ public class TileEntityShop extends TileEntity implements IInventory {
     }
     
     public TileEntityTeamHub getTeamHub() {
-        return teamHub;
+        return this.teamHub;
     }
     
     public void setTeamHub(TileEntityTeamHub teamHub) {

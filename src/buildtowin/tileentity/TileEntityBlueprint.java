@@ -52,7 +52,7 @@ public class TileEntityBlueprint extends TileEntity {
     }
     
     public BlockData getBlockData() {
-        return blockData;
+        return this.blockData;
     }
     
     public void setBlockData(BlockData blockData) {

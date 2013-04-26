@@ -129,7 +129,7 @@ public class TileEntityConnectionWire extends TileEntitySynchronized {
     }
     
     public boolean isActivated() {
-        return activated;
+        return this.activated;
     }
     
     public boolean isConnected(ForgeDirection direction) {

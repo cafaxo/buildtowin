@@ -16,7 +16,7 @@ public class Penalization {
     
     public Penalization(int penalizationId) {
         this.penalizationId = penalizationId;
-        this.penalizationList[penalizationId] = this;
+        Penalization.penalizationList[penalizationId] = this;
     }
     
     public void penalize(TileEntityTeamHub teamHub, int strength) {

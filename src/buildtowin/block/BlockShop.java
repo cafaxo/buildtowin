@@ -22,6 +22,7 @@ public class BlockShop extends BlockContainer {
         this.setUnlocalizedName("shop");
     }
     
+    @Override
     public boolean onBlockActivated(World par1World, int x, int y, int z, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9) {
         par5EntityPlayer.openGui(BuildToWin.instance, 0, par1World, x, y, z);
         return true;

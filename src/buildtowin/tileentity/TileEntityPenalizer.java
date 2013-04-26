@@ -162,6 +162,6 @@ public class TileEntityPenalizer extends TileEntitySynchronized implements ITeam
             this.teamHub = null;
         }
         
-        return teamHub;
+        return this.teamHub;
     }
 }

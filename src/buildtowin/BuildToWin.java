@@ -82,9 +82,9 @@ public class BuildToWin {
     
     public final static BlockBuildingHub buildingHub = new BlockBuildingHub(246);
     
-    public final static ItemPencil pencil = (ItemPencil) (new ItemPencil(5000)).setUnlocalizedName("pencil");
+    public final static ItemPencil pencil = (ItemPencil) new ItemPencil(5000).setUnlocalizedName("pencil");
     
-    public final static ItemPencil rubber = (ItemPencil) (new ItemPencil(5001)).setUnlocalizedName("rubber");
+    public final static ItemPencil rubber = (ItemPencil) new ItemPencil(5001).setUnlocalizedName("rubber");
     
     @PreInit
     public void preInit(FMLPreInitializationEvent event) {
@@ -93,7 +93,7 @@ public class BuildToWin {
     
     @Init
     public void load(FMLInitializationEvent event) {
-        proxy.init();
+        BuildToWin.proxy.init();
         
         TileEntity.addMapping(TileEntityGameHub.class, "gameHub");
         TileEntity.addMapping(TileEntityTeamHub.class, "teamHub");
@@ -105,28 +105,28 @@ public class BuildToWin {
         TileEntity.addMapping(TileEntityBuildingHub.class, "buildingHub");
         TileEntity.addMapping(TileEntityBlueprint.class, "blueprint");
         
-        GameRegistry.registerBlock(gameHub, "gameHub");
-        GameRegistry.registerBlock(teamHub, "teamHub");
-        GameRegistry.registerBlock(penalizer, "penalizer");
-        GameRegistry.registerBlock(protector, "protector");
-        GameRegistry.registerBlock(shop, "shop");
-        GameRegistry.registerBlock(teamChest, "teamChest");
-        GameRegistry.registerBlock(connectionWire, "connectionWire");
-        GameRegistry.registerBlock(buildingHub, "buildingHub");
-        GameRegistry.registerBlock(blueprint, "blueprint");
+        GameRegistry.registerBlock(BuildToWin.gameHub, "gameHub");
+        GameRegistry.registerBlock(BuildToWin.teamHub, "teamHub");
+        GameRegistry.registerBlock(BuildToWin.penalizer, "penalizer");
+        GameRegistry.registerBlock(BuildToWin.protector, "protector");
+        GameRegistry.registerBlock(BuildToWin.shop, "shop");
+        GameRegistry.registerBlock(BuildToWin.teamChest, "teamChest");
+        GameRegistry.registerBlock(BuildToWin.connectionWire, "connectionWire");
+        GameRegistry.registerBlock(BuildToWin.buildingHub, "buildingHub");
+        GameRegistry.registerBlock(BuildToWin.blueprint, "blueprint");
         
         LanguageRegistry.instance().addStringLocalization("itemGroup.customTab", "en_US", "Build To Win");
-        LanguageRegistry.addName(gameHub, "Game Hub");
-        LanguageRegistry.addName(teamHub, "Team Hub");
-        LanguageRegistry.addName(penalizer, "Penalizer");
-        LanguageRegistry.addName(protector, "Protector");
-        LanguageRegistry.addName(shop, "Shop");
-        LanguageRegistry.addName(teamChest, "Team Chest");
-        LanguageRegistry.addName(connectionWire, "Connection Wire");
-        LanguageRegistry.addName(buildingHub, "Building Hub");
-        LanguageRegistry.addName(blueprint, "Blueprint");
-        LanguageRegistry.addName(pencil, "Pencil");
-        LanguageRegistry.addName(rubber, "Rubber");
+        LanguageRegistry.addName(BuildToWin.gameHub, "Game Hub");
+        LanguageRegistry.addName(BuildToWin.teamHub, "Team Hub");
+        LanguageRegistry.addName(BuildToWin.penalizer, "Penalizer");
+        LanguageRegistry.addName(BuildToWin.protector, "Protector");
+        LanguageRegistry.addName(BuildToWin.shop, "Shop");
+        LanguageRegistry.addName(BuildToWin.teamChest, "Team Chest");
+        LanguageRegistry.addName(BuildToWin.connectionWire, "Connection Wire");
+        LanguageRegistry.addName(BuildToWin.buildingHub, "Building Hub");
+        LanguageRegistry.addName(BuildToWin.blueprint, "Blueprint");
+        LanguageRegistry.addName(BuildToWin.pencil, "Pencil");
+        LanguageRegistry.addName(BuildToWin.rubber, "Rubber");
         
         TickRegistry.registerTickHandler(new ServerTickHandler(), Side.SERVER);
         

@@ -16,9 +16,9 @@ public class PenalizationLightning extends Penalization {
         
         teamHub.worldObj.addWeatherEffect(new EntityLightningBolt(
                 teamHub.worldObj,
-                (double) randCoords.x,
-                (double) randCoords.y,
-                (double) randCoords.z));
+                randCoords.x,
+                randCoords.y,
+                randCoords.z));
         
         for (int x = 0; x < 4; ++x) {
             for (int y = 0; y < 4; ++y) {

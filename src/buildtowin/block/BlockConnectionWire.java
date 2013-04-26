@@ -27,6 +27,7 @@ public class BlockConnectionWire extends BlockContainer {
         this.setUnlocalizedName("connectionWire");
     }
     
+    @Override
     public void onBlockAdded(World par1World, int x, int y, int z) {
         if (!par1World.isRemote) {
             TileEntityConnectionWire connectionWire = (TileEntityConnectionWire) par1World.getBlockTileEntity(x, y, z);
@@ -34,6 +35,7 @@ public class BlockConnectionWire extends BlockContainer {
         }
     }
     
+    @Override
     public void onNeighborBlockChange(World par1World, int x, int y, int z, int par5) {
         if (!par1World.isRemote) {
             TileEntityConnectionWire connectionWire = (TileEntityConnectionWire) par1World.getBlockTileEntity(x, y, z);
@@ -63,13 +65,14 @@ public class BlockConnectionWire extends BlockContainer {
         }
     }
     
+    @Override
     public void randomDisplayTick(World par1World, int x, int y, int z, Random par5Random) {
         TileEntityConnectionWire wire = (TileEntityConnectionWire) par1World.getBlockTileEntity(x, y, z);
         
         if (wire.isActivated()) {
-            double d0 = (double) x + 0.5D + ((double) par5Random.nextFloat() - 0.5D) * 0.2D;
-            double d1 = (double) ((float) y + 0.6625F);
-            double d2 = (double) z + 0.5D + ((double) par5Random.nextFloat() - 0.5D) * 0.2D;
+            double d0 = x + 0.5D + (par5Random.nextFloat() - 0.5D) * 0.2D;
+            double d1 = y + 0.6625F;
+            double d2 = z + 0.5D + (par5Random.nextFloat() - 0.5D) * 0.2D;
             float f = 1;
             float f1 = f * 0.6F + 0.4F;
             
@@ -84,7 +87,7 @@ public class BlockConnectionWire extends BlockContainer {
                 f3 = 0.0F;
             }
             
-            par1World.spawnParticle("reddust", d0, d1, d2, (double) f1, (double) f2, (double) f3);
+            par1World.spawnParticle("reddust", d0, d1, d2, f1, f2, f3);
         }
     }
     

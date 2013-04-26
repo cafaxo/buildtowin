@@ -117,9 +117,7 @@ public class PriceList {
         try {
             out = new PrintWriter(file);
             
-            for (int i = 0; i < Item.itemsList.length; ++i) {
-                Item item = Item.itemsList[i];
-                
+            for (Item item : Item.itemsList) {
                 if (item != null) {
                     out.write(((Integer) item.itemID).toString() + ":" + item.getUnlocalizedName() + ":0\n");
                 }

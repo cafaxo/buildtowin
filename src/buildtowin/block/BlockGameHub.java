@@ -25,6 +25,7 @@ public class BlockGameHub extends BlockContainer {
         this.setUnlocalizedName("gameHub");
     }
     
+    @Override
     public boolean onBlockActivated(World par1World, int x, int y, int z, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9) {
         if (par1World.isRemote) {
             TileEntityGameHub gameHub = (TileEntityGameHub) par1World.getBlockTileEntity(x, y, z);
