@@ -5,7 +5,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
 import buildtowin.BuildToWin;
 import buildtowin.tileentity.TileEntityBuildingHub;
 import buildtowin.util.PlayerList;
@@ -21,12 +20,7 @@ public class ItemPencil extends Item {
         this.setCreativeTab(BuildToWin.tabBuildToWin);
     }
     
-    @Override
-    public boolean onItemUseFirst(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ) {
-        return true;
-    }
-    
-    public boolean onBlockRightClicked(ItemStack itemStack, int x, int y, int z, int facedX, int facedY, int facedZ, EntityPlayer entityPlayer) {
+    public boolean onBlockStartBreak(ItemStack itemStack, int x, int y, int z, EntityPlayer entityPlayer) {
         int blockId = entityPlayer.worldObj.getBlockId(x, y, z);
         
         if (blockId == BuildToWin.buildingHub.blockID) {
@@ -46,15 +40,15 @@ public class ItemPencil extends Item {
                 }
                 
                 if (!itemStack.stackTagCompound.hasKey("selection")) {
-                    itemStack.stackTagCompound.setIntArray("selection", new int[] { facedX, facedY, facedZ });
-                    BuildToWin.printChatMessage(entityPlayer, "Started the selection at " + facedX + ", " + facedY + ", " + facedZ);
+                    itemStack.stackTagCompound.setIntArray("selection", new int[] { x, y, z });
+                    BuildToWin.printChatMessage(entityPlayer, "Started the selection at " + x + ", " + y + ", " + z);
                 } else {
                     int selection[] = itemStack.stackTagCompound.getIntArray("selection");
                     itemStack.stackTagCompound.removeTag("selection");
-                    BuildToWin.printChatMessage(entityPlayer, "Finished the selection at " + facedX + ", " + facedY + ", " + facedZ);
+                    BuildToWin.printChatMessage(entityPlayer, "Finished the selection at " + x + ", " + y + ", " + z);
                     
                     if (!entityPlayer.worldObj.isRemote) {
-                        buildingHub.getBlueprint().select(selection[0], selection[1], selection[2], facedX, facedY, facedZ, this == BuildToWin.pencil);
+                        buildingHub.getBlueprint().select(selection[0], selection[1], selection[2], x, y, z, this == BuildToWin.pencil);
                     }
                 }
             } else {

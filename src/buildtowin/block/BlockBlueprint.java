@@ -5,6 +5,7 @@ import java.util.Random;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
@@ -13,6 +14,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 import buildtowin.BuildToWin;
 import buildtowin.blueprint.BlockData;
+import buildtowin.item.ItemPencil;
 import buildtowin.tileentity.TileEntityBlueprint;
 import buildtowin.tileentity.TileEntityTeamHub;
 import buildtowin.util.PlayerList;
@@ -70,7 +72,8 @@ public class BlockBlueprint extends BlockContainer {
     
     @Override
     public boolean isCollidable() {
-        return false;
+        EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+        return player.inventory.getCurrentItem() != null && player.inventory.getCurrentItem().getItem() instanceof ItemPencil;
     }
     
     @Override
