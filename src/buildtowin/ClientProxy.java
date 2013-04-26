@@ -4,11 +4,13 @@ import java.io.File;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ChestItemRenderHelper;
+import net.minecraft.client.renderer.Tessellator;
 import buildtowin.blueprint.BlueprintList;
 import buildtowin.client.renderer.BlueprintRenderer;
 import buildtowin.client.renderer.ColorBlockRenderer;
 import buildtowin.client.renderer.ConnectionWireRenderer;
 import buildtowin.client.renderer.TeamChestItemRenderHelper;
+import buildtowin.client.renderer.TessellatorColorReplacer;
 import buildtowin.client.renderer.TileEntityTeamChestRenderer;
 import buildtowin.tileentity.TileEntityTeamChest;
 import cpw.mods.fml.client.registry.ClientRegistry;
@@ -20,6 +22,8 @@ public class ClientProxy extends CommonProxy {
     
     @Override
     public void init() {
+        Tessellator.instance = new TessellatorColorReplacer();
+        
         BlueprintList.serverInstance.init(new File(Minecraft.getMinecraftDir().getAbsolutePath(), "blueprints"));
         
         TickRegistry.registerTickHandler(new ClientTickHandler(), Side.CLIENT);

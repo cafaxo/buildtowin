@@ -7,7 +7,10 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.biome.BiomeGenBase;
 import buildtowin.blueprint.BlockData;
 import buildtowin.tileentity.TileEntityBlueprint;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
+@SideOnly(Side.CLIENT)
 public class FakeWorld implements IBlockAccess {
     
     private IBlockAccess world;

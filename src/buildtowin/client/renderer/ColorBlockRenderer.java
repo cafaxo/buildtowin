@@ -7,7 +7,10 @@ import net.minecraft.world.IBlockAccess;
 import buildtowin.BuildToWin;
 import buildtowin.util.Color;
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
+@SideOnly(Side.CLIENT)
 public class ColorBlockRenderer implements ISimpleBlockRenderingHandler {
     
     @Override
