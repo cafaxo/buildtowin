@@ -1,20 +1,20 @@
 package buildtowin.tileentity;
 
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.packet.Packet250CustomPayload;
+import buildtowin.network.PacketIds;
+import cpw.mods.fml.common.network.PacketDispatcher;
 
 public class TileEntityProtector extends TileEntitySynchronized implements ITeamHubExtension {
     
     private TileEntityTeamHub teamHub;
     
     private int radius;
-    
-    public TileEntityProtector() {
-        this.radius = 5;
-    }
     
     @Override
     public void writeToNBT(NBTTagCompound par1NBTTagCompound) {
@@ -41,10 +41,43 @@ public class TileEntityProtector extends TileEntitySynchronized implements ITeam
         this.radius = dataInputStream.readInt();
     }
     
+    public boolean sendRadiusChangedPacket() {
+        ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
+        DataOutputStream dataoutputstream = new DataOutputStream(bytearrayoutputstream);
+        
+        try {
+            dataoutputstream.writeInt(PacketIds.PROTECTOR_RADIUS_UPDATE);
+            
+            dataoutputstream.writeInt(this.xCoord);
+            dataoutputstream.writeInt(this.yCoord);
+            dataoutputstream.writeInt(this.zCoord);
+            
+            dataoutputstream.writeInt(this.radius);
+            
+            PacketDispatcher.sendPacketToServer(new Packet250CustomPayload("btw", bytearrayoutputstream.toByteArray()));
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+        
+        return true;
+    }
+    
+    public void onRadiusChanged(DataInputStream dataInputStream) throws IOException {
+        int newRadius = dataInputStream.readInt();
+        
+        this.teamHub.setEnergy(this.teamHub.getEnergy() - this.getPrice(newRadius));
+        
+        this.radius = newRadius;
+    }
+    
     public boolean isBlockProtected(int x, int y, int z) {
         return x > this.xCoord - this.radius && x < this.xCoord + this.radius
                 && y > this.yCoord - this.radius && y < this.yCoord + this.radius
                 && z > this.zCoord - this.radius && z < this.zCoord + this.radius;
+    }
+    
+    public int getPrice(int targetRadius) {
+        return ((targetRadius * targetRadius) - (this.radius * this.radius)) * 2;
     }
     
     public int getRadius() {

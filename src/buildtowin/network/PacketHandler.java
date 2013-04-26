@@ -86,7 +86,7 @@ public class PacketHandler implements IPacketHandler {
                     ((TileEntityPenalizer) tileEntity).onPenalizePacket(dataInputStream);
                     return;
                 case PacketIds.PROTECTOR_RADIUS_UPDATE:
-                    ((TileEntityProtector) tileEntity).setRadius(dataInputStream.readInt());
+                    ((TileEntityProtector) tileEntity).onRadiusChanged(dataInputStream);
                     return;
                 }
             }
