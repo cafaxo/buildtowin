@@ -24,20 +24,21 @@ public class EventHandler {
     
     @ForgeSubscribe
     public void onPlayerInteraction(PlayerInteractEvent event) {
-        if (event.action == PlayerInteractEvent.Action.LEFT_CLICK_BLOCK) {
-            if (event.entityPlayer.capabilities.isCreativeMode) {
-                return;
-            }
-            
+        if (!event.entityPlayer.capabilities.isCreativeMode) {
             TileEntityTeamHub teamHub = (TileEntityTeamHub) PlayerList.getPlayerListProvider(event.entityPlayer, TileEntityTeamHub.class);
             
             if (teamHub != null && teamHub.getGameHub() != null) {
-                for (TileEntityTeamHub connectedTeamHub : teamHub.getGameHub().getConnectedTeamHubs()) {
+                for (TileEntity connectedTeamHub : teamHub.getGameHub().getConnectedTeamHubs()) {
                     if (teamHub != connectedTeamHub) {
-                        for (TileEntity teamHubExtension : connectedTeamHub.getExtensionList()) {
+                        for (TileEntity teamHubExtension : ((TileEntityTeamHub) connectedTeamHub).getExtensionList()) {
                             if (teamHubExtension instanceof TileEntityProtector) {
                                 if (((TileEntityProtector) teamHubExtension).isBlockProtected(event.x, event.y, event.z)) {
-                                    BuildToWin.sendChatMessage(event.entityPlayer, "This Block is protected.");
+                                    if (event.action == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK) {
+                                        BuildToWin.printChatMessage(event.entityPlayer, "This Block is protected.");
+                                    } else {
+                                        BuildToWin.sendChatMessage(event.entityPlayer, "This Block is protected.");
+                                    }
+                                    
                                     event.setCanceled(true);
                                 }
                             }

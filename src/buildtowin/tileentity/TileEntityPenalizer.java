@@ -113,11 +113,11 @@ public class TileEntityPenalizer extends TileEntitySynchronized implements ITeam
         
         this.teamHub.setEnergy(this.teamHub.getEnergy() - price);
         
-        ArrayList<TileEntityTeamHub> teamHubs = this.teamHub.getGameHub().getConnectedTeamHubs();
+        ArrayList<TileEntity> teamHubs = this.teamHub.getGameHub().getConnectedTeamHubs();
         
-        for (TileEntityTeamHub teamHub : teamHubs) {
+        for (TileEntity teamHub : teamHubs) {
             if (teamHub != this.teamHub) {
-                for (TileEntity tileEntity : teamHub.getExtensionList()) {
+                for (TileEntity tileEntity : ((TileEntityTeamHub) teamHub).getExtensionList()) {
                     if (tileEntity instanceof TileEntityPenalizer) {
                         ((TileEntityPenalizer) tileEntity).penalize(penalization, strength);
                     }
@@ -139,9 +139,9 @@ public class TileEntityPenalizer extends TileEntitySynchronized implements ITeam
             return 0;
         }
         
-        for (TileEntityTeamHub teamHub : this.teamHub.getGameHub().getConnectedTeamHubs()) {
+        for (TileEntity teamHub : this.teamHub.getGameHub().getConnectedTeamHubs()) {
             if (teamHub != this.teamHub) {
-                price += penalization.getPrice(teamHub, strength);
+                price += penalization.getPrice((TileEntityTeamHub) teamHub, strength);
             }
         }
         

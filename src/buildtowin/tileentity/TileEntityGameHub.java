@@ -15,10 +15,11 @@ import net.minecraft.tileentity.TileEntity;
 import buildtowin.blueprint.Blueprint;
 import buildtowin.blueprint.IBlueprintProvider;
 import buildtowin.util.ItemStackList;
+import buildtowin.util.TileEntityList;
 
 public class TileEntityGameHub extends TileEntityConnectionHub implements IBlueprintProvider {
     
-    private ArrayList<TileEntityTeamHub> connectedTeamHubs;
+    private TileEntityList connectedTeamHubs = new TileEntityList();
     
     private long plannedTimespan = 0;
     
@@ -31,7 +32,6 @@ public class TileEntityGameHub extends TileEntityConnectionHub implements IBluep
     public TileEntityGameHub() {
         super(new Class[] { TileEntityTeamHub.class });
         
-        this.connectedTeamHubs = new ArrayList<TileEntityTeamHub>();
         this.shop = new ItemStackList();
     }
     
@@ -73,14 +73,18 @@ public class TileEntityGameHub extends TileEntityConnectionHub implements IBluep
         dataOutputStream.writeLong(this.deadline);
         dataOutputStream.writeLong(this.sleptTime);
         
+        this.connectedTeamHubs.writeDescriptionPacket(dataOutputStream);
+        
         return true;
     }
     
     @Override
-    public void readDescriptionPacket(DataInputStream inputStream) throws IOException {
-        this.plannedTimespan = inputStream.readLong();
-        this.deadline = inputStream.readLong();
-        this.sleptTime = inputStream.readLong();
+    public void readDescriptionPacket(DataInputStream dataInputStream) throws IOException {
+        this.plannedTimespan = dataInputStream.readLong();
+        this.deadline = dataInputStream.readLong();
+        this.sleptTime = dataInputStream.readLong();
+        
+        this.connectedTeamHubs.readDescriptionPacket(dataInputStream);
     }
     
     @Override
@@ -111,7 +115,9 @@ public class TileEntityGameHub extends TileEntityConnectionHub implements IBluep
     public void loadBlueprint(Blueprint blueprint) {
         this.updateConnectedTeamHubs();
         
-        for (TileEntityTeamHub teamHub : this.connectedTeamHubs) {
+        for (TileEntity tileEntity : this.getConnectedTeamHubs()) {
+            TileEntityTeamHub teamHub = (TileEntityTeamHub) tileEntity;
+            
             teamHub.loadBlueprint(blueprint);
             teamHub.getBlueprint().reset();
         }
@@ -123,7 +129,9 @@ public class TileEntityGameHub extends TileEntityConnectionHub implements IBluep
         this.sleptTime = 0;
         this.deadline = this.worldObj.getTotalWorldTime() + this.plannedTimespan;
         
-        for (TileEntityTeamHub teamHub : this.connectedTeamHubs) {
+        for (TileEntity tileEntity : this.getConnectedTeamHubs()) {
+            TileEntityTeamHub teamHub = (TileEntityTeamHub) tileEntity;
+            
             teamHub.getBlueprint().reset();
             teamHub.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> The game has started."));
         }
@@ -135,7 +143,9 @@ public class TileEntityGameHub extends TileEntityConnectionHub implements IBluep
         this.sleptTime = 0;
         this.deadline = 0;
         
-        for (TileEntityTeamHub teamHub : this.connectedTeamHubs) {
+        for (TileEntity tileEntity : this.getConnectedTeamHubs()) {
+            TileEntityTeamHub teamHub = (TileEntityTeamHub) tileEntity;
+            
             teamHub.getBlueprint().reset();
             
             if (notify) {
@@ -147,15 +157,17 @@ public class TileEntityGameHub extends TileEntityConnectionHub implements IBluep
     private void checkGameStatus() {
         if (this.deadline != 0) {
             if (this.deadline >= this.getRealWorldTime()) {
-                for (TileEntityTeamHub teamHub : this.connectedTeamHubs) {
+                for (TileEntity tileEntity : this.getConnectedTeamHubs()) {
+                    TileEntityTeamHub teamHub = (TileEntityTeamHub) tileEntity;
+                    
                     if (teamHub.getFinishedBlockCount() == teamHub.getBlueprint().getBlocks().size()) {
                         teamHub.sendWinMessage();
                         
                         ArrayList<TileEntityTeamHub> ranking = this.getRanking();
                         
-                        for (TileEntityTeamHub losingTeamHub : this.connectedTeamHubs) {
+                        for (TileEntity losingTeamHub : this.getConnectedTeamHubs()) {
                             if (losingTeamHub != teamHub) {
-                                losingTeamHub.sendLoseMessage(ranking.indexOf(losingTeamHub) + 1);
+                                ((TileEntityTeamHub) losingTeamHub).sendLoseMessage(ranking.indexOf(losingTeamHub) + 1);
                             }
                         }
                         
@@ -166,8 +178,8 @@ public class TileEntityGameHub extends TileEntityConnectionHub implements IBluep
             } else {
                 ArrayList<TileEntityTeamHub> ranking = this.getRanking();
                 
-                for (TileEntityTeamHub losingTeamHub : this.connectedTeamHubs) {
-                    losingTeamHub.sendLoseMessage(ranking.indexOf(losingTeamHub));
+                for (TileEntity losingTeamHub : this.getConnectedTeamHubs()) {
+                    ((TileEntityTeamHub) losingTeamHub).sendLoseMessage(ranking.indexOf(losingTeamHub));
                 }
                 
                 this.stopGame(false);
@@ -179,7 +191,9 @@ public class TileEntityGameHub extends TileEntityConnectionHub implements IBluep
         HashMap<Float, TileEntityTeamHub> unsortedTeamHubs = new HashMap<Float, TileEntityTeamHub>();
         ArrayList<Float> progressValues = new ArrayList<Float>();
         
-        for (TileEntityTeamHub teamHub : this.connectedTeamHubs) {
+        for (TileEntity tileEntity : this.getConnectedTeamHubs()) {
+            TileEntityTeamHub teamHub = (TileEntityTeamHub) tileEntity;
+            
             unsortedTeamHubs.put(teamHub.getProgress(), teamHub);
             progressValues.add(teamHub.getProgress());
         }
@@ -196,21 +210,20 @@ public class TileEntityGameHub extends TileEntityConnectionHub implements IBluep
     }
     
     public void updateConnectedTeamHubs() {
-        this.connectedTeamHubs.clear();
+        this.getConnectedTeamHubs().clear();
         this.updateConnections();
     }
     
     @Override
     public void onConnectionEstablished(TileEntity tileEntity) {
         TileEntityTeamHub teamHub = (TileEntityTeamHub) tileEntity;
+        teamHub.getColor().setFromId(this.getConnectedTeamHubs().size() + 1);
         
-        teamHub.getColor().setFromId(this.connectedTeamHubs.size() + 1);
-        
-        this.connectedTeamHubs.add(teamHub);
+        this.getConnectedTeamHubs().add(tileEntity);
     }
     
-    public ArrayList<TileEntityTeamHub> getConnectedTeamHubs() {
-        return this.connectedTeamHubs;
+    public ArrayList<TileEntity> getConnectedTeamHubs() {
+        return this.connectedTeamHubs.getTileEntityList(this.worldObj);
     }
     
     public long getRealWorldTime() {
