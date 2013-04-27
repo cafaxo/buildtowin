@@ -118,7 +118,7 @@ public class GuiScreenPenalizer extends GuiScreenAdvanced {
         GL11.glEnable(GL12.GL_RESCALE_NORMAL);
         RenderHelper.enableGUIStandardItemLighting();
         
-        BuildToWin.colorBlockRenderer.renderBlockAsItem(BuildToWin.teamHub, this.mc.renderEngine, new RenderBlocks(), this.width / 2 - 8, this.height / 2 - 25, this.zLevel, teamColor);
+        BuildToWin.coloredBlockRenderer.renderBlockAsItem(BuildToWin.teamHub, this.mc.renderEngine, new RenderBlocks(), this.width / 2 - 8, this.height / 2 - 25, this.zLevel, teamColor);
         
         RenderHelper.disableStandardItemLighting();
         GL11.glDisable(GL12.GL_RESCALE_NORMAL);
