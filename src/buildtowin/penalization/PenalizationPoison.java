@@ -34,6 +34,6 @@ public class PenalizationPoison extends Penalization {
     
     @Override
     public int getPrice(TileEntityTeamHub teamHub, int strength) {
-        return teamHub.getPlayerList().getConnectedPlayers().size() * 25;
+        return teamHub.getPlayerList().getConnectedPlayers().size() * 80;
     }
 }

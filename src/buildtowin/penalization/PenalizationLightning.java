@@ -38,10 +38,6 @@ public class PenalizationLightning extends Penalization {
     
     @Override
     public int getPrice(TileEntityTeamHub teamHub, int strength) {
-        if (teamHub.getBlueprint().getBlocks().size() == 0) {
-            return 5;
-        }
-        
-        return 100 * teamHub.getFinishedBlockCount() / teamHub.getBlueprint().getBlocks().size();
+        return (int) (10000.F * teamHub.getProgress());
     }
 }

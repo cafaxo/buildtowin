@@ -66,12 +66,12 @@ public class PenalizationMonsters extends Penalization {
     }
     
     @Override
-    public int getPrice(TileEntityTeamHub teamHub, int strength) {
-        return teamHub.getPlayerList().getConnectedPlayers().size() * 20;
+    public int getRepetitions(TileEntityTeamHub teamHub, int strength) {
+        return 3;
     }
     
     @Override
-    public int getRepetitions(TileEntityTeamHub teamHub, int strength) {
-        return 3;
+    public int getPrice(TileEntityTeamHub teamHub, int strength) {
+        return teamHub.getPlayerList().getConnectedPlayers().size() * 60;
     }
 }
