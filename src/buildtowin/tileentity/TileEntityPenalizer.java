@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Random;
 
 import net.minecraft.network.packet.Packet250CustomPayload;
@@ -31,7 +30,7 @@ public class TileEntityPenalizer extends TileEntity implements ITeamHubExtension
         this.random = new Random();
     }
     
-    public void sendPenalizePacket(int type, int strength) {
+    public void sendPenalizePacket(int type, int selectedTeam) {
         ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
         DataOutputStream dataoutputstream = new DataOutputStream(bytearrayoutputstream);
         
@@ -43,7 +42,7 @@ public class TileEntityPenalizer extends TileEntity implements ITeamHubExtension
             dataoutputstream.writeInt(this.zCoord);
             
             dataoutputstream.writeInt(type);
-            dataoutputstream.writeInt(strength);
+            dataoutputstream.writeInt(selectedTeam);
             
             PacketDispatcher.sendPacketToServer(new Packet250CustomPayload("btw", bytearrayoutputstream.toByteArray()));
         } catch (Exception exception) {
@@ -52,14 +51,17 @@ public class TileEntityPenalizer extends TileEntity implements ITeamHubExtension
     }
     
     public void onPenalizePacket(DataInputStream dataInputStream) throws IOException {
-        if (this.teamHub == null) {
+        if (this.teamHub == null || this.teamHub.getGameHub() == null) {
             return;
         }
         
         int type = dataInputStream.readInt();
-        int strength = dataInputStream.readInt();
+        int selectedTeam = dataInputStream.readInt();
         
-        this.penalizeOtherTeams(type, strength);
+        if (type >= 0 && type < Penalization.penalizationList.length
+                && selectedTeam >= 0 && selectedTeam < this.teamHub.getGameHub().getConnectedTeamHubs().size()) {
+            this.penalizeTeam(Penalization.penalizationList[type], (TileEntityTeamHub) this.teamHub.getGameHub().getConnectedTeamHubs().get(selectedTeam));
+        }
     }
     
     @Override
@@ -76,17 +78,8 @@ public class TileEntityPenalizer extends TileEntity implements ITeamHubExtension
         super.updateEntity();
     }
     
-    private void penalizeOtherTeams(int type, int strength) {
-        Penalization penalization = null;
-        
-        try {
-            penalization = Penalization.penalizationList[type];
-        } catch (ArrayIndexOutOfBoundsException exception) {
-            exception.printStackTrace();
-            return;
-        }
-        
-        int price = this.getPrice(penalization, strength);
+    private void penalizeTeam(Penalization penalization, TileEntityTeamHub teamHub) {
+        int price = penalization.getPrice(teamHub, 1);
         
         if (this.teamHub.getEnergy() < price) {
             return;
@@ -94,15 +87,9 @@ public class TileEntityPenalizer extends TileEntity implements ITeamHubExtension
         
         this.teamHub.setEnergy(this.teamHub.getEnergy() - price);
         
-        ArrayList<TileEntity> teamHubs = this.teamHub.getGameHub().getConnectedTeamHubs();
-        
-        for (TileEntity teamHub : teamHubs) {
-            if (teamHub != this.teamHub) {
-                for (TileEntity tileEntity : ((TileEntityTeamHub) teamHub).getExtensionList()) {
-                    if (tileEntity instanceof TileEntityPenalizer) {
-                        ((TileEntityPenalizer) tileEntity).penalize(penalization, strength);
-                    }
-                }
+        for (TileEntity tileEntity : teamHub.getExtensionList()) {
+            if (tileEntity instanceof TileEntityPenalizer) {
+                ((TileEntityPenalizer) tileEntity).penalize(penalization, 1);
             }
         }
     }
@@ -111,22 +98,6 @@ public class TileEntityPenalizer extends TileEntity implements ITeamHubExtension
         this.activePenalization = penalization;
         this.strength = strength;
         this.repetitionsLeft = penalization.getRepetitions(this.teamHub, strength);
-    }
-    
-    public int getPrice(Penalization penalization, int strength) {
-        int price = 0;
-        
-        if (this.teamHub == null || this.teamHub.getGameHub() == null) {
-            return 0;
-        }
-        
-        for (TileEntity teamHub : this.teamHub.getGameHub().getConnectedTeamHubs()) {
-            if (teamHub != this.teamHub) {
-                price += penalization.getPrice((TileEntityTeamHub) teamHub, strength);
-            }
-        }
-        
-        return price;
     }
     
     @Override

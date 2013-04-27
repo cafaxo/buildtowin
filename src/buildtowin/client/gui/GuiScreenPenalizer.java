@@ -4,12 +4,18 @@ import java.util.ArrayList;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.RenderBlocks;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.util.EnumChatFormatting;
 
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 
+import buildtowin.BuildToWin;
 import buildtowin.penalization.Penalization;
 import buildtowin.tileentity.TileEntityPenalizer;
+import buildtowin.tileentity.TileEntityTeamHub;
+import buildtowin.util.Color;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -24,6 +30,8 @@ public class GuiScreenPenalizer extends GuiScreenAdvanced {
     
     private GuiButton poison;
     
+    private int selectedTeamHub;
+    
     public GuiScreenPenalizer(TileEntityPenalizer penalizer) {
         this.penalizer = penalizer;
     }
@@ -37,35 +45,51 @@ public class GuiScreenPenalizer extends GuiScreenAdvanced {
     public void initGui() {
         this.buttonList.clear();
         
-        this.lightning = new GuiButton(1, this.width / 2 - 45, this.height / 2 - 30 - 5, 90, 20, "Lightning");
-        this.lightning.enabled = this.penalizer.getTeamHub() != null
-                && this.penalizer.getPrice(Penalization.lightning, 1) > 0
-                && this.penalizer.getTeamHub().getEnergy() >= this.penalizer.getPrice(Penalization.lightning, 1);
+        GuiButton selectLeft = new GuiButton(1, this.width / 2 - 36, this.height / 2 - 27, 20, 20, "<");
+        selectLeft.enabled = this.getSelectedTeamHub() != null
+                && this.selectedTeamHub - 1 >= 0;
+        this.buttonList.add(selectLeft);
+        
+        GuiButton selectRight = new GuiButton(2, this.width / 2 + 15, this.height / 2 - 27, 20, 20, ">");
+        selectRight.enabled = this.getSelectedTeamHub() != null
+                && this.selectedTeamHub + 1 < this.penalizer.getTeamHub().getGameHub().getConnectedTeamHubs().size();
+        this.buttonList.add(selectRight);
+        
+        this.lightning = new GuiButton(3, this.width / 2 - 45, this.height / 2 + 5, 90, 20, "Lightning");
+        this.lightning.enabled = this.getSelectedTeamHub() != null
+                && Penalization.lightning.getPrice(this.getSelectedTeamHub(), 1) > 0
+                && this.penalizer.getTeamHub().getEnergy() >= Penalization.lightning.getPrice(this.getSelectedTeamHub(), 1);
         this.buttonList.add(this.lightning);
         
-        this.monsters = new GuiButton(2, this.width / 2 - 45, this.height / 2 - 5, 90, 20, "Monsters");
-        this.monsters.enabled = this.penalizer.getTeamHub() != null
-                && this.penalizer.getPrice(Penalization.monsters, 1) > 0
-                && this.penalizer.getTeamHub().getEnergy() >= this.penalizer.getPrice(Penalization.monsters, 1);
+        this.monsters = new GuiButton(4, this.width / 2 - 45, this.height / 2 + 30, 90, 20, "Monsters");
+        this.monsters.enabled = this.getSelectedTeamHub() != null
+                && Penalization.monsters.getPrice(this.getSelectedTeamHub(), 1) > 0
+                && this.penalizer.getTeamHub().getEnergy() >= Penalization.monsters.getPrice(this.getSelectedTeamHub(), 1);
         this.buttonList.add(this.monsters);
         
-        this.poison = new GuiButton(3, this.width / 2 - 45, this.height / 2 + 30 - 5, 90, 20, "Poison");
-        this.poison.enabled = this.penalizer.getTeamHub() != null
-                && this.penalizer.getPrice(Penalization.poison, 1) > 0
-                && this.penalizer.getTeamHub().getEnergy() >= this.penalizer.getPrice(Penalization.poison, 1);
+        this.poison = new GuiButton(5, this.width / 2 - 45, this.height / 2 + 55, 90, 20, "Poison");
+        this.poison.enabled = this.getSelectedTeamHub() != null
+                && Penalization.poison.getPrice(this.getSelectedTeamHub(), 1) > 0
+                && this.penalizer.getTeamHub().getEnergy() >= Penalization.poison.getPrice(this.getSelectedTeamHub(), 1);
         this.buttonList.add(this.poison);
     }
     
     @Override
     protected void actionPerformed(GuiButton par1GuiButton) {
         if (par1GuiButton.id == 1) {
-            this.penalizer.sendPenalizePacket(0, 1);
-            this.mc.displayGuiScreen((GuiScreen) null);
+            this.selectedTeamHub -= 1;
+            this.initGui();
         } else if (par1GuiButton.id == 2) {
-            this.penalizer.sendPenalizePacket(1, 1);
-            this.mc.displayGuiScreen((GuiScreen) null);
+            this.selectedTeamHub += 1;
+            this.initGui();
         } else if (par1GuiButton.id == 3) {
-            this.penalizer.sendPenalizePacket(2, 1);
+            this.penalizer.sendPenalizePacket(0, this.selectedTeamHub);
+            this.mc.displayGuiScreen((GuiScreen) null);
+        } else if (par1GuiButton.id == 4) {
+            this.penalizer.sendPenalizePacket(1, this.selectedTeamHub);
+            this.mc.displayGuiScreen((GuiScreen) null);
+        } else if (par1GuiButton.id == 5) {
+            this.penalizer.sendPenalizePacket(2, this.selectedTeamHub);
             this.mc.displayGuiScreen((GuiScreen) null);
         }
     }
@@ -83,24 +107,51 @@ public class GuiScreenPenalizer extends GuiScreenAdvanced {
         
         this.fontRenderer.drawString("Penalizer", this.width / 2 - 10, this.height / 2 - 62, 4210752);
         
+        this.fontRenderer.drawString("Team to penalize:", (this.width - this.fontRenderer.getStringWidth("Team to penalize:")) / 2, this.height / 2 - 40, 4210752);
+        
+        Color teamColor = new Color(1.0F, 1.0F, 1.0F);
+        
+        if (this.penalizer.getTeamHub() != null && this.penalizer.getTeamHub().getGameHub() != null) {
+            teamColor.setFromId(((TileEntityTeamHub) this.penalizer.getTeamHub().getGameHub().getConnectedTeamHubs().get(this.selectedTeamHub)).getColor().id);
+        }
+        
+        GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+        RenderHelper.enableGUIStandardItemLighting();
+        
+        BuildToWin.colorBlockRenderer.renderBlockAsItem(BuildToWin.teamHub, this.mc.renderEngine, new RenderBlocks(), this.width / 2 - 8, this.height / 2 - 25, this.zLevel, teamColor);
+        
+        RenderHelper.disableStandardItemLighting();
+        GL11.glDisable(GL12.GL_RESCALE_NORMAL);
+        
         super.drawScreen(par1, par2, par3);
         
-        if (this.lightning.func_82252_a() && this.penalizer.getPrice(Penalization.lightning, 1) > 0) {
+        if (this.lightning.func_82252_a() && Penalization.lightning.getPrice(this.getSelectedTeamHub(), 1) > 0) {
             ArrayList<String> list = new ArrayList<String>();
-            list.add(EnumChatFormatting.RED + ((Integer) this.penalizer.getPrice(Penalization.lightning, 1)).toString() + " coins");
+            list.add(EnumChatFormatting.RED + ((Integer) Penalization.lightning.getPrice(this.getSelectedTeamHub(), 1)).toString() + " coins");
             this.renderTooltip(list, par1, par2);
         }
         
-        if (this.monsters.func_82252_a() && this.penalizer.getPrice(Penalization.monsters, 1) > 0) {
+        if (this.monsters.func_82252_a() && Penalization.monsters.getPrice(this.getSelectedTeamHub(), 1) > 0) {
             ArrayList<String> list = new ArrayList<String>();
-            list.add(EnumChatFormatting.RED + ((Integer) this.penalizer.getPrice(Penalization.monsters, 1)).toString() + " coins");
+            list.add(EnumChatFormatting.RED + ((Integer) Penalization.monsters.getPrice(this.getSelectedTeamHub(), 1)).toString() + " coins");
             this.renderTooltip(list, par1, par2);
         }
         
-        if (this.poison.func_82252_a() && this.penalizer.getPrice(Penalization.poison, 1) > 0) {
+        if (this.poison.func_82252_a() && Penalization.poison.getPrice(this.getSelectedTeamHub(), 1) > 0) {
             ArrayList<String> list = new ArrayList<String>();
-            list.add(EnumChatFormatting.RED + ((Integer) this.penalizer.getPrice(Penalization.poison, 1)).toString() + " coins");
+            list.add(EnumChatFormatting.RED + ((Integer) Penalization.poison.getPrice(this.getSelectedTeamHub(), 1)).toString() + " coins");
             this.renderTooltip(list, par1, par2);
         }
+    }
+    
+    private TileEntityTeamHub getSelectedTeamHub() {
+        if (this.selectedTeamHub >= 0
+                && this.penalizer.getTeamHub() != null
+                && this.penalizer.getTeamHub().getGameHub() != null
+                && this.selectedTeamHub < this.penalizer.getTeamHub().getGameHub().getConnectedTeamHubs().size()) {
+            return (TileEntityTeamHub) this.penalizer.getTeamHub().getGameHub().getConnectedTeamHubs().get(this.selectedTeamHub);
+        }
+        
+        return null;
     }
 }
