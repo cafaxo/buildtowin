@@ -46,7 +46,7 @@ import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 
-@Mod(modid = "BuildToWin", name = "Build To Win!", version = "0.5.0")
+@Mod(modid = "BuildToWin", name = "Build To Win!", version = "1.0.0")
 @NetworkMod(clientSideRequired = true, serverSideRequired = false, channels = { "btw" }, packetHandler = PacketHandler.class)
 public class BuildToWin {
     
