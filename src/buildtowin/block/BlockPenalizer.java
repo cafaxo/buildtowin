@@ -82,11 +82,13 @@ public class BlockPenalizer extends BlockContainer implements IColoredBlock {
     }
     
     @Override
+    @SideOnly(Side.CLIENT)
     public void switchIconToOverlay() {
         this.blockIcon = this.blockIconOverlay;
     }
     
     @Override
+    @SideOnly(Side.CLIENT)
     public void switchIconToStandard() {
         this.blockIcon = this.blockIconStandard;
     }
