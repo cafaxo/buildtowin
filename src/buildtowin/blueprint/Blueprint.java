@@ -269,8 +269,8 @@ public class Blueprint {
                     this.offsetY + blockCoordinates.y,
                     this.offsetZ + blockCoordinates.z);
             
-            if (realBlockId == blockData.savedId 
-                    || (Block.blocksList[realBlockId] != null && Block.blocksList[realBlockId].idDropped(0, new Random(), 0) == blockData.savedId)) {
+            if (realBlockId == blockData.savedId
+                    || Block.blocksList[realBlockId] != null && Block.blocksList[realBlockId].idDropped(0, new Random(), 0) == blockData.savedId) {
                 ++finishedBlocks;
             } else if (realBlockId != BuildToWin.blueprint.blockID) {
                 this.setBlockData(

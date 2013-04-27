@@ -16,15 +16,12 @@ public class GuiScreenProtector extends GuiScreenAdvanced {
     
     private TileEntityProtector protector;
     
-    private boolean isPlayerCreative;
-    
     private GuiButton decreaseRadius;
     
     private GuiButton increaseRadius;
     
     public GuiScreenProtector(TileEntityProtector protector, boolean isPlayerCreative) {
         this.protector = protector;
-        this.isPlayerCreative = isPlayerCreative;
     }
     
     @Override

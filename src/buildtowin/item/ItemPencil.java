@@ -20,6 +20,7 @@ public class ItemPencil extends Item {
         this.setCreativeTab(BuildToWin.tabBuildToWin);
     }
     
+    @Override
     public boolean onBlockStartBreak(ItemStack itemStack, int x, int y, int z, EntityPlayer entityPlayer) {
         int blockId = entityPlayer.worldObj.getBlockId(x, y, z);
         

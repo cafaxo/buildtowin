@@ -77,7 +77,7 @@ public class TileEntityProtector extends TileEntitySynchronized implements ITeam
     }
     
     public int getPrice(int targetRadius) {
-        return ((targetRadius * targetRadius) - (this.radius * this.radius)) * 2;
+        return (targetRadius * targetRadius - this.radius * this.radius) * 2;
     }
     
     public int getRadius() {
