@@ -54,4 +54,8 @@ public class Color {
         
         this.id = id;
     }
+    
+    public int toDecimal() {
+        return ((int) (this.r * 255.F) << 16) + ((int) (this.g * 255.F) << 8) + ((int) (this.b * 255.F));
+    }
 }
