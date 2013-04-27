@@ -78,6 +78,7 @@ public class BlockTeamHub extends BlockContainer implements IColoredBlock {
     }
     
     @Override
+    @SideOnly(Side.CLIENT)
     public Color getColor(IBlockAccess world, int x, int y, int z) {
         TileEntityTeamHub teamHub = (TileEntityTeamHub) world.getBlockTileEntity(x, y, z);
         

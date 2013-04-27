@@ -72,6 +72,7 @@ public class BlockBlueprint extends BlockContainer {
     }
     
     @Override
+    @SideOnly(Side.CLIENT)
     public boolean isCollidable() {
         EntityPlayer player = Minecraft.getMinecraft().thePlayer;
         return player.inventory.getCurrentItem() != null && player.inventory.getCurrentItem().getItem() instanceof ItemPencil;

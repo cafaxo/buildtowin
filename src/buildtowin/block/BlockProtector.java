@@ -92,6 +92,7 @@ public class BlockProtector extends BlockContainer implements IColoredBlock {
     }
     
     @Override
+    @SideOnly(Side.CLIENT)
     public Color getColor(IBlockAccess world, int x, int y, int z) {
         TileEntityProtector tileEntity = (TileEntityProtector) world.getBlockTileEntity(x, y, z);
         

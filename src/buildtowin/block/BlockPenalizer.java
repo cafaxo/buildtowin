@@ -92,6 +92,7 @@ public class BlockPenalizer extends BlockContainer implements IColoredBlock {
     }
     
     @Override
+    @SideOnly(Side.CLIENT)
     public Color getColor(IBlockAccess world, int x, int y, int z) {
         TileEntityPenalizer tileEntity = (TileEntityPenalizer) world.getBlockTileEntity(x, y, z);
         
