@@ -1,7 +1,10 @@
 package buildtowin;
 
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.Packet3Chat;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.MinecraftForge;
@@ -114,6 +117,23 @@ public class BuildToWin {
         GameRegistry.registerBlock(BuildToWin.connectionWire, "connectionWire");
         GameRegistry.registerBlock(BuildToWin.buildingHub, "buildingHub");
         GameRegistry.registerBlock(BuildToWin.blueprint, "blueprint");
+        
+        GameRegistry.addRecipe(new ItemStack(BuildToWin.teamChest), "xxx", "xyx", "xxx",
+                'x', Item.redstone, 'y', Block.chest);
+        
+        GameRegistry.addRecipe(new ItemStack(BuildToWin.penalizer), "xxx", "xyx", "xxx",
+                'x', Block.stone, 'y', Item.gunpowder);
+        
+        GameRegistry.addRecipe(new ItemStack(BuildToWin.protector), "xxx", "xyx", "xxx",
+                'x', Block.stone, 'y', Item.swordStone);
+        
+        GameRegistry.addRecipe(new ItemStack(BuildToWin.shop), "xxx", "yzy", "xxx",
+                'x', Block.planks, 'y', Item.redstone, 'z', Item.ingotIron);
+        
+        MinecraftForge.setBlockHarvestLevel(BuildToWin.teamChest, "pickaxe", 2);
+        MinecraftForge.setBlockHarvestLevel(BuildToWin.penalizer, "pickaxe", 2);
+        MinecraftForge.setBlockHarvestLevel(BuildToWin.protector, "pickaxe", 2);
+        MinecraftForge.setBlockHarvestLevel(BuildToWin.shop, "pickaxe", 2);
         
         LanguageRegistry.instance().addStringLocalization("itemGroup.customTab", "en_US", "Build To Win");
         LanguageRegistry.addName(BuildToWin.gameHub, "Game Hub");

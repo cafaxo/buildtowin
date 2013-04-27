@@ -32,8 +32,8 @@ public class BlockProtector extends BlockContainer implements IColoredBlock {
         super(blockId, Material.rock);
         
         this.setCreativeTab(BuildToWin.tabBuildToWin);
-        this.setBlockUnbreakable();
-        this.setResistance(6000000.0F);
+        this.setHardness(50.0F);
+        this.setResistance(2000.0F);
         this.setUnlocalizedName("protector");
     }
     

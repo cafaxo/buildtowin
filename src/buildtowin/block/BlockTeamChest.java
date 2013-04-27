@@ -20,6 +20,8 @@ public class BlockTeamChest extends BlockChest {
         super(blockId, 0);
         
         this.setCreativeTab(BuildToWin.tabBuildToWin);
+        this.setHardness(50.0F);
+        this.setResistance(2000.0F);
         this.setUnlocalizedName("teamChest");
     }
     
