@@ -309,15 +309,15 @@ public class Blueprint {
             Map.Entry pairs = (Map.Entry) iter.next();
             Coordinates blockCoordinates = (Coordinates) pairs.getKey();
             
-            data[i * 5] = blockCoordinates.x;
-            data[i * 5 + 1] = blockCoordinates.y;
-            data[i * 5 + 2] = blockCoordinates.z;
+            data[i * 6] = blockCoordinates.x;
+            data[i * 6 + 1] = blockCoordinates.y;
+            data[i * 6 + 2] = blockCoordinates.z;
             
             BlockData blockData = (BlockData) pairs.getValue();
             
-            data[i * 5 + 3] = blockData.metadata;
-            data[i * 5 + 4] = blockData.savedId;
-            data[i * 5 + 5] = blockData.savedMetadata;
+            data[i * 6 + 3] = blockData.metadata;
+            data[i * 6 + 4] = blockData.savedId;
+            data[i * 6 + 5] = blockData.savedMetadata;
         }
         
         return data;
@@ -325,8 +325,8 @@ public class Blueprint {
     
     public void decode(int data[]) {
         for (int i = 0; i < data.length / 6; ++i) {
-            Coordinates blockCoordinates = new Coordinates(data[i * 5], data[i * 5 + 1], data[i * 5 + 2]);
-            BlockData blockData = new BlockData(data[i * 5 + 3], data[i * 5 + 4], data[i * 5 + 5]);
+            Coordinates blockCoordinates = new Coordinates(data[i * 6], data[i * 6 + 1], data[i * 6 + 2]);
+            BlockData blockData = new BlockData(data[i * 6 + 3], data[i * 6 + 4], data[i * 6 + 5]);
             
             this.blocks.put(blockCoordinates, blockData);
         }
