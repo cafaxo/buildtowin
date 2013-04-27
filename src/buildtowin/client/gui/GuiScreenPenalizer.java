@@ -38,15 +38,21 @@ public class GuiScreenPenalizer extends GuiScreenAdvanced {
         this.buttonList.clear();
         
         this.lightning = new GuiButton(1, this.width / 2 - 45, this.height / 2 - 30 - 5, 90, 20, "Lightning");
-        this.lightning.enabled = this.penalizer.getTeamHub() != null && this.penalizer.getTeamHub().getEnergy() >= this.penalizer.getPriceClient(Penalization.lightning, 1);
+        this.lightning.enabled = this.penalizer.getTeamHub() != null
+                && this.penalizer.getPrice(Penalization.lightning, 1) > 0
+                && this.penalizer.getTeamHub().getEnergy() >= this.penalizer.getPrice(Penalization.lightning, 1);
         this.buttonList.add(this.lightning);
         
         this.monsters = new GuiButton(2, this.width / 2 - 45, this.height / 2 - 5, 90, 20, "Monsters");
-        this.monsters.enabled = this.penalizer.getTeamHub() != null && this.penalizer.getTeamHub().getEnergy() >= this.penalizer.getPriceClient(Penalization.monsters, 1);
+        this.monsters.enabled = this.penalizer.getTeamHub() != null
+                && this.penalizer.getPrice(Penalization.monsters, 1) > 0
+                && this.penalizer.getTeamHub().getEnergy() >= this.penalizer.getPrice(Penalization.monsters, 1);
         this.buttonList.add(this.monsters);
         
         this.poison = new GuiButton(3, this.width / 2 - 45, this.height / 2 + 30 - 5, 90, 20, "Poison");
-        this.poison.enabled = this.penalizer.getTeamHub() != null && this.penalizer.getTeamHub().getEnergy() >= this.penalizer.getPriceClient(Penalization.poison, 1);
+        this.poison.enabled = this.penalizer.getTeamHub() != null
+                && this.penalizer.getPrice(Penalization.poison, 1) > 0
+                && this.penalizer.getTeamHub().getEnergy() >= this.penalizer.getPrice(Penalization.poison, 1);
         this.buttonList.add(this.poison);
     }
     
@@ -79,21 +85,21 @@ public class GuiScreenPenalizer extends GuiScreenAdvanced {
         
         super.drawScreen(par1, par2, par3);
         
-        if (this.lightning.func_82252_a()) {
+        if (this.lightning.func_82252_a() && this.penalizer.getPrice(Penalization.lightning, 1) > 0) {
             ArrayList<String> list = new ArrayList<String>();
-            list.add(EnumChatFormatting.RED + ((Integer) this.penalizer.getPriceClient(Penalization.lightning, 1)).toString() + " coins");
+            list.add(EnumChatFormatting.RED + ((Integer) this.penalizer.getPrice(Penalization.lightning, 1)).toString() + " coins");
             this.renderTooltip(list, par1, par2);
         }
         
-        if (this.monsters.func_82252_a()) {
+        if (this.monsters.func_82252_a() && this.penalizer.getPrice(Penalization.monsters, 1) > 0) {
             ArrayList<String> list = new ArrayList<String>();
-            list.add(EnumChatFormatting.RED + ((Integer) this.penalizer.getPriceClient(Penalization.monsters, 1)).toString() + " coins");
+            list.add(EnumChatFormatting.RED + ((Integer) this.penalizer.getPrice(Penalization.monsters, 1)).toString() + " coins");
             this.renderTooltip(list, par1, par2);
         }
         
-        if (this.poison.func_82252_a()) {
+        if (this.poison.func_82252_a() && this.penalizer.getPrice(Penalization.poison, 1) > 0) {
             ArrayList<String> list = new ArrayList<String>();
-            list.add(EnumChatFormatting.RED + ((Integer) this.penalizer.getPriceClient(Penalization.poison, 1)).toString() + " coins");
+            list.add(EnumChatFormatting.RED + ((Integer) this.penalizer.getPrice(Penalization.poison, 1)).toString() + " coins");
             this.renderTooltip(list, par1, par2);
         }
     }

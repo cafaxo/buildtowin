@@ -13,7 +13,7 @@ import buildtowin.network.PacketIds;
 import buildtowin.penalization.Penalization;
 import cpw.mods.fml.common.network.PacketDispatcher;
 
-public class TileEntityPenalizer extends TileEntitySynchronized implements ITeamHubExtension {
+public class TileEntityPenalizer extends TileEntity implements ITeamHubExtension {
     
     private TileEntityTeamHub teamHub;
     
@@ -23,31 +23,12 @@ public class TileEntityPenalizer extends TileEntitySynchronized implements ITeam
     
     private int repetitionsLeft;
     
-    private int clientPrices[];
-    
     private Random random;
     
     public TileEntityPenalizer() {
         this.strength = 0;
         this.repetitionsLeft = 0;
-        this.clientPrices = new int[Penalization.penalizationList.length];
         this.random = new Random();
-    }
-    
-    @Override
-    public boolean writeDescriptionPacket(DataOutputStream dataOutputStream) throws IOException {
-        for (Penalization penalization : Penalization.penalizationList) {
-            dataOutputStream.writeInt(this.getPrice(penalization, 1));
-        }
-        
-        return true;
-    }
-    
-    @Override
-    public void readDescriptionPacket(DataInputStream dataInputStream) throws IOException {
-        for (int i = 0; i < Penalization.penalizationList.length; ++i) {
-            this.clientPrices[i] = dataInputStream.readInt();
-        }
     }
     
     public void sendPenalizePacket(int type, int strength) {
@@ -146,10 +127,6 @@ public class TileEntityPenalizer extends TileEntitySynchronized implements ITeam
         }
         
         return price;
-    }
-    
-    public int getPriceClient(Penalization penalization, int strength) {
-        return this.clientPrices[penalization.penalizationId];
     }
     
     @Override
