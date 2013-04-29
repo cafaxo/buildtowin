@@ -65,8 +65,8 @@ public class TileEntityProtector extends TileEntitySynchronized implements ITeam
     public void onRadiusChanged(DataInputStream dataInputStream) throws IOException {
         int newRadius = dataInputStream.readInt();
         
-        if (this.teamHub.getEnergy() >= this.getPrice(newRadius)) {
-            this.teamHub.setEnergy(this.teamHub.getEnergy() - this.getPrice(newRadius));
+        if (this.teamHub.getCoins() >= this.getPrice(newRadius)) {
+            this.teamHub.setCoins(this.teamHub.getCoins() - this.getPrice(newRadius));
             this.radius = newRadius;
         }
     }

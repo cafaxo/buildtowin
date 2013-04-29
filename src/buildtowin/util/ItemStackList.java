@@ -6,14 +6,14 @@ import net.minecraft.nbt.NBTTagList;
 
 public class ItemStackList {
     
-    private ItemStack[] contents = new ItemStack[27];
+    private ItemStack[] contents;
     
-    public ItemStackList() {
-        this.contents = new ItemStack[27];
+    public ItemStackList(int size) {
+        this.contents = new ItemStack[size];
     }
     
     public void readTagList(NBTTagList tagList) {
-        this.contents = new ItemStack[27];
+        this.clear();
         
         for (int i = 0; i < tagList.tagCount(); ++i) {
             NBTTagCompound itemStackNbt = (NBTTagCompound) tagList.tagAt(i);
@@ -39,6 +39,12 @@ public class ItemStackList {
         }
         
         return shopContentsNbt;
+    }
+    
+    public void clear() {
+        for (int i = 0; i < this.contents.length; ++i) {
+            this.contents[i] = null;
+        }
     }
     
     public ItemStack[] getContents() {

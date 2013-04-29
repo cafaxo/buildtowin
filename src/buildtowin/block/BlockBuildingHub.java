@@ -20,8 +20,8 @@ public class BlockBuildingHub extends BlockContainer {
     
     private Icon iconDisconnected;
     
-    public BlockBuildingHub(int id) {
-        super(id, Material.rock);
+    public BlockBuildingHub(int blockId) {
+        super(blockId, Material.rock);
         
         this.setCreativeTab(BuildToWin.tabBuildToWin);
         this.setBlockUnbreakable();

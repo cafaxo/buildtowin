@@ -11,19 +11,13 @@ import buildtowin.BuildToWin;
 
 public class TileEntityConnectionWire extends TileEntitySynchronized {
     
-    private ArrayList<TileEntity> surroundingTileEntities;
+    private ArrayList<TileEntity> surroundingTileEntities = new ArrayList<TileEntity>();
     
     private ArrayList<TileEntityConnectionWire> connectedWires;
     
     private boolean activated;
     
     private int lastSignal;
-    
-    public TileEntityConnectionWire() {
-        this.surroundingTileEntities = new ArrayList<TileEntity>();
-        this.activated = false;
-        this.lastSignal = 0;
-    }
     
     @Override
     public boolean writeDescriptionPacket(DataOutputStream dataOutputStream) throws IOException {

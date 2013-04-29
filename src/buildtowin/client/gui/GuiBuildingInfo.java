@@ -87,7 +87,7 @@ public class GuiBuildingInfo extends Gui {
             
             GL11.glPopMatrix();
             
-            Integer energy = teamHub.getEnergy();
+            Integer energy = teamHub.getCoins();
             
             String daysLeft = "0,00";
             float daysLeftFloat = (teamHub.getGameHub().getDeadline() - teamHub.getGameHub().getRealWorldTime()) / 24000.F;
@@ -105,12 +105,9 @@ public class GuiBuildingInfo extends Gui {
             
             GL11.glPopMatrix();
             
-            Color color = new Color(1.0F, 1.0F, 1.0F);
+            Color white = new Color(1.0F, 1.0F, 1.0F);
             
-            Color shadow = new Color(1.0F, 1.0F, 1.0F);
-            shadow.setFromId(teamHub.getColor().id);
-            
-            this.drawStringWithShadow(progress + "%", 22 + x, y, color, shadow);
+            this.drawStringWithShadow(progress + "%", 22 + x, y, white, teamHub.getColor());
         }
     }
     

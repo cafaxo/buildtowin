@@ -7,7 +7,6 @@ public class BlockData {
     public int metadata, savedId, savedMetadata;
     
     public BlockData(int savedId, int savedMetadata) {
-        this.metadata = 0;
         this.savedId = savedId;
         this.savedMetadata = savedMetadata;
     }

@@ -10,15 +10,9 @@ import buildtowin.util.Color;
 
 public class TileEntityBlueprint extends TileEntity {
     
-    private BlockData blockData;
+    private BlockData blockData = new BlockData(0, 0);
     
     private Color color;
-    
-    public TileEntityBlueprint() {
-        this.blockData = new BlockData(0, 0);
-        this.color = new Color(0.F, 0.F, 0.F);
-        this.color.setFromId(0);
-    }
     
     @Override
     public void writeToNBT(NBTTagCompound par1NBTTagCompound) {
@@ -35,7 +29,7 @@ public class TileEntityBlueprint extends TileEntity {
         
         this.blockData.savedId = par1NBTTagCompound.getInteger("blockid");
         this.blockData.savedMetadata = par1NBTTagCompound.getInteger("metadata");
-        this.color.setFromId(par1NBTTagCompound.getInteger("color"));
+        this.color = Color.fromId(par1NBTTagCompound.getInteger("color"));
     }
     
     @Override

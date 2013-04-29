@@ -9,10 +9,6 @@ public class TileEntityShop extends TileEntity implements IInventory {
     
     private TileEntityTeamHub teamHub;
     
-    public TileEntityShop() {
-        
-    }
-    
     @Override
     public int getSizeInventory() {
         return 27;

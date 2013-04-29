@@ -13,8 +13,8 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 public class ItemPencil extends Item {
     
-    public ItemPencil(int id) {
-        super(id);
+    public ItemPencil(int itemId) {
+        super(itemId);
         
         this.setMaxStackSize(1);
         this.setCreativeTab(BuildToWin.tabBuildToWin);

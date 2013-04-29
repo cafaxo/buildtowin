@@ -57,20 +57,20 @@ public class GuiScreenPenalizer extends GuiScreenAdvanced {
         
         this.lightning = new GuiButton(3, this.width / 2 - 45, this.height / 2 + 5, 90, 20, "Lightning");
         this.lightning.enabled = this.getSelectedTeamHub() != null
-                && Penalization.lightning.getPrice(this.getSelectedTeamHub(), 1) > 0
-                && this.penalizer.getTeamHub().getEnergy() >= Penalization.lightning.getPrice(this.getSelectedTeamHub(), 1);
+                && Penalization.lightning.getPrice(this.getSelectedTeamHub()) > 0
+                && this.penalizer.getTeamHub().getCoins() >= Penalization.lightning.getPrice(this.getSelectedTeamHub());
         this.buttonList.add(this.lightning);
         
         this.monsters = new GuiButton(4, this.width / 2 - 45, this.height / 2 + 30, 90, 20, "Monsters");
         this.monsters.enabled = this.getSelectedTeamHub() != null
-                && Penalization.monsters.getPrice(this.getSelectedTeamHub(), 1) > 0
-                && this.penalizer.getTeamHub().getEnergy() >= Penalization.monsters.getPrice(this.getSelectedTeamHub(), 1);
+                && Penalization.monsters.getPrice(this.getSelectedTeamHub()) > 0
+                && this.penalizer.getTeamHub().getCoins() >= Penalization.monsters.getPrice(this.getSelectedTeamHub());
         this.buttonList.add(this.monsters);
         
         this.poison = new GuiButton(5, this.width / 2 - 45, this.height / 2 + 55, 90, 20, "Poison");
         this.poison.enabled = this.getSelectedTeamHub() != null
-                && Penalization.poison.getPrice(this.getSelectedTeamHub(), 1) > 0
-                && this.penalizer.getTeamHub().getEnergy() >= Penalization.poison.getPrice(this.getSelectedTeamHub(), 1);
+                && Penalization.poison.getPrice(this.getSelectedTeamHub()) > 0
+                && this.penalizer.getTeamHub().getCoins() >= Penalization.poison.getPrice(this.getSelectedTeamHub());
         this.buttonList.add(this.poison);
     }
     
@@ -112,7 +112,7 @@ public class GuiScreenPenalizer extends GuiScreenAdvanced {
         Color teamColor = new Color(1.0F, 1.0F, 1.0F);
         
         if (this.penalizer.getTeamHub() != null && this.penalizer.getTeamHub().getGameHub() != null) {
-            teamColor.setFromId(((TileEntityTeamHub) this.penalizer.getTeamHub().getGameHub().getConnectedTeamHubs().get(this.selectedTeamHub)).getColor().id);
+            teamColor = Color.fromId(((TileEntityTeamHub) this.penalizer.getTeamHub().getGameHub().getConnectedTeamHubs().get(this.selectedTeamHub)).getColor().id);
         }
         
         GL11.glEnable(GL12.GL_RESCALE_NORMAL);
@@ -125,21 +125,21 @@ public class GuiScreenPenalizer extends GuiScreenAdvanced {
         
         super.drawScreen(par1, par2, par3);
         
-        if (this.lightning.func_82252_a() && Penalization.lightning.getPrice(this.getSelectedTeamHub(), 1) > 0) {
+        if (this.lightning.func_82252_a() && Penalization.lightning.getPrice(this.getSelectedTeamHub()) > 0) {
             ArrayList<String> list = new ArrayList<String>();
-            list.add(EnumChatFormatting.RED + ((Integer) Penalization.lightning.getPrice(this.getSelectedTeamHub(), 1)).toString() + " coins");
+            list.add(EnumChatFormatting.RED + ((Integer) Penalization.lightning.getPrice(this.getSelectedTeamHub())).toString() + " coins");
             this.renderTooltip(list, par1, par2);
         }
         
-        if (this.monsters.func_82252_a() && Penalization.monsters.getPrice(this.getSelectedTeamHub(), 1) > 0) {
+        if (this.monsters.func_82252_a() && Penalization.monsters.getPrice(this.getSelectedTeamHub()) > 0) {
             ArrayList<String> list = new ArrayList<String>();
-            list.add(EnumChatFormatting.RED + ((Integer) Penalization.monsters.getPrice(this.getSelectedTeamHub(), 1)).toString() + " coins");
+            list.add(EnumChatFormatting.RED + ((Integer) Penalization.monsters.getPrice(this.getSelectedTeamHub())).toString() + " coins");
             this.renderTooltip(list, par1, par2);
         }
         
-        if (this.poison.func_82252_a() && Penalization.poison.getPrice(this.getSelectedTeamHub(), 1) > 0) {
+        if (this.poison.func_82252_a() && Penalization.poison.getPrice(this.getSelectedTeamHub()) > 0) {
             ArrayList<String> list = new ArrayList<String>();
-            list.add(EnumChatFormatting.RED + ((Integer) Penalization.poison.getPrice(this.getSelectedTeamHub(), 1)).toString() + " coins");
+            list.add(EnumChatFormatting.RED + ((Integer) Penalization.poison.getPrice(this.getSelectedTeamHub())).toString() + " coins");
             this.renderTooltip(list, par1, par2);
         }
     }

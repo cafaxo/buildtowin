@@ -39,7 +39,7 @@ public class GuiScreenProtector extends GuiScreenAdvanced {
         
         this.increaseRadius = new GuiButton(2, this.width / 2 + 15, this.height / 2 - 27 + 30, 20, 20, "+");
         this.increaseRadius.enabled = this.protector.getTeamHub() != null
-                && this.protector.getTeamHub().getEnergy() >= this.protector.getPrice(this.protector.getRadius() + 1);
+                && this.protector.getTeamHub().getCoins() >= this.protector.getPrice(this.protector.getRadius() + 1);
         
         this.buttonList.add(this.increaseRadius);
     }
@@ -47,12 +47,12 @@ public class GuiScreenProtector extends GuiScreenAdvanced {
     @Override
     protected void actionPerformed(GuiButton par1GuiButton) {
         if (par1GuiButton.id == 1) {
-            this.protector.getTeamHub().setEnergy(this.protector.getTeamHub().getEnergy() - this.protector.getPrice(this.protector.getRadius() - 1));
+            this.protector.getTeamHub().setCoins(this.protector.getTeamHub().getCoins() - this.protector.getPrice(this.protector.getRadius() - 1));
             this.protector.setRadius(this.protector.getRadius() - 1);
             this.protector.sendRadiusChangedPacket();
             this.initGui();
         } else if (par1GuiButton.id == 2) {
-            this.protector.getTeamHub().setEnergy(this.protector.getTeamHub().getEnergy() - this.protector.getPrice(this.protector.getRadius() + 1));
+            this.protector.getTeamHub().setCoins(this.protector.getTeamHub().getCoins() - this.protector.getPrice(this.protector.getRadius() + 1));
             this.protector.setRadius(this.protector.getRadius() + 1);
             this.protector.sendRadiusChangedPacket();
             this.initGui();

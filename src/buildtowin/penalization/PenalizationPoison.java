@@ -14,7 +14,7 @@ public class PenalizationPoison extends Penalization {
     }
     
     @Override
-    public void penalize(TileEntityTeamHub teamHub, int strength) {
+    public void penalize(TileEntityTeamHub teamHub) {
         Random rand = new Random();
         
         for (String player : teamHub.getPlayerList().getConnectedPlayers()) {
@@ -33,7 +33,7 @@ public class PenalizationPoison extends Penalization {
     }
     
     @Override
-    public int getPrice(TileEntityTeamHub teamHub, int strength) {
+    public int getPrice(TileEntityTeamHub teamHub) {
         return teamHub.getPlayerList().getConnectedPlayers().size() * 80;
     }
 }

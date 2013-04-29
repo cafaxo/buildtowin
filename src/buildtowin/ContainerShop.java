@@ -59,8 +59,8 @@ public class ContainerShop extends Container {
             }
             
             if (par1 < 3 * 9) {
-                if (teamHub.getEnergy() >= price) {
-                    teamHub.setEnergy(teamHub.getEnergy() - price);
+                if (teamHub.getCoins() >= price) {
+                    teamHub.setCoins(teamHub.getCoins() - price);
                     
                     BuildToWin.printChatMessage(entityPlayer, String.format("Bought %s * %d for %d coins",
                             itemstack1.getItem().getItemDisplayName(itemstack1),
@@ -74,7 +74,7 @@ public class ContainerShop extends Container {
                     BuildToWin.printChatMessage(entityPlayer, "You do not have enough coins");
                 }
             } else {
-                teamHub.setEnergy(teamHub.getEnergy() + price);
+                teamHub.setCoins(teamHub.getCoins() + price);
                 
                 BuildToWin.printChatMessage(entityPlayer, String.format("Sold %s * %d for %d coins",
                         itemstack1.getItem().getItemDisplayName(itemstack1),

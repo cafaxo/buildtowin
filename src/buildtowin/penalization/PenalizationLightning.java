@@ -11,7 +11,7 @@ public class PenalizationLightning extends Penalization {
     }
     
     @Override
-    public void penalize(TileEntityTeamHub teamHub, int strength) {
+    public void penalize(TileEntityTeamHub teamHub) {
         Coordinates randCoords = teamHub.getBlueprint().getRandomCoordinatesOutside();
         
         teamHub.worldObj.addWeatherEffect(new EntityLightningBolt(
@@ -32,12 +32,12 @@ public class PenalizationLightning extends Penalization {
     }
     
     @Override
-    public int getRepetitions(TileEntityTeamHub teamHub, int strength) {
+    public int getRepetitions(TileEntityTeamHub teamHub) {
         return 5;
     }
     
     @Override
-    public int getPrice(TileEntityTeamHub teamHub, int strength) {
+    public int getPrice(TileEntityTeamHub teamHub) {
         return (int) (10000.F * teamHub.getProgress());
     }
 }

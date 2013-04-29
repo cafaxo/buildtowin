@@ -19,18 +19,18 @@ public class Penalization {
         Penalization.penalizationList[penalizationId] = this;
     }
     
-    public void penalize(TileEntityTeamHub teamHub, int strength) {
+    public void penalize(TileEntityTeamHub teamHub) {
     }
     
-    public int getRepetitions(TileEntityTeamHub teamHub, int strength) {
+    public int getRepetitions(TileEntityTeamHub teamHub) {
         return 1;
     }
     
-    public int getChance(TileEntityTeamHub teamHub, int strength) {
+    public int getChance(TileEntityTeamHub teamHub) {
         return 100;
     }
     
-    public int getPrice(TileEntityTeamHub teamHub, int strength) {
+    public int getPrice(TileEntityTeamHub teamHub) {
         return 0;
     }
 }

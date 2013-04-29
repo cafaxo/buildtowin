@@ -23,8 +23,8 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 public class BlockBlueprint extends BlockContainer {
     
-    public BlockBlueprint(int id) {
-        super(id, Material.glass);
+    public BlockBlueprint(int blockId) {
+        super(blockId, Material.glass);
         
         this.setBlockUnbreakable();
         this.setResistance(6000000.0F);

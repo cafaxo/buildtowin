@@ -19,6 +19,7 @@ import buildtowin.blueprint.Blueprint;
 import buildtowin.blueprint.IBlueprintProvider;
 import buildtowin.network.PacketIds;
 import buildtowin.util.Color;
+import buildtowin.util.Coordinates;
 import buildtowin.util.IPlayerListProvider;
 import buildtowin.util.ItemStackList;
 import buildtowin.util.PlayerList;
@@ -30,17 +31,19 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
     
     private TileEntityGameHub gameHub;
     
-    private Color color;
+    private Color color = new Color();
     
     private TileEntityList extensionList = new TileEntityList();
     
-    private ItemStackList teamChestContents;
+    private ItemStackList teamChestContents = new ItemStackList(27);
     
-    private PlayerList playerList;
+    private PlayerList playerList = new PlayerList(this);
     
-    private Blueprint blueprint;
+    private Blueprint blueprint = new Blueprint(this);
     
-    private int energy;
+    private Coordinates nextUnfinishedBlueprint = new Coordinates(0, 0, 0);
+    
+    private int coins;
     
     private int finishedBlockCount;
     
@@ -48,18 +51,6 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
     
     public TileEntityTeamHub() {
         super(new Class[] { TileEntityGameHub.class });
-        
-        this.color = new Color(0.F, 0.F, 0.F);
-        this.color.setFromId(0);
-        
-        this.blueprint = new Blueprint();
-        this.blueprint.setColor(this.color);
-        
-        this.playerList = new PlayerList(this);
-        this.teamChestContents = new ItemStackList();
-        this.energy = 0;
-        this.finishedBlockCount = 0;
-        this.totalBlockCount = 0;
     }
     
     @Override
@@ -68,9 +59,7 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
         
         par1NBTTagCompound.setTag("players", this.playerList.getTagList());
         
-        par1NBTTagCompound.setIntArray("blueprint", this.blueprint.encode());
-        
-        par1NBTTagCompound.setInteger("energy", this.energy);
+        par1NBTTagCompound.setInteger("coins", this.coins);
         
         par1NBTTagCompound.setTag("teamChestContents", this.teamChestContents.getTagList());
         
@@ -84,9 +73,7 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
         NBTTagList connectedPlayersNbt = (NBTTagList) par1NBTTagCompound.getTag("players");
         this.playerList.readTagList(connectedPlayersNbt);
         
-        this.blueprint.decode(par1NBTTagCompound.getIntArray("blueprint"));
-        
-        this.energy = par1NBTTagCompound.getInteger("energy");
+        this.coins = par1NBTTagCompound.getInteger("coins");
         
         this.teamChestContents.readTagList(par1NBTTagCompound.getTagList("teamChestContents"));
         
@@ -97,7 +84,7 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
     public boolean writeDescriptionPacket(DataOutputStream dataOutputStream) throws IOException {
         dataOutputStream.writeInt(this.finishedBlockCount);
         dataOutputStream.writeInt(this.totalBlockCount);
-        dataOutputStream.writeInt(this.energy);
+        dataOutputStream.writeInt(this.coins);
         
         if (this.gameHub != null) {
             dataOutputStream.writeInt(this.color.id);
@@ -106,6 +93,18 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
             dataOutputStream.writeInt(this.gameHub.zCoord);
         } else {
             dataOutputStream.writeInt(0);
+            dataOutputStream.writeInt(0);
+            dataOutputStream.writeInt(0);
+            dataOutputStream.writeInt(0);
+        }
+        
+        Coordinates nextUnfinishedBlueprint = this.blueprint.getNextUnfinishedBlueprint();
+        
+        if (nextUnfinishedBlueprint != null) {
+            dataOutputStream.writeInt(nextUnfinishedBlueprint.x);
+            dataOutputStream.writeInt(nextUnfinishedBlueprint.y);
+            dataOutputStream.writeInt(nextUnfinishedBlueprint.z);
+        } else {
             dataOutputStream.writeInt(0);
             dataOutputStream.writeInt(0);
             dataOutputStream.writeInt(0);
@@ -121,8 +120,19 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
     public void readDescriptionPacket(DataInputStream dataInputStream) throws IOException {
         this.finishedBlockCount = dataInputStream.readInt();
         this.totalBlockCount = dataInputStream.readInt();
-        this.energy = dataInputStream.readInt();
-        this.color.setFromId(dataInputStream.readInt());
+        this.coins = dataInputStream.readInt();
+        
+        Color newColor = Color.fromId(dataInputStream.readInt());
+        
+        if (newColor.id != this.color.id) {
+            this.worldObj.markBlockForRenderUpdate(this.xCoord, this.yCoord, this.zCoord);
+            
+            for (TileEntity teamHubExtension : this.getExtensionList()) {
+                this.worldObj.markBlockForRenderUpdate(teamHubExtension.xCoord, teamHubExtension.yCoord, teamHubExtension.zCoord);
+            }
+            
+            this.color = newColor;
+        }
         
         TileEntity tileEntity = this.worldObj.getBlockTileEntity(
                 dataInputStream.readInt(),
@@ -135,34 +145,10 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
             this.gameHub = null;
         }
         
+        this.nextUnfinishedBlueprint = new Coordinates(dataInputStream.readInt(), dataInputStream.readInt(), dataInputStream.readInt());
+        
         this.playerList.readDescriptionPacket(dataInputStream);
         this.extensionList.readDescriptionPacket(dataInputStream);
-    }
-    
-    @Override
-    public void updateEntity() {
-        if (this.gameHub == null) {
-            this.color.setFromId(0);
-        }
-        
-        Iterator<TileEntity> iter = this.getExtensionList().iterator();
-        
-        while (iter.hasNext()) {
-            TileEntity tileEntity = iter.next();
-            
-            if (tileEntity == null || tileEntity.isInvalid()) {
-                iter.remove();
-            } else {
-                ((ITeamHubExtension) tileEntity).setTeamHub(this);
-            }
-        }
-        
-        if (!this.worldObj.isRemote) {
-            this.finishedBlockCount = this.blueprint.refresh();
-            this.totalBlockCount = this.blueprint.getBlocks().size();
-        }
-        
-        super.updateEntity();
     }
     
     @Override
@@ -189,6 +175,25 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
         this.gameHub = null;
         this.updateConnections();
         
+        if (this.gameHub == null) {
+            this.blueprint.clear();
+        }
+        
+        Iterator<TileEntity> iter = this.getExtensionList().iterator();
+        
+        while (iter.hasNext()) {
+            TileEntity tileEntity = iter.next();
+            
+            if (tileEntity == null || tileEntity.isInvalid()) {
+                iter.remove();
+            } else {
+                ((ITeamHubExtension) tileEntity).setTeamHub(this);
+            }
+        }
+        
+        this.finishedBlockCount = this.blueprint.refresh();
+        this.totalBlockCount = this.blueprint.getBlocks().size();
+        
         super.onSynchronization();
     }
     
@@ -199,15 +204,12 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
     
     @Override
     public void loadBlueprint(Blueprint blueprint) {
-        this.getBlueprint().loadBlueprint(blueprint);
-    }
-    
-    @Override
-    public void validate() {
-        super.validate();
+        this.blueprint.clear();
         
-        this.blueprint.setWorldObj(this.worldObj);
-        this.blueprint.setOffset(this.xCoord, this.yCoord, this.zCoord);
+        this.blueprint = new Blueprint(this);
+        this.blueprint.setBlocks(blueprint.getBlocks());
+        
+        this.blueprint.reset();
     }
     
     public float getProgress() {
@@ -282,6 +284,10 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
         return this.gameHub;
     }
     
+    public void setGameHub(TileEntityGameHub gameHub) {
+        this.gameHub = gameHub;
+    }
+    
     public ArrayList<TileEntity> getExtensionList() {
         return this.extensionList.getTileEntityList(this.worldObj);
     }
@@ -292,30 +298,31 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
     }
     
     public Blueprint getBlueprint() {
-        if (!this.worldObj.isRemote) {
-            return this.blueprint;
-        }
-        
-        return null;
+        return this.blueprint;
     }
     
-    public int getEnergy() {
-        return this.energy;
+    public int getCoins() {
+        return this.coins;
     }
     
-    public void setEnergy(int energy) {
-        this.energy = energy;
+    public void setCoins(int coins) {
+        this.coins = coins;
     }
     
     public ItemStackList getTeamChestContents() {
         return this.teamChestContents;
     }
     
+    @Override
     public Color getColor() {
         return this.color;
     }
     
     public void setColor(Color color) {
         this.color = color;
+    }
+    
+    public Coordinates getNextUnfinishedBlueprint() {
+        return this.nextUnfinishedBlueprint;
     }
 }

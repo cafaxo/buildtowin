@@ -89,7 +89,7 @@ public class EventHandler {
                 TileEntityTeamHub teamHub = (TileEntityTeamHub) PlayerList.getPlayerListProvider(entityPlayer, TileEntityTeamHub.class);
                 
                 if (teamHub != null) {
-                    teamHub.setEnergy(teamHub.getEnergy() + 10);
+                    teamHub.setCoins(teamHub.getCoins() + 10);
                 }
             }
         }

@@ -37,10 +37,11 @@ public class ColoredBlockRenderer implements ISimpleBlockRenderingHandler {
         coloredBlock.switchIconToOverlay();
         
         TileEntityTeamHub teamHub = (TileEntityTeamHub) PlayerList.getPlayerListProvider(Minecraft.getMinecraft().thePlayer, TileEntityTeamHub.class);
+        
         Color color = new Color(1.0F, 1.0F, 1.0F);
         
         if (teamHub != null) {
-            color.setFromId(teamHub.getColor().id);
+            color = Color.fromId(teamHub.getColor().id);
         }
         
         this.renderInventoryBlock(par1Block, metadata, renderer, color);

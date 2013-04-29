@@ -15,10 +15,6 @@ public abstract class TileEntitySynchronized extends TileEntity {
     
     private int synchronizationTimer;
     
-    public TileEntitySynchronized() {
-        this.synchronizationTimer = 0;
-    }
-    
     public abstract boolean writeDescriptionPacket(DataOutputStream dataOutputStream) throws IOException;
     
     public abstract void readDescriptionPacket(DataInputStream dataInputStream) throws IOException;

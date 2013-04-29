@@ -17,6 +17,13 @@ public class Color {
     
     public float r, g, b;
     
+    public Color() {
+        this.r = 1.0F;
+        this.g = 1.0F;
+        this.b = 1.0F;
+        this.id = 0;
+    }
+    
     public Color(float r, float g, float b) {
         this.r = r;
         this.g = g;
@@ -31,13 +38,15 @@ public class Color {
         this.id = -1;
     }
     
-    public void setFromId(int id) {
+    public static Color fromId(int id) {
+        Color color = new Color();
+        
         if (id < Color.niceColors.length) {
             Color niceColor = Color.niceColors[id];
             
-            this.r = niceColor.r;
-            this.g = niceColor.g;
-            this.b = niceColor.b;
+            color.r = niceColor.r;
+            color.g = niceColor.g;
+            color.b = niceColor.b;
         } else {
             Random rand = new Random(id);
             ArrayList<Float> values = new ArrayList<Float>();
@@ -47,12 +56,14 @@ public class Color {
             
             Collections.shuffle(values, rand);
             
-            this.r = values.get(0);
-            this.g = values.get(1);
-            this.b = values.get(2);
+            color.r = values.get(0);
+            color.g = values.get(1);
+            color.b = values.get(2);
         }
         
-        this.id = id;
+        color.id = id;
+        
+        return color;
     }
     
     public int toDecimal() {

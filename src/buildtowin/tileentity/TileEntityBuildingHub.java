@@ -10,20 +10,17 @@ import net.minecraft.nbt.NBTTagList;
 import buildtowin.BuildToWin;
 import buildtowin.blueprint.Blueprint;
 import buildtowin.blueprint.IBlueprintProvider;
+import buildtowin.util.Color;
 import buildtowin.util.IPlayerListProvider;
 import buildtowin.util.PlayerList;
 
 public class TileEntityBuildingHub extends TileEntitySynchronized implements IPlayerListProvider, IBlueprintProvider {
     
-    private PlayerList playerList;
+    private Color color = Color.fromId(1);
     
-    private Blueprint blueprint;
+    private PlayerList playerList = new PlayerList(this);
     
-    public TileEntityBuildingHub() {
-        this.playerList = new PlayerList(this);
-        this.blueprint = new Blueprint();
-        this.blueprint.getColor().setFromId(1);
-    }
+    private Blueprint blueprint = new Blueprint(this);
     
     @Override
     public void writeToNBT(NBTTagCompound par1NBTTagCompound) {
@@ -94,15 +91,14 @@ public class TileEntityBuildingHub extends TileEntitySynchronized implements IPl
     
     @Override
     public void loadBlueprint(Blueprint blueprint) {
-        this.getBlueprint().loadBlueprint(blueprint);
-        this.getBlueprint().reset();
+        this.blueprint.clear();
+        
+        this.blueprint = new Blueprint(this, blueprint);
+        this.blueprint.reset();
     }
     
     @Override
-    public void validate() {
-        super.validate();
-        
-        this.blueprint.setWorldObj(this.worldObj);
-        this.blueprint.setOffset(this.xCoord, this.yCoord, this.zCoord);
+    public Color getColor() {
+        return this.color;
     }
 }

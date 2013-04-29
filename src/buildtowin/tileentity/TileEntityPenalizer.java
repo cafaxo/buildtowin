@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Random;
 
 import net.minecraft.network.packet.Packet250CustomPayload;
@@ -16,19 +17,11 @@ public class TileEntityPenalizer extends TileEntity implements ITeamHubExtension
     
     private TileEntityTeamHub teamHub;
     
-    private Penalization activePenalization;
-    
-    private int strength;
+    private ArrayList<Penalization> penalizationQueue = new ArrayList<Penalization>();
     
     private int repetitionsLeft;
     
-    private Random random;
-    
-    public TileEntityPenalizer() {
-        this.strength = 0;
-        this.repetitionsLeft = 0;
-        this.random = new Random();
-    }
+    private Random random = new Random();
     
     public void sendPenalizePacket(int type, int selectedTeam) {
         ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
@@ -67,10 +60,18 @@ public class TileEntityPenalizer extends TileEntity implements ITeamHubExtension
     @Override
     public void updateEntity() {
         if (!this.worldObj.isRemote) {
-            if (this.activePenalization != null && this.repetitionsLeft > 0) {
-                if (this.random.nextInt(this.activePenalization.getChance(this.teamHub, this.strength)) == 0) {
-                    this.activePenalization.penalize(this.teamHub, this.strength);
-                    --this.repetitionsLeft;
+            if (!this.penalizationQueue.isEmpty()) {
+                if (this.repetitionsLeft > 0) {
+                    if (this.random.nextInt(this.penalizationQueue.get(0).getChance(this.teamHub)) == 0) {
+                        this.penalizationQueue.get(0).penalize(this.teamHub);
+                        --this.repetitionsLeft;
+                    }
+                } else {
+                    this.penalizationQueue.remove(0);
+                    
+                    if (!this.penalizationQueue.isEmpty()) {
+                        this.repetitionsLeft = this.penalizationQueue.get(0).getRepetitions(this.teamHub);
+                    }
                 }
             }
         }
@@ -79,25 +80,24 @@ public class TileEntityPenalizer extends TileEntity implements ITeamHubExtension
     }
     
     private void penalizeTeam(Penalization penalization, TileEntityTeamHub teamHub) {
-        int price = penalization.getPrice(teamHub, 1);
+        int price = penalization.getPrice(teamHub);
         
-        if (this.teamHub.getEnergy() < price) {
+        if (this.teamHub.getCoins() < price) {
             return;
         }
         
-        this.teamHub.setEnergy(this.teamHub.getEnergy() - price);
+        this.teamHub.setCoins(this.teamHub.getCoins() - price);
         
         for (TileEntity tileEntity : teamHub.getExtensionList()) {
             if (tileEntity instanceof TileEntityPenalizer) {
-                ((TileEntityPenalizer) tileEntity).penalize(penalization, 1);
+                ((TileEntityPenalizer) tileEntity).penalize(penalization);
             }
         }
     }
     
-    private void penalize(Penalization penalization, int strength) {
-        this.activePenalization = penalization;
-        this.strength = strength;
-        this.repetitionsLeft = penalization.getRepetitions(this.teamHub, strength);
+    private void penalize(Penalization penalization) {
+        this.penalizationQueue.add(penalization);
+        this.repetitionsLeft = this.penalizationQueue.get(0).getRepetitions(this.teamHub);
     }
     
     @Override

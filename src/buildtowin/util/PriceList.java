@@ -25,19 +25,7 @@ public class PriceList {
     
     public static PriceList clientInstance = new PriceList();
     
-    private HashMap<Short, Short> priceMap;
-    
-    public static PriceList getInstance(World world) {
-        if (world.isRemote) {
-            return PriceList.clientInstance;
-        } else {
-            return PriceList.serverInstance;
-        }
-    }
-    
-    public PriceList() {
-        this.priceMap = new HashMap<Short, Short>();
-    }
+    private HashMap<Short, Short> priceMap = new HashMap<Short, Short>();
     
     public void init(File modConfigurationDirectory) {
         File file = new File(modConfigurationDirectory, "buildtowin_pricelist.conf");
@@ -168,5 +156,13 @@ public class PriceList {
         }
         
         return 0;
+    }
+    
+    public static PriceList getInstance(World world) {
+        if (world.isRemote) {
+            return PriceList.clientInstance;
+        } else {
+            return PriceList.serverInstance;
+        }
     }
 }
