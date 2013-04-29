@@ -14,6 +14,7 @@ import net.minecraft.network.packet.Packet250CustomPayload;
 import buildtowin.BuildToWin;
 import buildtowin.network.PacketIds;
 import buildtowin.tileentity.TileEntityBuildingHub;
+import cpw.mods.fml.common.network.PacketDispatcher;
 
 public class BlueprintList {
     
@@ -125,6 +126,7 @@ public class BlueprintList {
         
         if (blueprint.writeBlueprintFile(new File(this.blueprintDir.getAbsolutePath() + "/" + name + ".blueprint"))) {
             this.blueprintList.add(blueprint);
+            PacketDispatcher.sendPacketToAllPlayers(BlueprintList.serverInstance.getDescriptionPacket());
             
             BuildToWin.sendChatMessage(player, "Saved the blueprint successfully.");
             return true;
