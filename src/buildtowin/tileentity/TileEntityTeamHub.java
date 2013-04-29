@@ -195,7 +195,7 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
             }
         }
         
-        this.finishedBlockCount = this.blueprint.refresh();
+        this.finishedBlockCount = this.blueprint.refresh(false);
         this.totalBlockCount = this.blueprint.getBlocks().size();
         
         super.onSynchronization();

@@ -104,10 +104,8 @@ public class TileEntityGameHub extends TileEntityConnectionHub implements IBluep
     
     @Override
     protected void onSynchronization() {
-        if (this.getDeadline() == 0) {
-            this.getConnectedTeamHubs().clear();
-            this.updateConnections();
-        }
+        this.getConnectedTeamHubs().clear();
+        this.updateConnections();
         
         super.onSynchronization();
     }
@@ -219,13 +217,13 @@ public class TileEntityGameHub extends TileEntityConnectionHub implements IBluep
         
         if (teamHub.getColor().id != this.getConnectedTeamHubs().size() + 1) {
             teamHub.setColor(Color.fromId(this.getConnectedTeamHubs().size() + 1));
+            teamHub.getBlueprint().refresh(true);
+            
             PacketDispatcher.sendPacketToAllPlayers(teamHub.getDescriptionPacket());
         }
         
         if (this.blueprint != null && teamHub.getBlueprint().getBlocks().size() != this.blueprint.getBlocks().size()) {
             teamHub.loadBlueprint(this.blueprint);
-        } else {
-            teamHub.getBlueprint().reset();
         }
         
         this.getConnectedTeamHubs().add(tileEntity);

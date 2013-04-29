@@ -55,7 +55,7 @@ public class TileEntityBuildingHub extends TileEntitySynchronized implements IPl
     @Override
     public void updateEntity() {
         if (!this.worldObj.isRemote) {
-            this.blueprint.refresh();
+            this.blueprint.refresh(false);
         }
         
         super.updateEntity();

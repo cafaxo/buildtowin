@@ -208,7 +208,7 @@ public class Blueprint {
         }
     }
     
-    public int refresh() {
+    public int refresh(boolean shouldRefreshColor) {
         Iterator iter = this.blocks.entrySet().iterator();
         int finishedBlocks = 0;
         
@@ -225,7 +225,7 @@ public class Blueprint {
             if (realBlockId == blockData.savedId
                     || Block.blocksList[realBlockId] != null && Block.blocksList[realBlockId].idDropped(0, new Random(), 0) == blockData.savedId) {
                 ++finishedBlocks;
-            } else if (realBlockId != BuildToWin.blueprint.blockID) {
+            } else if (realBlockId != BuildToWin.blueprint.blockID || shouldRefreshColor) {
                 this.setBlockData(
                         this.blueprintProvider.xCoord + blockCoordinates.x,
                         this.blueprintProvider.yCoord + blockCoordinates.y,
