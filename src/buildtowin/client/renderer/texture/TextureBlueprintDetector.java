@@ -7,7 +7,10 @@ import net.minecraft.world.World;
 import buildtowin.tileentity.TileEntityTeamHub;
 import buildtowin.util.Coordinates;
 import buildtowin.util.PlayerList;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
+@SideOnly(Side.CLIENT)
 public class TextureBlueprintDetector extends TextureStitched {
     
     public double currentAngle;

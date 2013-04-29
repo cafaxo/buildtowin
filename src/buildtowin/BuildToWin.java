@@ -18,7 +18,6 @@ import buildtowin.block.BlockShop;
 import buildtowin.block.BlockTeamChest;
 import buildtowin.block.BlockTeamHub;
 import buildtowin.client.gui.GuiHandlerShop;
-import buildtowin.client.renderer.ColoredBlockRenderer;
 import buildtowin.item.ItemBlueprintDetector;
 import buildtowin.item.ItemPencil;
 import buildtowin.network.PacketHandler;
@@ -66,8 +65,6 @@ public class BuildToWin {
     public static int blueprintRenderId;
     
     public static int coloredBlockRenderId;
-    
-    public static ColoredBlockRenderer coloredBlockRenderer;
     
     public final static CreativeTabBuildToWin tabBuildToWin = new CreativeTabBuildToWin("customTab");
     

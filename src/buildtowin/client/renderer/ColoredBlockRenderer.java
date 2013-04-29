@@ -20,6 +20,8 @@ import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class ColoredBlockRenderer implements ISimpleBlockRenderingHandler {
     
+    public static ColoredBlockRenderer instance = new ColoredBlockRenderer();
+    
     @Override
     public void renderInventoryBlock(Block par1Block, int metadata, int modelID, RenderBlocks renderer) {
         par1Block.setBlockBoundsForItemRender();
@@ -72,11 +74,11 @@ public class ColoredBlockRenderer implements ISimpleBlockRenderingHandler {
         
         coloredBlock.switchIconToStandard();
         
-        BuildToWin.coloredBlockRenderer.renderInventoryBlock(block, 0, renderBlocks, new Color(1.0F, 1.0F, 1.0F));
+        ColoredBlockRenderer.instance.renderInventoryBlock(block, 0, renderBlocks, new Color(1.0F, 1.0F, 1.0F));
         
         coloredBlock.switchIconToOverlay();
         
-        BuildToWin.coloredBlockRenderer.renderInventoryBlock(block, 0, renderBlocks, color);
+        ColoredBlockRenderer.instance.renderInventoryBlock(block, 0, renderBlocks, color);
         
         coloredBlock.switchIconToStandard();
         

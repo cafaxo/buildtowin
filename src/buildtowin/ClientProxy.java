@@ -34,9 +34,8 @@ public class ClientProxy extends CommonProxy {
         BuildToWin.blueprintRenderId = RenderingRegistry.getNextAvailableRenderId();
         RenderingRegistry.registerBlockHandler(new BlueprintRenderer());
         
-        BuildToWin.coloredBlockRenderer = new ColoredBlockRenderer();
         BuildToWin.coloredBlockRenderId = RenderingRegistry.getNextAvailableRenderId();
-        RenderingRegistry.registerBlockHandler(BuildToWin.coloredBlockRenderer);
+        RenderingRegistry.registerBlockHandler(ColoredBlockRenderer.instance);
         
         ChestItemRenderHelper.instance = new TeamChestItemRenderHelper();
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityTeamChest.class, new TileEntityTeamChestRenderer());
