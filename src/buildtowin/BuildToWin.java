@@ -19,6 +19,7 @@ import buildtowin.block.BlockTeamChest;
 import buildtowin.block.BlockTeamHub;
 import buildtowin.client.gui.GuiHandlerShop;
 import buildtowin.client.renderer.ColoredBlockRenderer;
+import buildtowin.item.ItemBlueprintDetector;
 import buildtowin.item.ItemPencil;
 import buildtowin.network.PacketHandler;
 import buildtowin.tileentity.TileEntityBlueprint;
@@ -92,6 +93,8 @@ public class BuildToWin {
     
     public final static ItemPencil rubber = (ItemPencil) new ItemPencil(5001).setUnlocalizedName("rubber");
     
+    public final static ItemBlueprintDetector blueprintDetector = new ItemBlueprintDetector(5002);
+    
     @PreInit
     public void preInit(FMLPreInitializationEvent event) {
         PriceList.serverInstance.init(event.getModConfigurationDirectory());
@@ -150,6 +153,7 @@ public class BuildToWin {
         LanguageRegistry.addName(BuildToWin.blueprint, "Blueprint");
         LanguageRegistry.addName(BuildToWin.pencil, "Pencil");
         LanguageRegistry.addName(BuildToWin.rubber, "Rubber");
+        LanguageRegistry.addName(BuildToWin.blueprintDetector, "Blueprint Detector");
         
         TickRegistry.registerTickHandler(new ServerTickHandler(), Side.SERVER);
         
