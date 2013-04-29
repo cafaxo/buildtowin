@@ -133,6 +133,9 @@ public class BuildToWin {
         GameRegistry.addRecipe(new ItemStack(BuildToWin.shop), "xxx", "yzy", "xxx",
                 'x', Block.planks, 'y', Item.redstone, 'z', Item.ingotIron);
         
+        GameRegistry.addRecipe(new ItemStack(BuildToWin.blueprintDetector), " x ", "xyx", " x ",
+                'x', Item.redstone, 'y', Item.compass);
+        
         MinecraftForge.setBlockHarvestLevel(BuildToWin.teamChest, "pickaxe", 2);
         MinecraftForge.setBlockHarvestLevel(BuildToWin.penalizer, "pickaxe", 2);
         MinecraftForge.setBlockHarvestLevel(BuildToWin.protector, "pickaxe", 2);
