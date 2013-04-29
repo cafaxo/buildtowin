@@ -122,11 +122,11 @@ public class TileEntityGameHub extends TileEntityConnectionHub implements IBluep
     
     @Override
     public void loadBlueprint(Blueprint blueprint) {
-        this.blueprint = new Blueprint(this, blueprint);
+        this.blueprint = blueprint;
         
         for (TileEntity tileEntity : this.getConnectedTeamHubs()) {
             TileEntityTeamHub teamHub = (TileEntityTeamHub) tileEntity;
-            teamHub.loadBlueprint(this.blueprint);
+            teamHub.loadBlueprint(blueprint);
         }
     }
     
@@ -215,20 +215,17 @@ public class TileEntityGameHub extends TileEntityConnectionHub implements IBluep
     @Override
     public void onConnectionEstablished(TileEntity tileEntity) {
         TileEntityTeamHub teamHub = (TileEntityTeamHub) tileEntity;
-        
         teamHub.setGameHub(this);
         
-        boolean colorWasUpdated = teamHub.getColor().id != this.getConnectedTeamHubs().size() + 1;
-        
-        if (colorWasUpdated) {
+        if (teamHub.getColor().id != this.getConnectedTeamHubs().size() + 1) {
             teamHub.setColor(Color.fromId(this.getConnectedTeamHubs().size() + 1));
             PacketDispatcher.sendPacketToAllPlayers(teamHub.getDescriptionPacket());
         }
         
-        if (this.blueprint != null
-                && (teamHub.getBlueprint().getBlocks().size() != this.blueprint.getBlocks().size()
-                || colorWasUpdated)) {
+        if (this.blueprint != null && teamHub.getBlueprint().getBlocks().size() != this.blueprint.getBlocks().size()) {
             teamHub.loadBlueprint(this.blueprint);
+        } else {
+            teamHub.getBlueprint().reset();
         }
         
         this.getConnectedTeamHubs().add(tileEntity);

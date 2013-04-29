@@ -57,6 +57,8 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
     public void writeToNBT(NBTTagCompound par1NBTTagCompound) {
         super.writeToNBT(par1NBTTagCompound);
         
+        par1NBTTagCompound.setIntArray("blueprint", this.blueprint.encode());
+        
         par1NBTTagCompound.setTag("players", this.playerList.getTagList());
         
         par1NBTTagCompound.setInteger("coins", this.coins);
@@ -69,6 +71,8 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
     @Override
     public void readFromNBT(NBTTagCompound par1NBTTagCompound) {
         super.readFromNBT(par1NBTTagCompound);
+        
+        this.blueprint.decode(par1NBTTagCompound.getIntArray("blueprint"));
         
         NBTTagList connectedPlayersNbt = (NBTTagList) par1NBTTagCompound.getTag("players");
         this.playerList.readTagList(connectedPlayersNbt);
@@ -205,10 +209,7 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
     @Override
     public void loadBlueprint(Blueprint blueprint) {
         this.blueprint.clear();
-        
-        this.blueprint = new Blueprint(this);
-        this.blueprint.setBlocks(blueprint.getBlocks());
-        
+        this.blueprint.loadBlockData(blueprint.getBlocks());
         this.blueprint.reset();
     }
     

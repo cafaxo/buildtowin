@@ -38,17 +38,7 @@ public class Blueprint {
     
     public Blueprint(TileEntity blueprintProvider, Blueprint blueprint) {
         this.blueprintProvider = blueprintProvider;
-        this.blocks = new HashMap<Coordinates, BlockData>();
-        
-        Iterator iter = blueprint.blocks.entrySet().iterator();
-        
-        while (iter.hasNext()) {
-            Map.Entry pairs = (Map.Entry) iter.next();
-            Coordinates blockCoordinates = (Coordinates) pairs.getKey();
-            BlockData blockData = (BlockData) pairs.getValue();
-            
-            this.blocks.put(new Coordinates(blockCoordinates), new BlockData(blockData));
-        }
+        this.loadBlockData(blueprint.getBlocks());
     }
     
     public void setBlockData(int x, int y, int z, BlockData blockData) {
@@ -263,7 +253,7 @@ public class Blueprint {
                     blockData);
         }
     }
-
+    
     public int[] encode() {
         int data[] = new int[this.blocks.size() * 6];
         
@@ -373,6 +363,20 @@ public class Blueprint {
         return false;
     }
     
+    public void loadBlockData(HashMap<Coordinates, BlockData> blocks) {
+        this.blocks.clear();
+        
+        Iterator iter = blocks.entrySet().iterator();
+        
+        while (iter.hasNext()) {
+            Map.Entry pairs = (Map.Entry) iter.next();
+            Coordinates blockCoordinates = (Coordinates) pairs.getKey();
+            BlockData blockData = (BlockData) pairs.getValue();
+            
+            this.blocks.put(new Coordinates(blockCoordinates), new BlockData(blockData));
+        }
+    }
+    
     public boolean writeBlueprintFile(File file) {
         FileOutputStream fileOutputStream = null;
         
@@ -422,10 +426,6 @@ public class Blueprint {
     
     public HashMap<Coordinates, BlockData> getBlocks() {
         return this.blocks;
-    }
-    
-    public void setBlocks(HashMap<Coordinates, BlockData> blocks) {
-        this.blocks = blocks;
     }
     
     public Coordinates getRandomCoordinatesOutside() {
