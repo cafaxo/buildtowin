@@ -93,37 +93,37 @@ public class ColoredBlockRenderer implements ISimpleBlockRenderingHandler {
         tessellator.startDrawingQuads();
         tessellator.setNormal(0.0F, -1.0F, 0.0F);
         tessellator.setColorRGBA_F(color.r, color.g, color.b, 1.0F);
-        renderer.renderBottomFace(par1Block, 0.0D, 0.0D, 0.0D, renderer.getBlockIconFromSideAndMetadata(par1Block, 0, metadata));
+        renderer.renderFaceYNeg(par1Block, 0.0D, 0.0D, 0.0D, renderer.getBlockIconFromSideAndMetadata(par1Block, 0, metadata));
         tessellator.draw();
         
         tessellator.startDrawingQuads();
         tessellator.setNormal(0.0F, 1.0F, 0.0F);
         tessellator.setColorRGBA_F(color.r, color.g, color.b, 1.0F);
-        renderer.renderTopFace(par1Block, 0.0D, 0.0D, 0.0D, renderer.getBlockIconFromSideAndMetadata(par1Block, 1, metadata));
+        renderer.renderFaceYPos(par1Block, 0.0D, 0.0D, 0.0D, renderer.getBlockIconFromSideAndMetadata(par1Block, 1, metadata));
         tessellator.draw();
         
         tessellator.startDrawingQuads();
         tessellator.setNormal(0.0F, 0.0F, -1.0F);
         tessellator.setColorRGBA_F(color.r, color.g, color.b, 1.0F);
-        renderer.renderEastFace(par1Block, 0.0D, 0.0D, 0.0D, renderer.getBlockIconFromSideAndMetadata(par1Block, 2, metadata));
+        renderer.renderFaceZNeg(par1Block, 0.0D, 0.0D, 0.0D, renderer.getBlockIconFromSideAndMetadata(par1Block, 2, metadata));
         tessellator.draw();
         
         tessellator.startDrawingQuads();
         tessellator.setNormal(0.0F, 0.0F, 1.0F);
         tessellator.setColorRGBA_F(color.r, color.g, color.b, 1.0F);
-        renderer.renderWestFace(par1Block, 0.0D, 0.0D, 0.0D, renderer.getBlockIconFromSideAndMetadata(par1Block, 3, metadata));
+        renderer.renderFaceZPos(par1Block, 0.0D, 0.0D, 0.0D, renderer.getBlockIconFromSideAndMetadata(par1Block, 3, metadata));
         tessellator.draw();
         
         tessellator.startDrawingQuads();
         tessellator.setNormal(-1.0F, 0.0F, 0.0F);
         tessellator.setColorRGBA_F(color.r, color.g, color.b, 1.0F);
-        renderer.renderNorthFace(par1Block, 0.0D, 0.0D, 0.0D, renderer.getBlockIconFromSideAndMetadata(par1Block, 4, metadata));
+        renderer.renderFaceXNeg(par1Block, 0.0D, 0.0D, 0.0D, renderer.getBlockIconFromSideAndMetadata(par1Block, 4, metadata));
         tessellator.draw();
         
         tessellator.startDrawingQuads();
         tessellator.setNormal(1.0F, 0.0F, 0.0F);
         tessellator.setColorRGBA_F(color.r, color.g, color.b, 1.0F);
-        renderer.renderSouthFace(par1Block, 0.0D, 0.0D, 0.0D, renderer.getBlockIconFromSideAndMetadata(par1Block, 5, metadata));
+        renderer.renderFaceXPos(par1Block, 0.0D, 0.0D, 0.0D, renderer.getBlockIconFromSideAndMetadata(par1Block, 5, metadata));
         tessellator.draw();
     }
     
