@@ -43,7 +43,10 @@ public class BlockPenalizer extends BlockContainer implements IColoredBlock {
         
         if (teamHub != null) {
             TileEntityPenalizer penalizer = (TileEntityPenalizer) par1World.getBlockTileEntity(x, y, z);
+            penalizer.setTeamHub(teamHub);
             teamHub.getExtensionList().add(penalizer);
+            
+            par1World.markBlockForRenderUpdate(penalizer.xCoord, penalizer.yCoord, penalizer.zCoord);
         }
     }
     

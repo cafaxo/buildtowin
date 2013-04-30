@@ -79,7 +79,7 @@ public class TileEntityGameHub extends TileEntityConnectionHub implements IBluep
         dataOutputStream.writeLong(this.deadline);
         dataOutputStream.writeLong(this.sleptTime);
         
-        this.connectedTeamHubs.writeDescriptionPacket(dataOutputStream);
+        this.connectedTeamHubs.writeDescriptionPacket(this.worldObj, dataOutputStream);
         
         return true;
     }

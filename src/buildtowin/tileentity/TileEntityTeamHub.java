@@ -90,6 +90,8 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
         dataOutputStream.writeInt(this.totalBlockCount);
         dataOutputStream.writeInt(this.coins);
         
+        this.extensionList.writeDescriptionPacket(this.worldObj, dataOutputStream);
+        
         if (this.gameHub != null) {
             dataOutputStream.writeInt(this.color.id);
             dataOutputStream.writeInt(this.gameHub.xCoord);
@@ -115,7 +117,6 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
         }
         
         this.playerList.writeDescriptionPacket(dataOutputStream);
-        this.extensionList.writeDescriptionPacket(dataOutputStream);
         
         return true;
     }
@@ -126,15 +127,13 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
         this.totalBlockCount = dataInputStream.readInt();
         this.coins = dataInputStream.readInt();
         
+        this.extensionList.readDescriptionPacket(dataInputStream);
+        
         Color newColor = Color.fromId(dataInputStream.readInt());
         
         if (newColor.id != this.color.id) {
             this.worldObj.markBlockForRenderUpdate(this.xCoord, this.yCoord, this.zCoord);
-            
-            for (TileEntity teamHubExtension : this.getExtensionList()) {
-                this.worldObj.markBlockForRenderUpdate(teamHubExtension.xCoord, teamHubExtension.yCoord, teamHubExtension.zCoord);
-            }
-            
+            this.refreshExtensions();
             this.color = newColor;
         }
         
@@ -152,7 +151,6 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
         this.nextUnfinishedBlueprint = new Coordinates(dataInputStream.readInt(), dataInputStream.readInt(), dataInputStream.readInt());
         
         this.playerList.readDescriptionPacket(dataInputStream);
-        this.extensionList.readDescriptionPacket(dataInputStream);
     }
     
     @Override
@@ -183,18 +181,6 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
             this.blueprint.clear();
         }
         
-        Iterator<TileEntity> iter = this.getExtensionList().iterator();
-        
-        while (iter.hasNext()) {
-            TileEntity tileEntity = iter.next();
-            
-            if (tileEntity == null || tileEntity.isInvalid()) {
-                iter.remove();
-            } else {
-                ((ITeamHubExtension) tileEntity).setTeamHub(this);
-            }
-        }
-        
         this.finishedBlockCount = this.blueprint.refresh(false);
         this.totalBlockCount = this.blueprint.getBlocks().size();
         
@@ -204,6 +190,21 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
     @Override
     public void onConnectionEstablished(TileEntity tileEntity) {
         this.gameHub = (TileEntityGameHub) tileEntity;
+    }
+    
+    private void refreshExtensions() {
+        Iterator<TileEntity> iter = this.getExtensionList().iterator();
+        
+        while (iter.hasNext()) {
+            TileEntity teamHubExtension = iter.next();
+            
+            if (teamHubExtension == null || teamHubExtension.isInvalid()) {
+                iter.remove();
+            } else {
+                ((ITeamHubExtension) teamHubExtension).setTeamHub(this);
+                this.worldObj.markBlockForRenderUpdate(teamHubExtension.xCoord, teamHubExtension.yCoord, teamHubExtension.zCoord);
+            }
+        }
     }
     
     @Override
