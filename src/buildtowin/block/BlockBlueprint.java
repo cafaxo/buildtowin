@@ -2,7 +2,6 @@ package buildtowin.block;
 
 import java.util.Random;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
@@ -14,6 +13,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 import buildtowin.BuildToWin;
 import buildtowin.blueprint.BlockData;
+import buildtowin.blueprint.Blueprint;
 import buildtowin.item.ItemPencil;
 import buildtowin.tileentity.TileEntityBlueprint;
 import buildtowin.tileentity.TileEntityTeamHub;
@@ -51,8 +51,7 @@ public class BlockBlueprint extends BlockContainer {
         }
         
         if (entityPlayer.inventory.getCurrentItem() != null) {
-            if (entityPlayer.inventory.getCurrentItem().itemID == blockData.savedId
-                    || entityPlayer.inventory.getCurrentItem().itemID == Block.blocksList[blockData.savedId].idDropped(0, new Random(), 0)) {
+            if (Blueprint.compareBlockIds(entityPlayer.inventory.getCurrentItem().itemID, blockData.savedId)) {
                 if (blockData.metadata == 0) {
                     entityPlayer.worldObj.spawnEntityInWorld(new EntityXPOrb(entityPlayer.worldObj, x, y, z, 10));
                     blockData.metadata = 1;

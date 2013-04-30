@@ -222,8 +222,7 @@ public class Blueprint {
                     this.blueprintProvider.yCoord + blockCoordinates.y,
                     this.blueprintProvider.zCoord + blockCoordinates.z);
             
-            if (realBlockId == blockData.savedId
-                    || Block.blocksList[realBlockId] != null && Block.blocksList[realBlockId].idDropped(0, new Random(), 0) == blockData.savedId) {
+            if (Blueprint.compareBlockIds(blockData.savedId, realBlockId)) {
                 ++finishedBlocks;
             } else if (realBlockId != BuildToWin.blueprint.blockID || shouldRefreshColor) {
                 this.setBlockData(
@@ -458,5 +457,33 @@ public class Blueprint {
         }
         
         return null;
+    }
+    
+    public static boolean compareBlockIds(int blockId1, int blockId2) {
+        if (blockId1 == blockId2) {
+            return true;
+        }
+        
+        int blockId1Dropped = 0;
+        
+        if (Block.blocksList[blockId1] != null) {
+            blockId1Dropped = Block.blocksList[blockId1].idDropped(0, new Random(), 0);
+            
+            if (blockId1Dropped == blockId2) {
+                return true;
+            }
+        }
+        
+        int blockId2Dropped = 0;
+        
+        if (Block.blocksList[blockId2] != null) {
+            blockId2Dropped = Block.blocksList[blockId2].idDropped(0, new Random(), 0);
+            
+            if (blockId2Dropped == blockId1) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 }
