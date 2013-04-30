@@ -20,9 +20,11 @@ public class TileEntityList {
         for (int i = 0; i < this.tileEntityList.size(); ++i) {
             TileEntity tileEntity = this.tileEntityList.get(i);
             
-            encodedData[i * 3] = tileEntity.xCoord;
-            encodedData[i * 3 + 1] = tileEntity.yCoord;
-            encodedData[i * 3 + 2] = tileEntity.zCoord;
+            if (tileEntity != null) {
+                encodedData[i * 3] = tileEntity.xCoord;
+                encodedData[i * 3 + 1] = tileEntity.yCoord;
+                encodedData[i * 3 + 2] = tileEntity.zCoord;
+            }
         }
         
         return encodedData;
