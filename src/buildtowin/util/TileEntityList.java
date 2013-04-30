@@ -34,7 +34,9 @@ public class TileEntityList {
         this.tileEntitiesToLoad = encodedData;
     }
     
-    public void writeDescriptionPacket(DataOutputStream dataOutputStream) throws IOException {
+    public void writeDescriptionPacket(World world, DataOutputStream dataOutputStream) throws IOException {
+        this.tileEntityList = this.getTileEntityList(world);
+        
         dataOutputStream.writeInt(this.tileEntityList.size() * 3);
         
         for (TileEntity tileEntity : this.tileEntityList) {
