@@ -200,11 +200,14 @@ public class Blueprint {
         while (iter.hasNext()) {
             Map.Entry pairs = (Map.Entry) iter.next();
             Coordinates blockCoordinates = (Coordinates) pairs.getKey();
-            
-            this.blueprintProvider.getWorldObj().setBlockToAir(
+            Coordinates absoluteBlockCoordinates = new Coordinates(
                     this.blueprintProvider.xCoord + blockCoordinates.x,
                     this.blueprintProvider.yCoord + blockCoordinates.y,
                     this.blueprintProvider.zCoord + blockCoordinates.z);
+            
+            if (this.blueprintProvider.worldObj.getBlockId(absoluteBlockCoordinates.x, absoluteBlockCoordinates.y, absoluteBlockCoordinates.z) == BuildToWin.blueprint.blockID) {
+                this.blueprintProvider.worldObj.setBlockToAir(absoluteBlockCoordinates.x, absoluteBlockCoordinates.y, absoluteBlockCoordinates.z);
+            }
         }
     }
     
