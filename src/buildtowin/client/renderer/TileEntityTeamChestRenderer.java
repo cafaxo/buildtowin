@@ -2,6 +2,7 @@ package buildtowin.client.renderer;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockChest;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelChest;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.tileentity.TileEntity;
@@ -10,7 +11,9 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 import buildtowin.tileentity.TileEntityTeamChest;
+import buildtowin.tileentity.TileEntityTeamHub;
 import buildtowin.util.Color;
+import buildtowin.util.PlayerList;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -115,18 +118,22 @@ public class TileEntityTeamChestRenderer extends TileEntitySpecialRenderer {
     public void renderTileEntityAt(TileEntity tileEntity, double x, double y, double z, float par8) {
         this.renderTileEntityChestAt((TileEntityTeamChest) tileEntity, x, y, z, par8, "/mods/buildtowin/textures/blocks/team_chest.png", new Color(1.0F, 1.0F, 1.0F));
         
+        Color overlayColor = new Color(1.0F, 1.0F, 1.0F);
+        
         if (x != 0 && y != 0 && z != 0) {
             TileEntityTeamChest teamChest = (TileEntityTeamChest) tileEntity;
             
-            Color overlayColor;
-            
             if (teamChest.getTeamHub() != null) {
                 overlayColor = teamChest.getTeamHub().getColor();
-            } else {
-                overlayColor = new Color(1.0F, 1.0F, 1.0F);
             }
+        } else {
+            TileEntityTeamHub teamHub = (TileEntityTeamHub) PlayerList.getPlayerListProvider(Minecraft.getMinecraft().thePlayer, TileEntityTeamHub.class);
             
-            this.renderTileEntityChestAt((TileEntityTeamChest) tileEntity, x, y, z, par8, "/mods/buildtowin/textures/blocks/team_chest_overlay.png", overlayColor);
+            if (teamHub != null) {
+                overlayColor = teamHub.getColor();
+            }
         }
+        
+        this.renderTileEntityChestAt((TileEntityTeamChest) tileEntity, x, y, z, par8, "/mods/buildtowin/textures/blocks/team_chest_overlay.png", overlayColor);
     }
 }
