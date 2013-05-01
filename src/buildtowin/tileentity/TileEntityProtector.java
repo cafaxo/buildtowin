@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet250CustomPayload;
+import buildtowin.BuildToWin;
 import buildtowin.network.PacketIds;
 import cpw.mods.fml.common.network.PacketDispatcher;
 
@@ -72,9 +73,14 @@ public class TileEntityProtector extends TileEntitySynchronized implements ITeam
     }
     
     public boolean isBlockProtected(int x, int y, int z) {
-        return x > this.xCoord - this.radius && x < this.xCoord + this.radius
+        if (x > this.xCoord - this.radius && x < this.xCoord + this.radius
                 && y > this.yCoord - this.radius && y < this.yCoord + this.radius
-                && z > this.zCoord - this.radius && z < this.zCoord + this.radius;
+                && z > this.zCoord - this.radius && z < this.zCoord + this.radius) {
+            int blockId = this.worldObj.getBlockId(x, y, z);
+            return blockId != BuildToWin.protector.blockID && blockId != BuildToWin.blueprint.blockID;
+        }
+        
+        return false;
     }
     
     public int getPrice(int targetRadius) {
@@ -94,6 +100,7 @@ public class TileEntityProtector extends TileEntitySynchronized implements ITeam
         this.teamHub = teamHub;
     }
     
+    @Override
     public TileEntityTeamHub getTeamHub() {
         if (this.teamHub != null && this.teamHub.isInvalid()) {
             this.teamHub = null;
