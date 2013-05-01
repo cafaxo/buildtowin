@@ -133,7 +133,7 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
         
         if (newColor.id != this.color.id) {
             this.worldObj.markBlockForRenderUpdate(this.xCoord, this.yCoord, this.zCoord);
-            this.refreshExtensions();
+            this.updateExtensions();
             this.color = newColor;
         }
         
@@ -176,6 +176,7 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
     protected void onSynchronization() {
         this.gameHub = null;
         this.updateConnections();
+        this.updateExtensions();
         
         if (this.gameHub == null) {
             this.blueprint.clear();
@@ -192,7 +193,7 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
         this.gameHub = (TileEntityGameHub) tileEntity;
     }
     
-    private void refreshExtensions() {
+    private void updateExtensions() {
         Iterator<TileEntity> iter = this.getExtensionList().iterator();
         
         while (iter.hasNext()) {
