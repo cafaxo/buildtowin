@@ -6,6 +6,7 @@ import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.Packet132TileEntityData;
 import net.minecraft.tileentity.TileEntity;
+import buildtowin.blueprint.IBlueprintProvider;
 
 public class TileEntityBlueprint extends TileEntity {
     
@@ -68,7 +69,11 @@ public class TileEntityBlueprint extends TileEntity {
     
     public TileEntity getBlueprintProvider() {
         if (this.cachedBlueprintProvider == null || this.cachedBlueprintProvider.isInvalid()) {
-            this.cachedBlueprintProvider = this.worldObj.getBlockTileEntity(this.data[2], this.data[3], this.data[4]);
+            TileEntity tileEntity = this.worldObj.getBlockTileEntity(this.data[2], this.data[3], this.data[4]);
+            
+            if (tileEntity instanceof IBlueprintProvider) {
+                this.cachedBlueprintProvider = tileEntity;
+            }
             
             if (this.cachedBlueprintProvider == null || this.cachedBlueprintProvider.isInvalid()) {
                 this.worldObj.setBlockToAir(this.xCoord, this.yCoord, this.zCoord);
