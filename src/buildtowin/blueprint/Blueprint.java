@@ -47,8 +47,9 @@ public class Blueprint {
         
         TileEntityBlueprint blueprint = (TileEntityBlueprint) this.blueprintProvider.getWorldObj().getBlockTileEntity(x, y, z);
         
-        blueprint.setBlockData(blockData);
-        blueprint.setColor(((IBlueprintProvider) this.blueprintProvider).getColor());
+        blueprint.setSavedId(blockData.savedId);
+        blueprint.setSavedMetadata(blockData.savedMetadata);
+        blueprint.setBlueprintProvider(this.blueprintProvider);
         
         this.blocks.put(new Coordinates(x - this.blueprintProvider.xCoord, y - this.blueprintProvider.yCoord, z - this.blueprintProvider.zCoord), blockData);
     }

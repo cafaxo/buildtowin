@@ -1,35 +1,30 @@
 package buildtowin.tileentity;
 
+import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.Packet132TileEntityData;
 import net.minecraft.tileentity.TileEntity;
-import buildtowin.blueprint.BlockData;
-import buildtowin.util.Color;
 
 public class TileEntityBlueprint extends TileEntity {
     
-    private BlockData blockData = new BlockData(0, 0);
+    private int data[] = new int[5];
     
-    private Color color;
+    private TileEntity cachedBlueprintProvider;
     
     @Override
     public void writeToNBT(NBTTagCompound par1NBTTagCompound) {
         super.writeToNBT(par1NBTTagCompound);
         
-        par1NBTTagCompound.setInteger("blockid", this.blockData.savedId);
-        par1NBTTagCompound.setInteger("metadata", this.blockData.savedMetadata);
-        par1NBTTagCompound.setInteger("color", this.color.id);
+        par1NBTTagCompound.setIntArray("data", this.data);
     }
     
     @Override
     public void readFromNBT(NBTTagCompound par1NBTTagCompound) {
         super.readFromNBT(par1NBTTagCompound);
         
-        this.blockData.savedId = par1NBTTagCompound.getInteger("blockid");
-        this.blockData.savedMetadata = par1NBTTagCompound.getInteger("metadata");
-        this.color = Color.fromId(par1NBTTagCompound.getInteger("color"));
+        this.data = par1NBTTagCompound.getIntArray("data");
     }
     
     @Override
@@ -45,19 +40,49 @@ public class TileEntityBlueprint extends TileEntity {
         this.readFromNBT(tag);
     }
     
-    public BlockData getBlockData() {
-        return this.blockData;
+    public int getSavedId() {
+        return this.data[0];
     }
     
-    public void setBlockData(BlockData blockData) {
-        this.blockData = blockData;
+    public void setSavedId(int savedId) {
+        this.data[0] = savedId;
     }
     
-    public Color getColor() {
-        return this.color;
+    public int getSavedMetadata() {
+        return this.data[1];
     }
     
-    public void setColor(Color color) {
-        this.color = color;
+    public void setSavedMetadata(int savedMetadata) {
+        this.data[1] = savedMetadata;
+    }
+    
+    public Block getSavedBlock() {
+        if (this.data[0] > 0 && this.data[0] < Block.blocksList.length) {
+            if (Block.blocksList[this.data[0]] != null) {
+                return Block.blocksList[this.data[0]];
+            }
+        }
+        
+        return null;
+    }
+    
+    public TileEntity getBlueprintProvider() {
+        if (this.cachedBlueprintProvider == null || this.cachedBlueprintProvider.isInvalid()) {
+            this.cachedBlueprintProvider = this.worldObj.getBlockTileEntity(this.data[2], this.data[3], this.data[4]);
+            
+            if (this.cachedBlueprintProvider == null || this.cachedBlueprintProvider.isInvalid()) {
+                this.worldObj.setBlockToAir(this.xCoord, this.yCoord, this.zCoord);
+            }
+        }
+        
+        return this.cachedBlueprintProvider;
+    }
+    
+    public void setBlueprintProvider(TileEntity blueprintProvider) {
+        this.data[2] = blueprintProvider.xCoord;
+        this.data[3] = blueprintProvider.yCoord;
+        this.data[4] = blueprintProvider.zCoord;
+        
+        this.cachedBlueprintProvider = null;
     }
 }

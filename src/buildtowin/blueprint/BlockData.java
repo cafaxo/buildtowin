@@ -1,7 +1,5 @@
 package buildtowin.blueprint;
 
-import net.minecraft.block.Block;
-
 public class BlockData {
     
     public int metadata, savedId, savedMetadata;
@@ -21,15 +19,5 @@ public class BlockData {
         this.metadata = blockData.metadata;
         this.savedId = blockData.savedId;
         this.savedMetadata = blockData.savedMetadata;
-    }
-    
-    public Block getSavedBlock() {
-        if (this.savedId > 0 && this.savedId < Block.blocksList.length) {
-            if (Block.blocksList[this.savedId] != null) {
-                return Block.blocksList[this.savedId];
-            }
-        }
-        
-        return null;
     }
 }

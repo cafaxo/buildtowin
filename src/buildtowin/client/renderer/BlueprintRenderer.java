@@ -3,15 +3,24 @@ package buildtowin.client.renderer;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.util.Icon;
 import net.minecraft.world.IBlockAccess;
 import buildtowin.BuildToWin;
+import buildtowin.blueprint.IBlueprintProvider;
 import buildtowin.tileentity.TileEntityBlueprint;
+import buildtowin.util.Color;
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class BlueprintRenderer implements ISimpleBlockRenderingHandler {
+public class BlueprintRenderer extends RenderBlocks implements ISimpleBlockRenderingHandler {
+    
+    private FakeWorld fakeWorld = new FakeWorld();
+    
+    public BlueprintRenderer() {
+        this.blockAccess = this.fakeWorld;
+    }
     
     @Override
     public void renderInventoryBlock(Block block, int metadata, int modelID, RenderBlocks renderer) {
@@ -19,7 +28,7 @@ public class BlueprintRenderer implements ISimpleBlockRenderingHandler {
     
     @Override
     public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z, Block block, int modelId, RenderBlocks renderer) {
-        renderer.blockAccess = new FakeWorld(world);
+        this.fakeWorld.realWorld = world;
         
         TileEntityBlueprint blueprint = (TileEntityBlueprint) world.getBlockTileEntity(x, y, z);
         
@@ -27,22 +36,76 @@ public class BlueprintRenderer implements ISimpleBlockRenderingHandler {
         
         tessellator.replaceColor = true;
         
-        tessellator.red = blueprint.getColor().r;
-        tessellator.green = blueprint.getColor().g;
-        tessellator.blue = blueprint.getColor().b;
-        tessellator.alpha = 0.7F;
+        IBlueprintProvider blueprintProvider = (IBlueprintProvider) blueprint.getBlueprintProvider();
         
-        Block fakeBlock = blueprint.getBlockData().getSavedBlock();
         boolean wasRendered = false;
         
-        if (fakeBlock != null) {
-            wasRendered = renderer.renderBlockByRenderType(fakeBlock, x, y, z);
+        if (blueprintProvider != null) {
+            Color replacedColor = blueprintProvider.getColor();
+            
+            tessellator.red = replacedColor.r;
+            tessellator.green = replacedColor.g;
+            tessellator.blue = replacedColor.b;
+            tessellator.alpha = 0.7F;
+            
+            Block fakeBlock = blueprint.getSavedBlock();
+            
+            if (fakeBlock != null) {
+                wasRendered = this.renderBlockByRenderType(fakeBlock, x, y, z);
+            }
         }
         
         tessellator.replaceColor = false;
-        renderer.blockAccess = world;
         
         return wasRendered;
+    }
+    
+    @Override
+    public void renderFaceYNeg(Block par1Block, double par2, double par4, double par6, Icon par8Icon) {
+        if (!this.fakeWorld.isBlockOpaqueCube((int) par2, (int) par4 - 1, (int) par6)
+                || this.fakeWorld.realWorld.getBlockId((int) par2, (int) par4 - 1, (int) par6) != BuildToWin.blueprint.blockID) {
+            super.renderFaceYNeg(par1Block, par2, par4, par6, par8Icon);
+        }
+    }
+    
+    @Override
+    public void renderFaceYPos(Block par1Block, double par2, double par4, double par6, Icon par8Icon) {
+        if (!this.fakeWorld.isBlockOpaqueCube((int) par2, (int) par4 + 1, (int) par6)
+                || this.fakeWorld.realWorld.getBlockId((int) par2, (int) par4 + 1, (int) par6) != BuildToWin.blueprint.blockID) {
+            super.renderFaceYPos(par1Block, par2, par4, par6, par8Icon);
+        }
+    }
+    
+    @Override
+    public void renderFaceZNeg(Block par1Block, double par2, double par4, double par6, Icon par8Icon) {
+        if (!this.fakeWorld.isBlockOpaqueCube((int) par2, (int) par4, (int) par6 - 1)
+                || this.fakeWorld.realWorld.getBlockId((int) par2, (int) par4, (int) par6 - 1) != BuildToWin.blueprint.blockID) {
+            super.renderFaceZNeg(par1Block, par2, par4, par6, par8Icon);
+        }
+    }
+    
+    @Override
+    public void renderFaceZPos(Block par1Block, double par2, double par4, double par6, Icon par8Icon) {
+        if (!this.fakeWorld.isBlockOpaqueCube((int) par2, (int) par4, (int) par6 + 1)
+                || this.fakeWorld.realWorld.getBlockId((int) par2, (int) par4, (int) par6 + 1) != BuildToWin.blueprint.blockID) {
+            super.renderFaceZPos(par1Block, par2, par4, par6, par8Icon);
+        }
+    }
+    
+    @Override
+    public void renderFaceXNeg(Block par1Block, double par2, double par4, double par6, Icon par8Icon) {
+        if (!this.fakeWorld.isBlockOpaqueCube((int) par2 - 1, (int) par4, (int) par6)
+                || this.fakeWorld.realWorld.getBlockId((int) par2 - 1, (int) par4, (int) par6) != BuildToWin.blueprint.blockID) {
+            super.renderFaceXNeg(par1Block, par2, par4, par6, par8Icon);
+        }
+    }
+    
+    @Override
+    public void renderFaceXPos(Block par1Block, double par2, double par4, double par6, Icon par8Icon) {
+        if (!this.fakeWorld.isBlockOpaqueCube((int) par2 + 1, (int) par4, (int) par6)
+                || this.fakeWorld.realWorld.getBlockId((int) par2 + 1, (int) par4, (int) par6) != BuildToWin.blueprint.blockID) {
+            super.renderFaceXPos(par1Block, par2, par4, par6, par8Icon);
+        }
     }
     
     @Override
