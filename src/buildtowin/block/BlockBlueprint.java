@@ -50,7 +50,8 @@ public class BlockBlueprint extends BlockContainer {
             return;
         }
         
-        if (entityPlayer.inventory.getCurrentItem() != null) {
+        if (entityPlayer.inventory.getCurrentItem() != null
+                && entityPlayer.worldObj.checkNoEntityCollision(super.getCollisionBoundingBoxFromPool(entityPlayer.worldObj, x, y, z))) {
             if (Blueprint.compareBlockIds(entityPlayer.inventory.getCurrentItem().itemID, blockData.savedId)) {
                 if (blockData.metadata == 0) {
                     entityPlayer.worldObj.spawnEntityInWorld(new EntityXPOrb(entityPlayer.worldObj, x, y, z, 10));
