@@ -19,6 +19,8 @@ public class TileEntityPenalizer extends TileEntity implements ITeamHubExtension
     
     private ArrayList<Penalization> penalizationQueue = new ArrayList<Penalization>();
     
+    private ArrayList<TileEntityTeamHub> penalizingTeamHubQueue = new ArrayList<TileEntityTeamHub>();
+    
     private int repetitionsLeft;
     
     private Random random = new Random();
@@ -62,12 +64,13 @@ public class TileEntityPenalizer extends TileEntity implements ITeamHubExtension
         if (!this.worldObj.isRemote) {
             if (!this.penalizationQueue.isEmpty()) {
                 if (this.repetitionsLeft > 0) {
-                    if (this.random.nextInt(this.penalizationQueue.get(0).getChance(this.teamHub)) == 0) {
-                        this.penalizationQueue.get(0).penalize(this.teamHub);
+                    if (this.random.nextInt(this.penalizationQueue.get(0).getChance(this.penalizingTeamHubQueue.get(0))) == 0) {
+                        this.penalizationQueue.get(0).penalize(this.penalizingTeamHubQueue.get(0));
                         --this.repetitionsLeft;
                     }
                 } else {
                     this.penalizationQueue.remove(0);
+                    this.penalizingTeamHubQueue.remove(0);
                     
                     if (!this.penalizationQueue.isEmpty()) {
                         this.repetitionsLeft = this.penalizationQueue.get(0).getRepetitions(this.teamHub);
@@ -88,15 +91,8 @@ public class TileEntityPenalizer extends TileEntity implements ITeamHubExtension
         
         this.teamHub.setCoins(this.teamHub.getCoins() - price);
         
-        for (TileEntity tileEntity : teamHub.getExtensionList()) {
-            if (tileEntity instanceof TileEntityPenalizer) {
-                ((TileEntityPenalizer) tileEntity).penalize(penalization);
-            }
-        }
-    }
-    
-    private void penalize(Penalization penalization) {
         this.penalizationQueue.add(penalization);
+        this.penalizingTeamHubQueue.add(teamHub);
         this.repetitionsLeft = this.penalizationQueue.get(0).getRepetitions(this.teamHub);
     }
     
@@ -105,6 +101,7 @@ public class TileEntityPenalizer extends TileEntity implements ITeamHubExtension
         this.teamHub = teamHub;
     }
     
+    @Override
     public TileEntityTeamHub getTeamHub() {
         if (this.teamHub != null && this.teamHub.isInvalid()) {
             this.teamHub = null;
