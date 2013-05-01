@@ -71,11 +71,10 @@ public class TileEntityBlueprint extends TileEntity {
         if (this.cachedBlueprintProvider == null || this.cachedBlueprintProvider.isInvalid()) {
             TileEntity tileEntity = this.worldObj.getBlockTileEntity(this.data[2], this.data[3], this.data[4]);
             
-            if (tileEntity instanceof IBlueprintProvider) {
+            if (tileEntity instanceof IBlueprintProvider && !tileEntity.isInvalid()) {
                 this.cachedBlueprintProvider = tileEntity;
-            }
-            
-            if (this.cachedBlueprintProvider == null || this.cachedBlueprintProvider.isInvalid()) {
+            } else {
+                this.cachedBlueprintProvider = null;
                 this.worldObj.setBlockToAir(this.xCoord, this.yCoord, this.zCoord);
             }
         }
