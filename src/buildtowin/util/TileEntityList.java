@@ -59,10 +59,14 @@ public class TileEntityList {
             this.tileEntityList.clear();
             
             for (int i = 0; i < this.tileEntitiesToLoad.length / 3; ++i) {
-                this.tileEntityList.add(worldObj.getBlockTileEntity(
+                TileEntity tileEntity = worldObj.getBlockTileEntity(
                         this.tileEntitiesToLoad[i * 3],
                         this.tileEntitiesToLoad[i * 3 + 1],
-                        this.tileEntitiesToLoad[i * 3 + 2]));
+                        this.tileEntitiesToLoad[i * 3 + 2]);
+                
+                if (tileEntity != null) {
+                    this.tileEntityList.add(tileEntity);
+                }
             }
             
             this.tileEntitiesToLoad = null;

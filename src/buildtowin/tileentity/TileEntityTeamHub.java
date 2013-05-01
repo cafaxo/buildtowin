@@ -201,8 +201,10 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
             if (teamHubExtension == null || teamHubExtension.isInvalid()) {
                 iter.remove();
             } else {
-                ((ITeamHubExtension) teamHubExtension).setTeamHub(this);
-                this.worldObj.markBlockForRenderUpdate(teamHubExtension.xCoord, teamHubExtension.yCoord, teamHubExtension.zCoord);
+                if (((ITeamHubExtension) teamHubExtension).getTeamHub() != this) {
+                    ((ITeamHubExtension) teamHubExtension).setTeamHub(this);
+                    this.worldObj.markBlockForRenderUpdate(teamHubExtension.xCoord, teamHubExtension.yCoord, teamHubExtension.zCoord);
+                }
             }
         }
     }
