@@ -9,7 +9,7 @@ public class TileEntityTeamChest extends TileEntityChest implements ITeamHubExte
     
     @Override
     public ItemStack decrStackSize(int par1, int par2) {
-        if (this.teamHub != null) {
+        if (this.getTeamHub() != null) {
             ItemStack chestContents[] = this.teamHub.getTeamChestContents().getContents();
             
             if (chestContents[par1] != null) {
@@ -38,7 +38,7 @@ public class TileEntityTeamChest extends TileEntityChest implements ITeamHubExte
     
     @Override
     public ItemStack getStackInSlot(int par1) {
-        if (this.teamHub != null) {
+        if (this.getTeamHub() != null) {
             ItemStack chestContents[] = this.teamHub.getTeamChestContents().getContents();
             
             if (chestContents != null) {
@@ -51,7 +51,7 @@ public class TileEntityTeamChest extends TileEntityChest implements ITeamHubExte
     
     @Override
     public ItemStack getStackInSlotOnClosing(int par1) {
-        if (this.teamHub != null) {
+        if (this.getTeamHub() != null) {
             ItemStack chestContents[] = this.teamHub.getTeamChestContents().getContents();
             
             if (chestContents[par1] != null) {
@@ -67,7 +67,7 @@ public class TileEntityTeamChest extends TileEntityChest implements ITeamHubExte
     
     @Override
     public void setInventorySlotContents(int par1, ItemStack par2ItemStack) {
-        if (this.teamHub != null) {
+        if (this.getTeamHub() != null) {
             ItemStack chestContents[] = this.teamHub.getTeamChestContents().getContents();
             
             chestContents[par1] = par2ItemStack;
