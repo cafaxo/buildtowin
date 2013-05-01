@@ -35,8 +35,6 @@ public class BlockTeamChest extends BlockChest {
             TileEntityTeamChest teamChest = (TileEntityTeamChest) par1World.getBlockTileEntity(x, y, z);
             teamChest.setTeamHub(teamHub);
             teamHub.getExtensionList().add(teamChest);
-            
-            par1World.markBlockForRenderUpdate(teamChest.xCoord, teamChest.yCoord, teamChest.zCoord);
         }
     }
     

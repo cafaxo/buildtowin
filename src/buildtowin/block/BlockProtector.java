@@ -45,8 +45,6 @@ public class BlockProtector extends BlockContainer implements IColoredBlock {
             TileEntityProtector protector = (TileEntityProtector) par1World.getBlockTileEntity(x, y, z);
             protector.setTeamHub(teamHub);
             teamHub.getExtensionList().add(protector);
-            
-            par1World.markBlockForRenderUpdate(protector.xCoord, protector.yCoord, protector.zCoord);
         }
     }
     
