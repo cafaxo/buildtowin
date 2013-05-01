@@ -27,6 +27,8 @@ public class BlockTeamChest extends BlockChest {
     
     @Override
     public void onBlockPlacedBy(World par1World, int x, int y, int z, EntityLiving par5EntityLiving, ItemStack par6ItemStack) {
+        super.onBlockPlacedBy(par1World, x, y, z, par5EntityLiving, par6ItemStack);
+        
         TileEntityTeamHub teamHub = (TileEntityTeamHub) PlayerList.getPlayerListProvider((EntityPlayer) par5EntityLiving, TileEntityTeamHub.class);
         
         if (teamHub != null) {
