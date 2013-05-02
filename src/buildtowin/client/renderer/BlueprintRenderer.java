@@ -36,23 +36,26 @@ public class BlueprintRenderer extends RenderBlocks implements ISimpleBlockRende
         
         tessellator.replaceColor = true;
         
+        Color replacedColor;
+        
         IBlueprintProvider blueprintProvider = (IBlueprintProvider) blueprint.getBlueprintProvider();
         
+        if (blueprintProvider != null) {
+            replacedColor = blueprintProvider.getColor();
+        } else {
+            replacedColor = new Color(1.0F, 1.0F, 1.0F);
+        }
+        
+        tessellator.red = replacedColor.r;
+        tessellator.green = replacedColor.g;
+        tessellator.blue = replacedColor.b;
+        tessellator.alpha = 0.7F;
+        
+        Block fakeBlock = blueprint.getSavedBlock();
         boolean wasRendered = false;
         
-        if (blueprintProvider != null) {
-            Color replacedColor = blueprintProvider.getColor();
-            
-            tessellator.red = replacedColor.r;
-            tessellator.green = replacedColor.g;
-            tessellator.blue = replacedColor.b;
-            tessellator.alpha = 0.7F;
-            
-            Block fakeBlock = blueprint.getSavedBlock();
-            
-            if (fakeBlock != null) {
-                wasRendered = this.renderBlockByRenderType(fakeBlock, x, y, z);
-            }
+        if (fakeBlock != null) {
+            wasRendered = this.renderBlockByRenderType(fakeBlock, x, y, z);
         }
         
         tessellator.replaceColor = false;
