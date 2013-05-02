@@ -14,6 +14,8 @@ public class TileEntityBlueprint extends TileEntity {
     
     private TileEntity cachedBlueprintProvider;
     
+    private boolean wasVerified;
+    
     @Override
     public void writeToNBT(NBTTagCompound par1NBTTagCompound) {
         super.writeToNBT(par1NBTTagCompound);
@@ -26,6 +28,19 @@ public class TileEntityBlueprint extends TileEntity {
         super.readFromNBT(par1NBTTagCompound);
         
         this.data = par1NBTTagCompound.getIntArray("data");
+    }
+    
+    @Override
+    public void updateEntity() {
+        if (!this.wasVerified) {
+            if (!this.worldObj.isRemote) {
+                if (this.getBlueprintProvider() == null) {
+                    this.worldObj.setBlockToAir(this.xCoord, this.yCoord, this.zCoord);
+                }
+            }
+            
+            this.wasVerified = true;
+        }
     }
     
     @Override

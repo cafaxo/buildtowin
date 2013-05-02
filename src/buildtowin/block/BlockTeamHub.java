@@ -43,7 +43,7 @@ public class BlockTeamHub extends BlockContainer implements IColoredBlock {
     }
     
     @Override
-    public void onBlockHarvested(World par1World, int par2, int par3, int par4, int par5, EntityPlayer par6EntityPlayer) {
+    public void onSetBlockIDWithMetaData(World par1World, int par2, int par3, int par4, int par5) {
         TileEntityTeamHub teamHub = (TileEntityTeamHub) par1World.getBlockTileEntity(par2, par3, par4);
         teamHub.getBlueprint().clear();
     }
