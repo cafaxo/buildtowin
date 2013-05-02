@@ -34,7 +34,6 @@ public class BlockBlueprint extends BlockContainer {
         TileEntityTeamHub teamHub = (TileEntityTeamHub) PlayerList.getPlayerListProvider(entityPlayer, TileEntityTeamHub.class);
         
         if (teamHub == null) {
-            BuildToWin.sendChatMessage(entityPlayer, "Please connect to a Team Hub.");
             return;
         }
         
