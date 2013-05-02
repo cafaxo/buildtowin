@@ -75,7 +75,6 @@ public class TileEntityBlueprint extends TileEntity {
                 this.cachedBlueprintProvider = tileEntity;
             } else {
                 this.cachedBlueprintProvider = null;
-                this.worldObj.setBlockToAir(this.xCoord, this.yCoord, this.zCoord);
             }
         }
         
