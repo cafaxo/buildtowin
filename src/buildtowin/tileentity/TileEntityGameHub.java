@@ -13,7 +13,6 @@ import net.minecraft.network.packet.Packet132TileEntityData;
 import net.minecraft.network.packet.Packet3Chat;
 import net.minecraft.tileentity.TileEntity;
 import buildtowin.blueprint.Blueprint;
-import buildtowin.blueprint.IBlueprintProvider;
 import buildtowin.util.Color;
 import buildtowin.util.ItemStackList;
 import buildtowin.util.TileEntityList;

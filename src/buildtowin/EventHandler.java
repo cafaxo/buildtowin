@@ -2,18 +2,27 @@ package buildtowin;
 
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.INetworkManager;
+import net.minecraft.network.NetLoginHandler;
+import net.minecraft.network.packet.NetHandler;
 import net.minecraft.network.packet.Packet15Place;
+import net.minecraft.network.packet.Packet1Login;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.PlaySoundAtEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import buildtowin.blueprint.BlueprintList;
 import buildtowin.tileentity.TileEntityProtector;
 import buildtowin.tileentity.TileEntityTeamHub;
 import buildtowin.util.PlayerList;
+import buildtowin.util.PriceList;
+import cpw.mods.fml.common.network.IConnectionHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
+import cpw.mods.fml.common.network.Player;
 
-public class EventHandler {
+public class EventHandler implements IConnectionHandler {
     
     @ForgeSubscribe
     public void onWorldUnload(WorldEvent.Unload event) {
@@ -93,5 +102,32 @@ public class EventHandler {
                 }
             }
         }
+    }
+    
+    @Override
+    public void playerLoggedIn(Player player, NetHandler netHandler, INetworkManager manager) {
+        PacketDispatcher.sendPacketToPlayer(PriceList.serverInstance.getDescriptionPacket(), player);
+        PacketDispatcher.sendPacketToPlayer(BlueprintList.serverInstance.getDescriptionPacket(), player);
+    }
+    
+    @Override
+    public String connectionReceived(NetLoginHandler netHandler, INetworkManager manager) {
+        return null;
+    }
+    
+    @Override
+    public void connectionOpened(NetHandler netClientHandler, String server, int port, INetworkManager manager) {
+    }
+    
+    @Override
+    public void connectionOpened(NetHandler netClientHandler, MinecraftServer server, INetworkManager manager) {
+    }
+    
+    @Override
+    public void connectionClosed(INetworkManager manager) {
+    }
+    
+    @Override
+    public void clientLoggedIn(NetHandler clientHandler, INetworkManager manager, Packet1Login login) {
     }
 }

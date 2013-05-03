@@ -6,15 +6,19 @@ import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.Packet132TileEntityData;
 import net.minecraft.tileentity.TileEntity;
-import buildtowin.blueprint.IBlueprintProvider;
 
-public class TileEntityBlueprint extends TileEntity {
+public class TileEntityBlueprint extends TileEntityInitialized {
     
     private int data[] = new int[5];
     
     private TileEntity cachedBlueprintProvider;
     
-    private boolean wasVerified;
+    @Override
+    public void initialize() {
+        if (this.getBlueprintProvider() == null) {
+            this.worldObj.setBlockToAir(this.xCoord, this.yCoord, this.zCoord);
+        }
+    }
     
     @Override
     public void writeToNBT(NBTTagCompound par1NBTTagCompound) {
@@ -28,19 +32,6 @@ public class TileEntityBlueprint extends TileEntity {
         super.readFromNBT(par1NBTTagCompound);
         
         this.data = par1NBTTagCompound.getIntArray("data");
-    }
-    
-    @Override
-    public void updateEntity() {
-        if (!this.wasVerified) {
-            if (!this.worldObj.isRemote) {
-                if (this.getBlueprintProvider() == null) {
-                    this.worldObj.setBlockToAir(this.xCoord, this.yCoord, this.zCoord);
-                }
-            }
-            
-            this.wasVerified = true;
-        }
     }
     
     @Override

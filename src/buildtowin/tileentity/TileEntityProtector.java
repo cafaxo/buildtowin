@@ -18,6 +18,9 @@ public class TileEntityProtector extends TileEntitySynchronized implements ITeam
     private int radius;
     
     @Override
+    public void initialize() {}
+    
+    @Override
     public void writeToNBT(NBTTagCompound par1NBTTagCompound) {
         super.writeToNBT(par1NBTTagCompound);
         
@@ -96,16 +99,16 @@ public class TileEntityProtector extends TileEntitySynchronized implements ITeam
     }
     
     @Override
-    public void setTeamHub(TileEntityTeamHub teamHub) {
-        this.teamHub = teamHub;
-    }
-    
-    @Override
     public TileEntityTeamHub getTeamHub() {
         if (this.teamHub != null && this.teamHub.isInvalid()) {
             this.teamHub = null;
         }
         
         return this.teamHub;
+    }
+    
+    @Override
+    public void setTeamHub(TileEntityTeamHub teamHub) {
+        this.teamHub = teamHub;
     }
 }

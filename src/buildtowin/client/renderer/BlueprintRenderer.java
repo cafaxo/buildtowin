@@ -6,7 +6,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.Icon;
 import net.minecraft.world.IBlockAccess;
 import buildtowin.BuildToWin;
-import buildtowin.blueprint.IBlueprintProvider;
+import buildtowin.tileentity.IBlueprintProvider;
 import buildtowin.tileentity.TileEntityBlueprint;
 import buildtowin.util.Color;
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;

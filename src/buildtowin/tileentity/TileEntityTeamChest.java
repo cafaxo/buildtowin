@@ -81,16 +81,16 @@ public class TileEntityTeamChest extends TileEntityChest implements ITeamHubExte
     }
     
     @Override
-    public void setTeamHub(TileEntityTeamHub teamHub) {
-        this.teamHub = teamHub;
-    }
-    
-    @Override
     public TileEntityTeamHub getTeamHub() {
         if (this.teamHub != null && this.teamHub.isInvalid()) {
             this.teamHub = null;
         }
         
         return this.teamHub;
+    }
+    
+    @Override
+    public void setTeamHub(TileEntityTeamHub teamHub) {
+        this.teamHub = teamHub;
     }
 }

@@ -159,7 +159,7 @@ public class BuildToWin {
         
         MinecraftForge.EVENT_BUS.register(new EventHandler());
         
-        NetworkRegistry.instance().registerConnectionHandler(new ConnectionHandler());
+        NetworkRegistry.instance().registerConnectionHandler(new EventHandler());
         NetworkRegistry.instance().registerGuiHandler(this, new GuiHandlerShop());
     }
     

@@ -76,7 +76,6 @@ public class BlockTeamHub extends BlockContainer implements IColoredBlock {
     @SideOnly(Side.CLIENT)
     public void switchIconToStandard() {
         this.blockIcon = this.blockIconStandard;
-        
     }
     
     @Override

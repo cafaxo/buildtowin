@@ -16,7 +16,6 @@ import net.minecraft.network.packet.Packet3Chat;
 import net.minecraft.tileentity.TileEntity;
 import buildtowin.BuildToWin;
 import buildtowin.blueprint.Blueprint;
-import buildtowin.blueprint.IBlueprintProvider;
 import buildtowin.network.PacketIds;
 import buildtowin.util.Color;
 import buildtowin.util.Coordinates;
