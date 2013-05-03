@@ -7,6 +7,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.Packet3Chat;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.MinecraftForge;
 import buildtowin.block.BlockBlueprint;
 import buildtowin.block.BlockBuildingHub;
@@ -165,6 +166,7 @@ public class BuildToWin {
     
     @PostInit
     public void postInit(FMLPostInitializationEvent event) {
+        ForgeChunkManager.setForcedChunkLoadingCallback(BuildToWin.instance, new ChunkLoadingManager());
     }
     
     public static void printChatMessage(EntityPlayer entityPlayer, String string) {

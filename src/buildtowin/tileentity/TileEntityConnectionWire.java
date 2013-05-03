@@ -6,10 +6,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.common.ForgeChunkManager.Ticket;
 import net.minecraftforge.common.ForgeDirection;
 import buildtowin.BuildToWin;
+import buildtowin.ChunkLoadingManager;
 
-public class TileEntityConnectionWire extends TileEntitySynchronized {
+public class TileEntityConnectionWire extends TileEntitySynchronized implements ITicketProvider {
     
     private ArrayList<TileEntity> surroundingTileEntities = new ArrayList<TileEntity>();
     
@@ -18,6 +20,19 @@ public class TileEntityConnectionWire extends TileEntitySynchronized {
     private boolean activated;
     
     private int lastSignal;
+    
+    private Ticket ticket;
+    
+    @Override
+    public void initialize() {
+        ChunkLoadingManager.forceChunk(this);
+    }
+    
+    @Override
+    public void invalidate() {
+        ChunkLoadingManager.unforceChunk(this);
+        super.invalidate();
+    }
     
     @Override
     public boolean writeDescriptionPacket(DataOutputStream dataOutputStream) throws IOException {
@@ -132,5 +147,15 @@ public class TileEntityConnectionWire extends TileEntitySynchronized {
         return blockId == BuildToWin.connectionWire.blockID
                 || blockId == BuildToWin.teamHub.blockID
                 || blockId == BuildToWin.gameHub.blockID;
+    }
+    
+    @Override
+    public Ticket getTicket() {
+        return this.ticket;
+    }
+    
+    @Override
+    public void setTicket(Ticket ticket) {
+        this.ticket = ticket;
     }
 }

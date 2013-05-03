@@ -7,20 +7,34 @@ import java.io.IOException;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraftforge.common.ForgeChunkManager.Ticket;
 import buildtowin.BuildToWin;
+import buildtowin.ChunkLoadingManager;
 import buildtowin.blueprint.Blueprint;
-import buildtowin.blueprint.IBlueprintProvider;
 import buildtowin.util.Color;
 import buildtowin.util.IPlayerListProvider;
 import buildtowin.util.PlayerList;
 
-public class TileEntityBuildingHub extends TileEntitySynchronized implements IPlayerListProvider, IBlueprintProvider {
+public class TileEntityBuildingHub extends TileEntitySynchronized implements IPlayerListProvider, IBlueprintProvider, ITicketProvider {
     
     private Color color = Color.fromId(1);
     
     private PlayerList playerList = new PlayerList(this);
     
     private Blueprint blueprint = new Blueprint(this);
+    
+    private Ticket ticket;
+    
+    @Override
+    public void initialize() {
+        ChunkLoadingManager.forceChunk(this);
+    }
+    
+    @Override
+    public void invalidate() {
+        ChunkLoadingManager.unforceChunk(this);
+        super.invalidate();
+    }
     
     @Override
     public void writeToNBT(NBTTagCompound par1NBTTagCompound) {
@@ -100,5 +114,15 @@ public class TileEntityBuildingHub extends TileEntitySynchronized implements IPl
     @Override
     public Color getColor() {
         return this.color;
+    }
+    
+    @Override
+    public Ticket getTicket() {
+        return this.ticket;
+    }
+    
+    @Override
+    public void setTicket(Ticket ticket) {
+        this.ticket = ticket;
     }
 }

@@ -7,11 +7,10 @@ import java.io.IOException;
 
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.Packet250CustomPayload;
-import net.minecraft.tileentity.TileEntity;
 import buildtowin.network.PacketIds;
 import cpw.mods.fml.common.network.PacketDispatcher;
 
-public abstract class TileEntitySynchronized extends TileEntity {
+public abstract class TileEntitySynchronized extends TileEntityInitialized {
     
     private int synchronizationTimer;
     
@@ -51,6 +50,8 @@ public abstract class TileEntitySynchronized extends TileEntity {
     
     @Override
     public void updateEntity() {
+        super.updateEntity();
+        
         if (!this.worldObj.isRemote) {
             if (this.synchronizationTimer == 30) {
                 this.onSynchronization();
