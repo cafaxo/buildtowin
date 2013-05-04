@@ -3,7 +3,6 @@ package buildtowin.client.gui;
 import java.util.ArrayList;
 
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.util.EnumChatFormatting;
@@ -84,14 +83,17 @@ public class GuiScreenPenalizer extends GuiScreenAdvanced {
             this.selectedTeamHub += 1;
             this.initGui();
         } else if (par1GuiButton.id == 3) {
+            this.penalizer.getTeamHub().setCoins(this.penalizer.getTeamHub().getCoins() - Penalization.lightning.getPrice(this.penalizer.getTeamHub()));
             this.penalizer.sendPenalizePacket(0, this.selectedTeamHub);
-            this.mc.displayGuiScreen((GuiScreen) null);
+            this.initGui();
         } else if (par1GuiButton.id == 4) {
+            this.penalizer.getTeamHub().setCoins(this.penalizer.getTeamHub().getCoins() - Penalization.monsters.getPrice(this.penalizer.getTeamHub()));
             this.penalizer.sendPenalizePacket(1, this.selectedTeamHub);
-            this.mc.displayGuiScreen((GuiScreen) null);
+            this.initGui();
         } else if (par1GuiButton.id == 5) {
+            this.penalizer.getTeamHub().setCoins(this.penalizer.getTeamHub().getCoins() - Penalization.poison.getPrice(this.penalizer.getTeamHub()));
             this.penalizer.sendPenalizePacket(2, this.selectedTeamHub);
-            this.mc.displayGuiScreen((GuiScreen) null);
+            this.initGui();
         }
     }
     
