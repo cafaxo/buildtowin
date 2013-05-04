@@ -4,9 +4,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.Texture;
 import net.minecraft.client.renderer.texture.TextureStitched;
 import net.minecraft.world.World;
-import buildtowin.tileentity.TileEntityTeamHub;
+import buildtowin.client.GameStats;
 import buildtowin.util.Coordinates;
-import buildtowin.util.PlayerList;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -26,10 +25,8 @@ public class TextureBlueprintDetector extends TextureStitched {
         Minecraft minecraft = Minecraft.getMinecraft();
         
         if (minecraft.theWorld != null && minecraft.thePlayer != null) {
-            TileEntityTeamHub teamHub = (TileEntityTeamHub) PlayerList.getPlayerListProvider(minecraft.thePlayer, TileEntityTeamHub.class);
-            
-            if (teamHub != null) {
-                Coordinates coords = teamHub.getNextUnfinishedBlueprint();
+            if (!GameStats.instance.getTeamStatsList().isEmpty()) {
+                Coordinates coords = GameStats.instance.getTeamStatsList().get(0).nextUnfinishedBlueprint;
                 
                 if (coords.x != 0 && coords.y != 0 && coords.z != 0) {
                     this.updatePointer(minecraft.theWorld, minecraft.thePlayer.posX, minecraft.thePlayer.posZ, minecraft.thePlayer.rotationYaw, false, coords);

@@ -19,7 +19,6 @@ import buildtowin.blueprint.Blueprint;
 import buildtowin.client.GameStats;
 import buildtowin.network.PacketIds;
 import buildtowin.util.Color;
-import buildtowin.util.Coordinates;
 import buildtowin.util.IPlayerListProvider;
 import buildtowin.util.ItemStackList;
 import buildtowin.util.PlayerList;
@@ -40,8 +39,6 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
     private PlayerList playerList = new PlayerList(this);
     
     private Blueprint blueprint = new Blueprint(this);
-    
-    private Coordinates nextUnfinishedBlueprint = new Coordinates(0, 0, 0);
     
     private int coins;
     
@@ -104,18 +101,6 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
             dataOutputStream.writeInt(0);
         }
         
-        Coordinates nextUnfinishedBlueprint = this.blueprint.getNextUnfinishedBlueprint();
-        
-        if (nextUnfinishedBlueprint != null) {
-            dataOutputStream.writeInt(nextUnfinishedBlueprint.x);
-            dataOutputStream.writeInt(nextUnfinishedBlueprint.y);
-            dataOutputStream.writeInt(nextUnfinishedBlueprint.z);
-        } else {
-            dataOutputStream.writeInt(0);
-            dataOutputStream.writeInt(0);
-            dataOutputStream.writeInt(0);
-        }
-        
         this.playerList.writeDescriptionPacket(dataOutputStream);
         
         return true;
@@ -147,8 +132,6 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
         } else {
             this.gameHub = null;
         }
-        
-        this.nextUnfinishedBlueprint = new Coordinates(dataInputStream.readInt(), dataInputStream.readInt(), dataInputStream.readInt());
         
         this.playerList.readDescriptionPacket(dataInputStream);
     }
@@ -331,9 +314,5 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
     
     public void setColor(Color color) {
         this.color = color;
-    }
-    
-    public Coordinates getNextUnfinishedBlueprint() {
-        return this.nextUnfinishedBlueprint;
     }
 }

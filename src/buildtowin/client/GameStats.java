@@ -11,6 +11,7 @@ import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
 import buildtowin.network.PacketIds;
 import buildtowin.tileentity.TileEntityTeamHub;
+import buildtowin.util.Coordinates;
 
 public class GameStats {
     
@@ -29,6 +30,7 @@ public class GameStats {
                 teamStats.progress = dataInputStream.readFloat();
                 teamStats.daysLeft = dataInputStream.readFloat();
                 teamStats.coins = dataInputStream.readInt();
+                teamStats.nextUnfinishedBlueprint = new Coordinates(dataInputStream.readInt(), dataInputStream.readInt(), dataInputStream.readInt());
                 teamStats.colorId = dataInputStream.readInt();
                 
                 this.teamStatsList.add(teamStats);
@@ -48,19 +50,11 @@ public class GameStats {
             } else {
                 dataoutputstream.writeInt(teamHub.getGameHub().getConnectedTeamHubs().size());
                 
-                dataoutputstream.writeFloat(teamHub.getProgress());
-                dataoutputstream.writeFloat((teamHub.getGameHub().getDeadline() - teamHub.getGameHub().getRealWorldTime()) / 24000.F);
-                dataoutputstream.writeInt(teamHub.getCoins());
-                dataoutputstream.writeInt(teamHub.getColor().id);
+                GameStats.writeTeamHubDescription(dataoutputstream, teamHub);
                 
                 for (TileEntity tileEntity : teamHub.getGameHub().getConnectedTeamHubs()) {
                     if (tileEntity != teamHub) {
-                        TileEntityTeamHub otherTeamHub = (TileEntityTeamHub) tileEntity;
-                        
-                        dataoutputstream.writeFloat(otherTeamHub.getProgress());
-                        dataoutputstream.writeFloat((otherTeamHub.getGameHub().getDeadline() - otherTeamHub.getGameHub().getRealWorldTime()) / 24000.F);
-                        dataoutputstream.writeInt(otherTeamHub.getCoins());
-                        dataoutputstream.writeInt(otherTeamHub.getColor().id);
+                        GameStats.writeTeamHubDescription(dataoutputstream, (TileEntityTeamHub) tileEntity);
                     }
                 }
             }
@@ -71,6 +65,26 @@ public class GameStats {
         }
         
         return null;
+    }
+    
+    private static void writeTeamHubDescription(DataOutputStream dataOutputStream, TileEntityTeamHub teamHub) throws IOException {
+        dataOutputStream.writeFloat(teamHub.getProgress());
+        dataOutputStream.writeFloat((teamHub.getGameHub().getDeadline() - teamHub.getGameHub().getRealWorldTime()) / 24000.F);
+        dataOutputStream.writeInt(teamHub.getCoins());
+        
+        Coordinates nextUnfinishedBlueprint = teamHub.getBlueprint().getNextUnfinishedBlueprint();
+        
+        if (nextUnfinishedBlueprint != null) {
+            dataOutputStream.writeInt(nextUnfinishedBlueprint.x);
+            dataOutputStream.writeInt(nextUnfinishedBlueprint.y);
+            dataOutputStream.writeInt(nextUnfinishedBlueprint.z);
+        } else {
+            dataOutputStream.writeInt(0);
+            dataOutputStream.writeInt(0);
+            dataOutputStream.writeInt(0);
+        }
+        
+        dataOutputStream.writeInt(teamHub.getColor().id);
     }
     
     public ArrayList<TeamStats> getTeamStatsList() {
