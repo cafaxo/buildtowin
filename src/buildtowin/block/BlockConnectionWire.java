@@ -6,9 +6,11 @@ import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Icon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
 import buildtowin.BuildToWin;
 import buildtowin.tileentity.TileEntityConnectionWire;
 import cpw.mods.fml.relauncher.Side;
@@ -28,19 +30,44 @@ public class BlockConnectionWire extends BlockContainer {
     }
     
     @Override
-    public void onBlockAdded(World par1World, int x, int y, int z) {
-        if (!par1World.isRemote) {
-            TileEntityConnectionWire connectionWire = (TileEntityConnectionWire) par1World.getBlockTileEntity(x, y, z);
-            connectionWire.refresh();
-        }
+    public AxisAlignedBB getSelectedBoundingBoxFromPool(World world, int x, int y, int z) {
+        return this.getCollisionBoundingBoxFromPool(world, x, y, z);
     }
     
     @Override
-    public void onNeighborBlockChange(World par1World, int x, int y, int z, int par5) {
-        if (!par1World.isRemote) {
-            TileEntityConnectionWire connectionWire = (TileEntityConnectionWire) par1World.getBlockTileEntity(x, y, z);
-            connectionWire.refresh();
+    public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z) {
+        float minSize = 0.375F;
+        float maxSize = 0.625F;
+        
+        AxisAlignedBB boundingBox = AxisAlignedBB.getBoundingBox(minSize, minSize, minSize, maxSize, maxSize, maxSize);
+        
+        TileEntityConnectionWire wire = (TileEntityConnectionWire) world.getBlockTileEntity(x, y, z);
+        
+        if (wire.isConnected(ForgeDirection.WEST)) {
+            boundingBox.minX = 0.0F;
         }
+        
+        if (wire.isConnected(ForgeDirection.EAST)) {
+            boundingBox.maxX = 1.0F;
+        }
+        
+        if (wire.isConnected(ForgeDirection.DOWN)) {
+            boundingBox.minY = 0.0F;
+        }
+        
+        if (wire.isConnected(ForgeDirection.UP)) {
+            boundingBox.maxY = 1.0F;
+        }
+        
+        if (wire.isConnected(ForgeDirection.NORTH)) {
+            boundingBox.minZ = 0.0F;
+        }
+        
+        if (wire.isConnected(ForgeDirection.SOUTH)) {
+            boundingBox.maxZ = 1.0F;
+        }
+        
+        return boundingBox.getOffsetBoundingBox(x, y, z);
     }
     
     @Override
