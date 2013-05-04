@@ -46,12 +46,6 @@ public class BlockBuildingHub extends BlockContainer {
     }
     
     @Override
-    public void onSetBlockIDWithMetaData(World par1World, int par2, int par3, int par4, int par5) {
-        TileEntityBuildingHub buildingHub = (TileEntityBuildingHub) par1World.getBlockTileEntity(par2, par3, par4);
-        buildingHub.getBlueprint().clear();
-    }
-    
-    @Override
     @SideOnly(Side.CLIENT)
     public Icon getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side) {
         TileEntityBuildingHub buildingHub = (TileEntityBuildingHub) blockAccess.getBlockTileEntity(x, y, z);

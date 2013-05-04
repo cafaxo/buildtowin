@@ -33,6 +33,11 @@ public class TileEntityBuildingHub extends TileEntitySynchronized implements IPl
     @Override
     public void invalidate() {
         ChunkLoadingManager.unforceChunk(this);
+        
+        if (!this.worldObj.isRemote) {
+            this.blueprint.clear();
+        }
+        
         super.invalidate();
     }
     
