@@ -273,6 +273,7 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
     public void invalidate() {
         if (!this.worldObj.isRemote) {
             this.blueprint.clear();
+            this.sendPacketToConnectedPlayers(GameStats.getDescriptionPacket(null));
         }
         
         super.invalidate();
