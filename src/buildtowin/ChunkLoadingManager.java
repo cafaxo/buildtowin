@@ -16,18 +16,24 @@ public class ChunkLoadingManager implements LoadingCallback {
     public static void forceChunk(ITicketProvider ticketProvider) {
         if (ticketProvider.getTicket() == null) {
             TileEntity tileEntity = (TileEntity) ticketProvider;
-            Ticket ticket = ForgeChunkManager.requestTicket(BuildToWin.instance, tileEntity.worldObj, Type.NORMAL);
-            ForgeChunkManager.forceChunk(ticket, new ChunkCoordIntPair(tileEntity.xCoord >> 4, tileEntity.zCoord >> 4));
             
-            ticket.getModData().setIntArray("coords", new int[] { tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord });
-            ticketProvider.setTicket(ticket);
+            if (!tileEntity.worldObj.isRemote) {
+                Ticket ticket = ForgeChunkManager.requestTicket(BuildToWin.instance, tileEntity.worldObj, Type.NORMAL);
+                ForgeChunkManager.forceChunk(ticket, new ChunkCoordIntPair(tileEntity.xCoord >> 4, tileEntity.zCoord >> 4));
+                
+                ticket.getModData().setIntArray("coords", new int[] { tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord });
+                ticketProvider.setTicket(ticket);
+            }
         }
     }
     
     public static void unforceChunk(ITicketProvider ticketProvider) {
         TileEntity tileEntity = (TileEntity) ticketProvider;
-        ForgeChunkManager.unforceChunk(ticketProvider.getTicket(), new ChunkCoordIntPair(tileEntity.xCoord >> 4, tileEntity.zCoord >> 4));
-        ticketProvider.setTicket(null);
+        
+        if (!tileEntity.worldObj.isRemote) {
+            ForgeChunkManager.unforceChunk(ticketProvider.getTicket(), new ChunkCoordIntPair(tileEntity.xCoord >> 4, tileEntity.zCoord >> 4));
+            ticketProvider.setTicket(null);
+        }
     }
     
     @Override
