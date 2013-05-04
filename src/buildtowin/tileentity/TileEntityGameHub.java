@@ -1,5 +1,6 @@
 package buildtowin.tileentity;
 
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -10,9 +11,11 @@ import java.util.HashMap;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet132TileEntityData;
+import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.network.packet.Packet3Chat;
 import net.minecraft.tileentity.TileEntity;
 import buildtowin.blueprint.Blueprint;
+import buildtowin.network.PacketIds;
 import buildtowin.util.Color;
 import buildtowin.util.ItemStackList;
 import buildtowin.util.TileEntityList;
@@ -109,14 +112,6 @@ public class TileEntityGameHub extends TileEntityConnectionHub implements IBluep
         super.onSynchronization();
     }
     
-    public void refreshTimespan(long newTimespan) {
-        if (this.deadline != 0) {
-            this.deadline = this.getRealWorldTime() + newTimespan;
-        }
-        
-        this.plannedTimespan = newTimespan;
-    }
-    
     @Override
     public void loadBlueprint(Blueprint blueprint) {
         this.blueprint = blueprint;
@@ -127,7 +122,70 @@ public class TileEntityGameHub extends TileEntityConnectionHub implements IBluep
         }
     }
     
-    public void startGame() {
+    public void sendTimespanUpdatePacket() {
+        ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
+        DataOutputStream dataoutputstream = new DataOutputStream(bytearrayoutputstream);
+        
+        try {
+            dataoutputstream.writeInt(PacketIds.GAMEHUB_TIMESPAN_UPDATE);
+            
+            dataoutputstream.writeInt(this.xCoord);
+            dataoutputstream.writeInt(this.yCoord);
+            dataoutputstream.writeInt(this.zCoord);
+            
+            dataoutputstream.writeLong(this.plannedTimespan);
+            
+            PacketDispatcher.sendPacketToServer(new Packet250CustomPayload("btw", bytearrayoutputstream.toByteArray()));
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
+    
+    public void sendStartPacket() {
+        ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
+        DataOutputStream dataoutputstream = new DataOutputStream(bytearrayoutputstream);
+        
+        try {
+            dataoutputstream.writeInt(PacketIds.GAMEHUB_START);
+            
+            dataoutputstream.writeInt(this.xCoord);
+            dataoutputstream.writeInt(this.yCoord);
+            dataoutputstream.writeInt(this.zCoord);
+            
+            PacketDispatcher.sendPacketToServer(new Packet250CustomPayload("btw", bytearrayoutputstream.toByteArray()));
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
+    
+    public void sendStopPacket() {
+        ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
+        DataOutputStream dataoutputstream = new DataOutputStream(bytearrayoutputstream);
+        
+        try {
+            dataoutputstream.writeInt(PacketIds.GAMEHUB_STOP);
+            
+            dataoutputstream.writeInt(this.xCoord);
+            dataoutputstream.writeInt(this.yCoord);
+            dataoutputstream.writeInt(this.zCoord);
+            
+            PacketDispatcher.sendPacketToServer(new Packet250CustomPayload("btw", bytearrayoutputstream.toByteArray()));
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
+    
+    public void onTimespanUpdatePacket(DataInputStream dataInputStream) throws IOException {
+        long newTimespan = dataInputStream.readLong();
+        
+        if (this.deadline != 0) {
+            this.deadline = this.getRealWorldTime() + newTimespan;
+        }
+        
+        this.plannedTimespan = newTimespan;
+    }
+    
+    public void onStartPacket(DataInputStream dataInputStream) {
         this.sleptTime = 0;
         this.deadline = this.worldObj.getTotalWorldTime() + this.plannedTimespan;
         this.shop.clear();
@@ -138,6 +196,10 @@ public class TileEntityGameHub extends TileEntityConnectionHub implements IBluep
             
             teamHub.sendPacketToConnectedPlayers(new Packet3Chat("<BuildToWin> The game has started."));
         }
+    }
+    
+    public void onStopPacket(DataInputStream dataInputStream) {
+        this.stopGame(true);
     }
     
     public void stopGame(boolean notify) {
@@ -246,6 +308,10 @@ public class TileEntityGameHub extends TileEntityConnectionHub implements IBluep
     
     public long getDeadline() {
         return this.deadline;
+    }
+    
+    public void setDeadline(long deadline) {
+        this.deadline = deadline;
     }
     
     public long getSleptTime() {

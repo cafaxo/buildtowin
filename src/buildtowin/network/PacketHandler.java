@@ -78,13 +78,13 @@ public class PacketHandler implements IPacketHandler {
                     
                     return;
                 case PacketIds.GAMEHUB_TIMESPAN_UPDATE:
-                    ((TileEntityGameHub) tileEntity).refreshTimespan(dataInputStream.readLong());
+                    ((TileEntityGameHub) tileEntity).onTimespanUpdatePacket(dataInputStream);
                     return;
                 case PacketIds.GAMEHUB_START:
-                    ((TileEntityGameHub) tileEntity).startGame();
+                    ((TileEntityGameHub) tileEntity).onStartPacket(dataInputStream);
                     return;
                 case PacketIds.GAMEHUB_STOP:
-                    ((TileEntityGameHub) tileEntity).stopGame(true);
+                    ((TileEntityGameHub) tileEntity).onStopPacket(dataInputStream);
                     return;
                 case PacketIds.PENALIZER_PENALIZE:
                     ((TileEntityPenalizer) tileEntity).onPenalizePacket(dataInputStream);
