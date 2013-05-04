@@ -270,6 +270,7 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
         }
     }
     
+    @Override
     public void invalidate() {
         if (!this.worldObj.isRemote) {
             this.blueprint.clear();

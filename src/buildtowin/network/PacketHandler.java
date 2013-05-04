@@ -90,7 +90,7 @@ public class PacketHandler implements IPacketHandler {
                     ((TileEntityPenalizer) tileEntity).onPenalizePacket(dataInputStream);
                     return;
                 case PacketIds.PROTECTOR_RADIUS_UPDATE:
-                    ((TileEntityProtector) tileEntity).onRadiusChanged(dataInputStream);
+                    ((TileEntityProtector) tileEntity).onRadiusChangedPacket(dataInputStream);
                     return;
                 }
             }

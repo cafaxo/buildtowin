@@ -55,7 +55,17 @@ public class TileEntityPenalizer extends TileEntity implements ITeamHubExtension
         
         if (type >= 0 && type < Penalization.penalizationList.length
                 && selectedTeam >= 0 && selectedTeam < this.teamHub.getGameHub().getConnectedTeamHubs().size()) {
-            this.penalizeTeam(Penalization.penalizationList[type], (TileEntityTeamHub) this.teamHub.getGameHub().getConnectedTeamHubs().get(selectedTeam));
+            int price = Penalization.penalizationList[type].getPrice(this.teamHub);
+            
+            if (this.teamHub.getCoins() < price) {
+                return;
+            }
+            
+            this.teamHub.setCoins(this.teamHub.getCoins() - price);
+            
+            this.penalizationQueue.add(Penalization.penalizationList[type]);
+            this.penalizingTeamHubQueue.add(this.teamHub);
+            this.repetitionsLeft = this.penalizationQueue.get(0).getRepetitions(this.teamHub);
         }
     }
     
@@ -80,20 +90,6 @@ public class TileEntityPenalizer extends TileEntity implements ITeamHubExtension
         }
         
         super.updateEntity();
-    }
-    
-    private void penalizeTeam(Penalization penalization, TileEntityTeamHub teamHub) {
-        int price = penalization.getPrice(teamHub);
-        
-        if (this.teamHub.getCoins() < price) {
-            return;
-        }
-        
-        this.teamHub.setCoins(this.teamHub.getCoins() - price);
-        
-        this.penalizationQueue.add(penalization);
-        this.penalizingTeamHubQueue.add(teamHub);
-        this.repetitionsLeft = this.penalizationQueue.get(0).getRepetitions(this.teamHub);
     }
     
     @Override
