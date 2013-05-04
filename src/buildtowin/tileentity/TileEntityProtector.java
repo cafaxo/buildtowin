@@ -18,7 +18,8 @@ public class TileEntityProtector extends TileEntitySynchronized implements ITeam
     private int radius;
     
     @Override
-    public void initialize() {}
+    public void initialize() {
+    }
     
     @Override
     public void writeToNBT(NBTTagCompound par1NBTTagCompound) {
