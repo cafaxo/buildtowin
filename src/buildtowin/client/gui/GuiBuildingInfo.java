@@ -67,7 +67,7 @@ public class GuiBuildingInfo extends Gui {
         GL11.glPushMatrix();
         GL11.glScalef(0.5F, 0.5F, 1.0F);
         
-        int progress = (int) (teamStats.progress * 100.F);
+        String progress = String.format("%.2f", teamStats.progress * 100.F) + "%";
         
         if (full) {
             this.drawTexturedModalRect((10 + x) * 2, (10 + y) * 2, 0, 0, 16, 16);
@@ -86,7 +86,7 @@ public class GuiBuildingInfo extends Gui {
             
             this.theGame.fontRenderer.drawStringWithShadow(daysLeft, 22 + x, 10 + y, 0xffffff);
             this.theGame.fontRenderer.drawStringWithShadow(daysLeft, 22 + x, 10 + y, 0xffffff);
-            this.theGame.fontRenderer.drawStringWithShadow(progress + "%", 22 + x, 30 + y, 0xffffff);
+            this.theGame.fontRenderer.drawStringWithShadow(progress, 22 + x, 30 + y, 0xffffff);
             this.theGame.fontRenderer.drawStringWithShadow(energy.toString(), 22 + x, 50 + y, 0xffffff);
         } else {
             this.drawTexturedModalRect((10 + x) * 2, y * 2, 17, 0, 16, 16);
@@ -95,7 +95,7 @@ public class GuiBuildingInfo extends Gui {
             
             Color white = new Color(1.0F, 1.0F, 1.0F);
             
-            this.drawStringWithShadow(progress + "%", 22 + x, y, white, Color.fromId(teamStats.colorId));
+            this.drawStringWithShadow(progress, 22 + x, y, white, Color.fromId(teamStats.colorId));
         }
     }
     
