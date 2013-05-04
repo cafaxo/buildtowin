@@ -14,6 +14,7 @@ import net.minecraftforge.event.entity.PlaySoundAtEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import buildtowin.blueprint.BlueprintList;
+import buildtowin.client.GameStats;
 import buildtowin.tileentity.TileEntityProtector;
 import buildtowin.tileentity.TileEntityTeamHub;
 import buildtowin.util.PlayerList;
@@ -28,6 +29,10 @@ public class EventHandler implements IConnectionHandler {
     public void onWorldUnload(WorldEvent.Unload event) {
         PlayerList.playerToPlayerListMapClient.clear();
         PlayerList.playerToPlayerListMapServer.clear();
+        
+        if (event.world.isRemote) {
+            GameStats.instance = new GameStats();
+        }
     }
     
     @ForgeSubscribe

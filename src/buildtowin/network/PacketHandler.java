@@ -11,6 +11,7 @@ import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
 import buildtowin.blueprint.Blueprint;
 import buildtowin.blueprint.BlueprintList;
+import buildtowin.client.GameStats;
 import buildtowin.client.gui.GuiScreenLose;
 import buildtowin.client.gui.GuiScreenWin;
 import buildtowin.tileentity.IBlueprintProvider;
@@ -47,6 +48,9 @@ public class PacketHandler implements IPacketHandler {
                 return;
             case PacketIds.PRICELIST_UPDATE:
                 PriceList.clientInstance.readDescriptionPacket(dataInputStream);
+                return;
+            case PacketIds.GAMESTATS_UPDATE:
+                GameStats.instance.readDescriptionPacket(dataInputStream);
                 return;
             }
             

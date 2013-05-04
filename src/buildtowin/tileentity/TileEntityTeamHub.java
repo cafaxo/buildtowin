@@ -16,6 +16,7 @@ import net.minecraft.network.packet.Packet3Chat;
 import net.minecraft.tileentity.TileEntity;
 import buildtowin.BuildToWin;
 import buildtowin.blueprint.Blueprint;
+import buildtowin.client.GameStats;
 import buildtowin.network.PacketIds;
 import buildtowin.util.Color;
 import buildtowin.util.Coordinates;
@@ -166,6 +167,10 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
     
     @Override
     public void onPlayerDisconnect(EntityPlayer entityPlayer) {
+        if (!this.worldObj.isRemote) {
+            PacketDispatcher.sendPacketToPlayer(GameStats.getDescriptionPacket(null), (Player) entityPlayer);
+        }
+        
         this.worldObj.markBlockForRenderUpdate(this.xCoord, this.yCoord, this.zCoord);
         
         BuildToWin.printChatMessage(entityPlayer, "Disconnected from Team Hub.");
@@ -179,6 +184,8 @@ public class TileEntityTeamHub extends TileEntityConnectionHub implements IPlaye
         
         if (this.gameHub == null) {
             this.blueprint.clear();
+        } else {
+            this.sendPacketToConnectedPlayers(GameStats.getDescriptionPacket(this));
         }
         
         this.finishedBlockCount = this.blueprint.refresh(false);

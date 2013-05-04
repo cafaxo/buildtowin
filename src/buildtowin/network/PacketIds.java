@@ -25,4 +25,6 @@ public class PacketIds {
     public static final int PROTECTOR_RADIUS_UPDATE = 10;
     
     public static final int PRICELIST_UPDATE = 11;
+    
+    public static final int GAMESTATS_UPDATE = 12;
 }
