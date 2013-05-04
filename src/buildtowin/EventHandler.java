@@ -92,7 +92,7 @@ public class EventHandler implements IConnectionHandler {
     @ForgeSubscribe
     public void onItemPickup(PlaySoundAtEntityEvent event) {
         if (event.entity instanceof EntityXPOrb && !event.entity.worldObj.isRemote) {
-            EntityPlayer entityPlayer = event.entity.worldObj.getClosestVulnerablePlayerToEntity(event.entity, 6.0D);
+            EntityPlayer entityPlayer = event.entity.worldObj.getClosestPlayerToEntity(event.entity, 6.0D);
             
             if (entityPlayer != null) {
                 TileEntityTeamHub teamHub = (TileEntityTeamHub) PlayerList.getPlayerListProvider(entityPlayer, TileEntityTeamHub.class);
