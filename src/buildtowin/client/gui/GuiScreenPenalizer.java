@@ -126,22 +126,24 @@ public class GuiScreenPenalizer extends GuiScreenAdvanced {
         
         super.drawScreen(par1, par2, par3);
         
-        if (this.lightning.func_82252_a() && Penalization.lightning.getPrice(this.getSelectedTeamHub()) > 0) {
-            ArrayList<String> list = new ArrayList<String>();
-            list.add(EnumChatFormatting.RED + ((Integer) Penalization.lightning.getPrice(this.getSelectedTeamHub())).toString() + " coins");
-            this.renderTooltip(list, par1, par2);
-        }
-        
-        if (this.monsters.func_82252_a() && Penalization.monsters.getPrice(this.getSelectedTeamHub()) > 0) {
-            ArrayList<String> list = new ArrayList<String>();
-            list.add(EnumChatFormatting.RED + ((Integer) Penalization.monsters.getPrice(this.getSelectedTeamHub())).toString() + " coins");
-            this.renderTooltip(list, par1, par2);
-        }
-        
-        if (this.poison.func_82252_a() && Penalization.poison.getPrice(this.getSelectedTeamHub()) > 0) {
-            ArrayList<String> list = new ArrayList<String>();
-            list.add(EnumChatFormatting.RED + ((Integer) Penalization.poison.getPrice(this.getSelectedTeamHub())).toString() + " coins");
-            this.renderTooltip(list, par1, par2);
+        if (this.getSelectedTeamHub() != null) {
+            if (this.lightning.func_82252_a() && Penalization.lightning.getPrice(this.getSelectedTeamHub()) > 0) {
+                ArrayList<String> list = new ArrayList<String>();
+                list.add(EnumChatFormatting.RED + ((Integer) Penalization.lightning.getPrice(this.getSelectedTeamHub())).toString() + " coins");
+                this.renderTooltip(list, par1, par2);
+            }
+            
+            if (this.monsters.func_82252_a() && Penalization.monsters.getPrice(this.getSelectedTeamHub()) > 0) {
+                ArrayList<String> list = new ArrayList<String>();
+                list.add(EnumChatFormatting.RED + ((Integer) Penalization.monsters.getPrice(this.getSelectedTeamHub())).toString() + " coins");
+                this.renderTooltip(list, par1, par2);
+            }
+            
+            if (this.poison.func_82252_a() && Penalization.poison.getPrice(this.getSelectedTeamHub()) > 0) {
+                ArrayList<String> list = new ArrayList<String>();
+                list.add(EnumChatFormatting.RED + ((Integer) Penalization.poison.getPrice(this.getSelectedTeamHub())).toString() + " coins");
+                this.renderTooltip(list, par1, par2);
+            }
         }
     }
     
