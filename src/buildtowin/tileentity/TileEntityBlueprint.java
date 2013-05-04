@@ -15,7 +15,7 @@ public class TileEntityBlueprint extends TileEntityInitialized {
     
     @Override
     public void initialize() {
-        if (this.getBlueprintProvider() == null) {
+        if (!this.worldObj.isRemote && this.getBlueprintProvider() == null) {
             this.worldObj.setBlockToAir(this.xCoord, this.yCoord, this.zCoord);
         }
     }
