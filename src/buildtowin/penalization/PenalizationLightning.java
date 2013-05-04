@@ -1,6 +1,7 @@
 package buildtowin.penalization;
 
 import net.minecraft.entity.effect.EntityLightningBolt;
+import buildtowin.BuildToWin;
 import buildtowin.tileentity.TileEntityTeamHub;
 import buildtowin.util.Coordinates;
 
@@ -23,7 +24,7 @@ public class PenalizationLightning extends Penalization {
         for (int x = 0; x < 4; ++x) {
             for (int y = 0; y < 4; ++y) {
                 for (int z = 0; z < 4; ++z) {
-                    if (teamHub.getBlueprint().getBlockData(randCoords.x + x - 2, randCoords.y + y - 2, randCoords.z + z - 2) != null) {
+                    if (teamHub.worldObj.getBlockId(randCoords.x + x - 2, randCoords.y + y - 2, randCoords.z + z - 2) != BuildToWin.blueprint.blockID) {
                         teamHub.worldObj.destroyBlock(randCoords.x + x - 2, randCoords.y + y - 2, randCoords.z + z - 2, false);
                     }
                 }
