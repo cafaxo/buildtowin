@@ -43,28 +43,30 @@ public class BlockConnectionWire extends BlockContainer {
         
         TileEntityConnectionWire wire = (TileEntityConnectionWire) world.getBlockTileEntity(x, y, z);
         
-        if (wire.isConnected(ForgeDirection.WEST)) {
-            boundingBox.minX = 0.0F;
-        }
-        
-        if (wire.isConnected(ForgeDirection.EAST)) {
-            boundingBox.maxX = 1.0F;
-        }
-        
-        if (wire.isConnected(ForgeDirection.DOWN)) {
-            boundingBox.minY = 0.0F;
-        }
-        
-        if (wire.isConnected(ForgeDirection.UP)) {
-            boundingBox.maxY = 1.0F;
-        }
-        
-        if (wire.isConnected(ForgeDirection.NORTH)) {
-            boundingBox.minZ = 0.0F;
-        }
-        
-        if (wire.isConnected(ForgeDirection.SOUTH)) {
-            boundingBox.maxZ = 1.0F;
+        if (wire != null) {
+            if (wire.isConnected(ForgeDirection.WEST)) {
+                boundingBox.minX = 0.0F;
+            }
+            
+            if (wire.isConnected(ForgeDirection.EAST)) {
+                boundingBox.maxX = 1.0F;
+            }
+            
+            if (wire.isConnected(ForgeDirection.DOWN)) {
+                boundingBox.minY = 0.0F;
+            }
+            
+            if (wire.isConnected(ForgeDirection.UP)) {
+                boundingBox.maxY = 1.0F;
+            }
+            
+            if (wire.isConnected(ForgeDirection.NORTH)) {
+                boundingBox.minZ = 0.0F;
+            }
+            
+            if (wire.isConnected(ForgeDirection.SOUTH)) {
+                boundingBox.maxZ = 1.0F;
+            }
         }
         
         return boundingBox.getOffsetBoundingBox(x, y, z);
